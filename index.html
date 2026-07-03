@@ -215,10 +215,11 @@ a{color:inherit; text-decoration:none;}
 .overlay.page-overlay{
   background:var(--bg); align-items:stretch; justify-content:stretch;
   -webkit-backdrop-filter:none; backdrop-filter:none;
+  bottom:var(--tabbar-h); z-index:45;
 }
 .overlay.page-overlay .sheet{
   width:100%; max-width:100%; height:100%; max-height:100%; border-radius:0; margin:0;
-  padding:calc(14px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom));
+  padding:calc(14px + env(safe-area-inset-top)) 18px 20px;
   animation:pageSlideIn .32s cubic-bezier(.32,.72,0,1);
 }
 .overlay.page-overlay .sheet-handle{display:none;}
@@ -1412,7 +1413,8 @@ function initInstallPrompts(){
 /* ============ NAV / PAGES ============ */
 function openPageFromParam(page){
   $$('.navbtn').forEach(b=>b.classList.toggle('active', b.getAttribute('data-page')===page));
-  if(page==='home'){ closeAllOverlays(); }
+  closeAllOverlays();
+  if(page==='home'){ /* уже закрыто выше */ }
   else if(page==='favorites'){ renderFavorites(); openOv('ovFavorites'); }
   else if(page==='chat'){ openChatList(); }
   else if(page==='about'){ renderAbout(); openOv('ovAbout'); }
