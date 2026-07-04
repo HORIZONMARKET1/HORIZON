@@ -144,8 +144,14 @@ a{color:inherit; text-decoration:none;}
   transition:transform .15s ease;
 }
 .card:active{transform:scale(.97);}
-.card-img{position:relative; aspect-ratio:1/1; background:var(--surface-2); overflow:hidden;}
+.card-img{position:relative; aspect-ratio:1/1; background:var(--surface-2); overflow:hidden; touch-action:pan-y;}
 .card-img img{width:100%; height:100%; object-fit:cover;}
+.card-img-track{display:flex; height:100%; width:100%; will-change:transform;}
+.card-img-slide{min-width:100%; height:100%; flex-shrink:0;}
+.card-img-slide img{width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; -webkit-user-drag:none;}
+.card-img-dots{position:absolute; bottom:6px; left:50%; transform:translateX(-50%); display:flex; gap:4px; z-index:3;}
+.card-img-dots span{width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.65); transition:width .2s ease, border-radius .2s ease;}
+.card-img-dots span.active{background:#fff; width:12px; border-radius:3px;}
 .sale-ribbon{
   position:absolute; top:8px; left:8px; background:var(--magenta); color:#fff; font-size:11px; font-weight:800;
   padding:4px 8px; border-radius:8px;
@@ -350,9 +356,11 @@ a{color:inherit; text-decoration:none;}
 
 .consultant-fab{
   position:fixed; bottom:calc(var(--tabbar-h) + 16px); right:16px; width:54px; height:54px; border-radius:50%;
-  background:var(--grad-main); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px;
+  background:var(--grad-main); color:#fff; align-items:center; justify-content:center; font-size:20px;
   box-shadow:var(--shadow-pop); z-index:60;
+  display:none;
 }
+.consultant-fab.show{display:flex;}
 .consultant-panel{
   position:fixed; bottom:calc(var(--tabbar-h) + 78px); right:16px; width:min(320px,90vw); max-height:60vh;
   background:var(--surface); border-radius:20px; box-shadow:var(--shadow-pop); z-index:60; display:none; flex-direction:column; overflow:hidden;
@@ -800,7 +808,8 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet" style="border-radius:24px;text-align:center;">
     <div class="sheet-title">О нас <button class="close-x" data-close="ovAbout"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="logo" style="justify-content:center;font-size:24px;"><i class="fa-solid fa-diamond"></i> HORIZON MARKET</div>
-    <p style="color:var(--text-dim);font-size:13px;">Современный маркетплейс. Лучшие товары по лучшим ценам, доставка по России, Таджикистану и Узбекистану.</p>
+    <p id="aboutText" style="color:var(--text-dim);font-size:13px;">Современный маркетплейс. Лучшие товары по лучшим ценам, доставка по России, Таджикистану и Узбекистану.</p>
+    <div id="aboutPhones" style="display:flex;flex-direction:column;gap:8px;margin:4px 0 14px;"></div>
     <div class="about-social" id="aboutSocialLinks"></div>
   </div>
 </div>
@@ -933,7 +942,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="admin-tab" data-tab="products">Товары</button>
       <button class="admin-tab" data-tab="users">Пользователи</button>
       <button class="admin-tab" data-tab="banners">Баннеры</button>
-      <button class="admin-tab" data-tab="social">Соцсети</button>
+      <button class="admin-tab" data-tab="about">О нас</button>
       <button class="admin-tab" data-tab="security">Доступ</button>
     </div>
     <div id="adminTabBody"></div>
@@ -1175,7 +1184,11 @@ function toast(title, sub, icon){
   setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(-10px)'; el.style.transition='.3s'; setTimeout(()=>el.remove(),300); }, 3800);
 }
 
-function openOv(id){ const el = document.getElementById(id); if(el){ el.classList.remove('closing'); el.classList.add('open'); } }
+function openOv(id){
+  const el = document.getElementById(id);
+  if(el){ el.classList.remove('closing'); el.classList.add('open'); }
+  if(id==='ovAbout'){ $('#consultantFab').classList.add('show'); }
+}
 function closeOv(id){
   const el = document.getElementById(id);
   if(el){
@@ -1187,6 +1200,10 @@ function closeOv(id){
     }
   }
   if(id==='ovChatThread'){ State.activeOpenChatDocId = null; }
+  if(id==='ovAbout'){
+    $('#consultantFab').classList.remove('show');
+    $('#consultantPanel').classList.remove('open');
+  }
 }
 
 document.addEventListener('click', (e)=>{
@@ -1591,11 +1608,20 @@ function cardHtml(p){
   const hasVariants = (p.sizes&&p.sizes.length) || (p.colors&&p.colors.length);
   const inCart = !hasVariants ? State.cart.find(c=>c.productId===p.id && !c.wholesale) : null;
   const isFav = State.user && (State.user.favorites||[]).includes(p.id);
-  const img = (p.images && p.images[0]) || '';
+  const images = (p.images && p.images.length) ? p.images : [];
   const sale = p.oldPrice && Number(p.oldPrice) > Number(p.price) ? Math.round(100 - (p.price/p.oldPrice*100)) : 0;
+  let mediaHtml;
+  if(images.length > 1){
+    mediaHtml = `<div class="card-img-track">${images.map(im=>`<div class="card-img-slide"><img src="${im}" loading="lazy" draggable="false"></div>`).join('')}</div>
+      <div class="card-img-dots">${images.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('')}</div>`;
+  } else if(images.length === 1){
+    mediaHtml = `<img src="${images[0]}" loading="lazy" draggable="false">`;
+  } else {
+    mediaHtml = '<div class="empty-state" style="padding:30px 0;"><i class="fa-solid fa-image"></i></div>';
+  }
   return `<div class="card" data-id="${p.id}">
-    <div class="card-img" data-openpd="${p.id}">
-      ${img?`<img src="${img}" loading="lazy">`:'<div class="empty-state" style="padding:30px 0;"><i class="fa-solid fa-image"></i></div>'}
+    <div class="card-img" data-openpd="${p.id}" data-idx="0">
+      ${mediaHtml}
       ${sale>0?`<div class="sale-ribbon">-${sale}%</div>`:''}
       <div class="card-actions-top">
         <button class="fav-toggle ${isFav?'active':''}" data-fav="${p.id}"><i class="fa-${isFav?'solid':'regular'} fa-heart"></i></button>
@@ -1625,9 +1651,67 @@ function renderGrid(list, sel){
   if(!list || list.length===0){ grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div></div>'; return; }
   grid.innerHTML = list.map(cardHtml).join('');
 }
+
+/* ============ CARD PHOTO SWIPE (без открытия товара) ============ */
+let cardSwipe = null;
+document.addEventListener('pointerdown', (e)=>{
+  const imgWrap = e.target.closest('.card-img');
+  if(!imgWrap) return;
+  const track = imgWrap.querySelector('.card-img-track');
+  if(!track || track.children.length<=1) return;
+  cardSwipe = {
+    imgWrap, track,
+    startX: e.clientX, startY: e.clientY,
+    idx: parseInt(imgWrap.dataset.idx||'0'),
+    width: imgWrap.getBoundingClientRect().width,
+    moved: false, horizontal: false,
+    pointerId: e.pointerId
+  };
+  track.style.transition = 'none';
+});
+document.addEventListener('pointermove', (e)=>{
+  if(!cardSwipe || e.pointerId!==cardSwipe.pointerId) return;
+  const dx = e.clientX - cardSwipe.startX;
+  const dy = e.clientY - cardSwipe.startY;
+  if(!cardSwipe.horizontal && (Math.abs(dx)>6 || Math.abs(dy)>6)){
+    cardSwipe.horizontal = Math.abs(dx) > Math.abs(dy);
+    if(!cardSwipe.horizontal){ cardSwipe = null; return; }
+  }
+  if(cardSwipe && cardSwipe.horizontal){
+    cardSwipe.moved = true;
+    const max = cardSwipe.track.children.length - 1;
+    let offset = -cardSwipe.idx*cardSwipe.width + dx;
+    const min = -max*cardSwipe.width, mx = 0;
+    if(offset>mx) offset = mx - (mx-offset)*0.35;
+    if(offset<min) offset = min - (offset-min)*0.35;
+    cardSwipe.track.style.transform = `translateX(${offset}px)`;
+    e.preventDefault();
+  }
+});
+function endCardSwipe(e){
+  if(!cardSwipe || (e.pointerId!==undefined && e.pointerId!==cardSwipe.pointerId)) return;
+  const {imgWrap, track, startX, idx, width, moved} = cardSwipe;
+  track.style.transition = 'transform .3s cubic-bezier(.4,0,.2,1)';
+  let newIdx = idx;
+  const dx = (e.clientX!==undefined ? e.clientX : startX) - startX;
+  if(moved && Math.abs(dx) > width*0.15){
+    if(dx<0 && idx < track.children.length-1) newIdx = idx+1;
+    else if(dx>0 && idx>0) newIdx = idx-1;
+  }
+  track.style.transform = `translateX(${-newIdx*width}px)`;
+  imgWrap.dataset.idx = newIdx;
+  imgWrap.querySelectorAll('.card-img-dots span').forEach((d,i)=>d.classList.toggle('active', i===newIdx));
+  if(moved){ imgWrap.dataset.suppressClick = '1'; }
+  cardSwipe = null;
+}
+document.addEventListener('pointerup', endCardSwipe);
+document.addEventListener('pointercancel', endCardSwipe);
 document.addEventListener('click', (e)=>{
   const openBtn = e.target.closest('[data-openpd]');
-  if(openBtn){ openProductDetail(openBtn.getAttribute('data-openpd')); }
+  if(openBtn){
+    if(openBtn.dataset.suppressClick){ delete openBtn.dataset.suppressClick; }
+    else { openProductDetail(openBtn.getAttribute('data-openpd')); }
+  }
   const favBtn = e.target.closest('[data-fav]');
   if(favBtn){ e.stopPropagation(); toggleFavorite(favBtn.getAttribute('data-fav')); }
   const shareBtn = e.target.closest('[data-share]');
@@ -2471,6 +2555,11 @@ function setupMessageNotifications(){
 /* ============ ABOUT ============ */
 function renderAbout(){
   const links = State.settings.social || {};
+  const ab = State.settings.about || {};
+  const defaultText = 'Современный маркетплейс. Лучшие товары по лучшим ценам, доставка по России, Таджикистану и Узбекистану.';
+  $('#aboutText').textContent = ab.text ? ab.text : defaultText;
+  const phones = [ab.phone1, ab.phone2].filter(Boolean);
+  $('#aboutPhones').innerHTML = phones.map(ph=>`<a href="tel:${ph.replace(/[^\d+]/g,'')}" class="btn btn-outline" style="display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fa-solid fa-phone"></i> ${ph}</a>`).join('');
   const wrap = $('#aboutSocialLinks');
   wrap.innerHTML = `
     ${links.instagram?`<a class="ig" href="${links.instagram}" target="_blank"><i class="fa-brands fa-instagram"></i></a>`:''}
@@ -2729,17 +2818,23 @@ function renderAdminTab(){
     body.innerHTML = `<p style="font-size:12px;color:var(--text-dim);">До 4 изображений, слайд-шоу каждые 4 секунды.</p>
       <div class="img-upload-row" id="adminBannerRow"></div>`;
     renderAdminBanners();
-  } else if(adminActiveTab==='social'){
+  } else if(adminActiveTab==='about'){
     const s = State.settings.social||{};
+    const ab = State.settings.about||{};
     body.innerHTML = `
+      <div class="field"><label>Текст раздела «О нас»</label><textarea id="abText" rows="4" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);font-family:inherit;font-size:13.5px;resize:vertical;">${ab.text||''}</textarea></div>
+      <div class="field"><label>Телефон 1</label><input id="abPhone1" placeholder="+7 900 000-00-00" value="${ab.phone1||''}"></div>
+      <div class="field"><label>Телефон 2</label><input id="abPhone2" placeholder="+7 900 000-00-00" value="${ab.phone2||''}"></div>
       <div class="field"><label>Instagram ссылка</label><input id="socIg" value="${s.instagram||''}"></div>
       <div class="field"><label>Telegram ссылка</label><input id="socTg" value="${s.telegram||''}"></div>
       <div class="field"><label>WhatsApp ссылка</label><input id="socWa" value="${s.whatsapp||''}"></div>
-      <button class="btn btn-primary" id="saveSocialBtn">Сохранить</button>`;
-    $('#saveSocialBtn').addEventListener('click', async ()=>{
+      <button class="btn btn-primary" id="saveAboutBtn">Сохранить</button>`;
+    $('#saveAboutBtn').addEventListener('click', async ()=>{
       const social = {instagram:$('#socIg').value.trim(), telegram:$('#socTg').value.trim(), whatsapp:$('#socWa').value.trim()};
-      await db.collection('settings').doc('main').set({social}, {merge:true});
-      State.settings.social = social; toast('Сохранено','','fa-circle-check');
+      const about = {text:$('#abText').value.trim(), phone1:$('#abPhone1').value.trim(), phone2:$('#abPhone2').value.trim()};
+      await db.collection('settings').doc('main').set({social, about}, {merge:true});
+      State.settings.social = social; State.settings.about = about;
+      toast('Сохранено','','fa-circle-check');
     });
   } else if(adminActiveTab==='security'){
     const fbCfg = window.HZ.firebaseConfig || {};
@@ -2843,15 +2938,45 @@ function renderAdminCatList(){
     input.value=''; delete pendingNewSubImg[catId];
   }));
 }
+/* Загружает файл как есть (без сжатия) в Firebase Storage и возвращает ссылку.
+   Используется для GIF, чтобы сохранить анимацию (canvas/compressImage её убивает). */
+function uploadRawFileToStorage(file, folder='banners'){
+  return new Promise((resolve, reject)=>{
+    const path = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2,8)}_${file.name}`;
+    const ref = storage.ref().child(path);
+    const task = ref.put(file);
+    task.on('state_changed', null, reject, async ()=>{
+      try{ const url = await task.snapshot.ref.getDownloadURL(); resolve(url); }
+      catch(err){ reject(err); }
+    });
+  });
+}
+/* Универсальный загрузчик для баннера: GIF -> Storage (с анимацией), остальное -> сжатие в base64 */
+async function processBannerFile(file){
+  if(file.type === 'image/gif'){
+    if(file.size > 8*1024*1024){ toast('Файл слишком большой', 'Максимум 8 МБ для GIF', 'fa-triangle-exclamation'); return null; }
+    return await uploadRawFileToStorage(file, 'banners');
+  }
+  return await compressImage(file, 1200, 0.75);
+}
+
 function renderAdminBanners(){
   const row = $('#adminBannerRow');
   const banners = State.settings.banners||[];
   row.innerHTML = banners.map((b,i)=>`<div class="img-thumb"><img src="${b}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-bannerrm="${i}">✕</span></div>`).join('');
   if(banners.length<4){
-    row.innerHTML += `<label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*" multiple class="hidden" id="bannerInput"></label>`;
+    row.innerHTML += `<label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*,.gif" multiple class="hidden" id="bannerInput"></label>`;
     $('#bannerInput').addEventListener('change', async (e)=>{
       const files = Array.from(e.target.files).slice(0,4-banners.length);
-      for(const f of files){ const d = await compressImage(f, 1200, 0.75); banners.push(d); }
+      if(files.some(f=>f.type==='image/gif')) toast('Загрузка GIF…', 'Это может занять несколько секунд', 'fa-spinner');
+      for(const f of files){
+        try{
+          const d = await processBannerFile(f);
+          if(d) banners.push(d);
+        }catch(err){
+          toast('Ошибка загрузки', 'Не удалось загрузить файл', 'fa-triangle-exclamation');
+        }
+      }
       await db.collection('settings').doc('main').set({banners}, {merge:true});
       State.settings.banners = banners; renderAdminBanners(); renderBanner();
     });
