@@ -145,10 +145,10 @@ a{color:inherit; text-decoration:none;}
 }
 .card:active{transform:scale(.97);}
 .card-img{position:relative; aspect-ratio:1/1; background:var(--surface-2); overflow:hidden; touch-action:pan-y;}
-.card-img img{width:100%; height:100%; object-fit:cover;}
-.card-img-track{display:flex; height:100%; width:100%; will-change:transform;}
-.card-img-slide{min-width:100%; height:100%; flex-shrink:0;}
-.card-img-slide img{width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; -webkit-user-drag:none;}
+.card-img > img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+.card-img-track{position:absolute; inset:0; display:flex; height:100%; width:100%; will-change:transform;}
+.card-img-slide{position:relative; min-width:100%; height:100%; flex-shrink:0; overflow:hidden;}
+.card-img-slide img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; -webkit-user-drag:none;}
 .card-img-dots{position:absolute; bottom:6px; left:50%; transform:translateX(-50%); display:flex; gap:4px; z-index:3;}
 .card-img-dots span{width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.65); transition:width .2s ease, border-radius .2s ease;}
 .card-img-dots span.active{background:#fff; width:12px; border-radius:3px;}
