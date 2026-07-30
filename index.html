@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
+<html lang="ru" style="--topbar-h: 106px;"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>HORIZON MARKET</title>
@@ -12,12 +10,13 @@
 <link rel="apple-touch-icon" id="appleTouchIcon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20512%20512%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id=%22hmbg%22%20x1=%220%22%20y1=%220%22%20x2=%221%22%20y2=%221%22%3E%20%3Cstop%20offset=%220%22%20stop-color=%22%236E2E38%22/%3E%20%3Cstop%20offset=%221%22%20stop-color=%22%239C5F66%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width=%22512%22%20height=%22512%22%20rx=%22112%22%20fill=%22url%28%23hmbg%29%22/%3E%20%3Cpath%20d=%22M188,150%20C188,100%20217,70%20256,70%20C295,70%20324,100%20324,150%22%20fill=%22none%22%20stroke=%22%23fff%22%20stroke-width=%2215%22%20stroke-linecap=%22round%22/%3E%20%3Crect%20x=%22152%22%20y=%22142%22%20width=%22208%22%20height=%22164%22%20rx=%2224%22%20fill=%22none%22%20stroke=%22%23fff%22%20stroke-width=%2215%22/%3E%20%3Ctext%20x=%22256%22%20y=%22244%22%20font-family=%22Georgia,%20%27Times%20New%20Roman%27,%20serif%22%20font-weight=%22700%22%20font-size=%2278%22%20fill=%22%23fff%22%20text-anchor=%22middle%22%3EHM%3C/text%3E%20%3Ctext%20x=%22256%22%20y=%22372%22%20font-family=%22Arial,%20Helvetica,%20sans-serif%22%20font-weight=%22800%22%20font-size=%2262%22%20fill=%22%23fff%22%20text-anchor=%22middle%22%20letter-spacing=%221%22%3EHORIZON%3C/text%3E%20%3Ctext%20x=%22256%22%20y=%22406%22%20font-family=%22Arial,%20Helvetica,%20sans-serif%22%20font-weight=%22600%22%20font-size=%2222%22%20fill=%22%23fff%22%20text-anchor=%22middle%22%20letter-spacing=%228%22%3EMARKET%3C/text%3E%20%3C/svg%3E">
 <link rel="icon" id="favicon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20512%20512%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id=%22hmbg%22%20x1=%220%22%20y1=%220%22%20x2=%221%22%20y2=%221%22%3E%20%3Cstop%20offset=%220%22%20stop-color=%22%236E2E38%22/%3E%20%3Cstop%20offset=%221%22%20stop-color=%22%239C5F66%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width=%22512%22%20height=%22512%22%20rx=%22112%22%20fill=%22url%28%23hmbg%29%22/%3E%20%3Cpath%20d=%22M188,150%20C188,100%20217,70%20256,70%20C295,70%20324,100%20324,150%22%20fill=%22none%22%20stroke=%22%23fff%22%20stroke-width=%2215%22%20stroke-linecap=%22round%22/%3E%20%3Crect%20x=%22152%22%20y=%22142%22%20width=%22208%22%20height=%22164%22%20rx=%2224%22%20fill=%22none%22%20stroke=%22%23fff%22%20stroke-width=%2215%22/%3E%20%3Ctext%20x=%22256%22%20y=%22244%22%20font-family=%22Georgia,%20%27Times%20New%20Roman%27,%20serif%22%20font-weight=%22700%22%20font-size=%2278%22%20fill=%22%23fff%22%20text-anchor=%22middle%22%3EHM%3C/text%3E%20%3Ctext%20x=%22256%22%20y=%22372%22%20font-family=%22Arial,%20Helvetica,%20sans-serif%22%20font-weight=%22800%22%20font-size=%2262%22%20fill=%22%23fff%22%20text-anchor=%22middle%22%20letter-spacing=%221%22%3EHORIZON%3C/text%3E%20%3Ctext%20x=%22256%22%20y=%22406%22%20font-family=%22Arial,%20Helvetica,%20sans-serif%22%20font-weight=%22600%22%20font-size=%2222%22%20fill=%22%23fff%22%20text-anchor=%22middle%22%20letter-spacing=%228%22%3EMARKET%3C/text%3E%20%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 
 <style>
 :root{
@@ -147,6 +146,55 @@ a{color:inherit; text-decoration:none;}
 
 /* ===== SECTION TITLES ===== */
 .section-title{padding:4px 16px 10px; font-size:17px; font-weight:800; display:flex; align-items:center; justify-content:between;}
+
+/* ===== COMPARE BAR ===== */
+.compare-bar{
+  position:fixed; left:0; right:0; bottom:64px; z-index:40;
+  padding:0 12px;
+}
+.compare-bar-inner{
+  max-width:520px; margin:0 auto; background:var(--surface); border:1.5px solid var(--border);
+  box-shadow:0 8px 24px rgba(0,0,0,.18); border-radius:14px; padding:10px 14px;
+  display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:700;
+}
+.compare-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+.compare-table th, .compare-table td{padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap;}
+.compare-table th{color:var(--text-dim); font-weight:700; position:sticky; left:0; background:var(--surface);}
+
+/* ===== ANALYTICS STAT CARDS ===== */
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;}
+.stat-card{background:var(--surface-2); border-radius:14px; padding:14px;}
+.stat-card .stat-label{font-size:11px; color:var(--text-dim); font-weight:600;}
+.stat-card .stat-value{font-size:20px; font-weight:800; margin-top:2px;}
+
+/* ===== FLASH SALE BANNER ===== */
+.flash-banner{
+  margin:12px; padding:14px 16px; border-radius:16px;
+  background:linear-gradient(135deg,#FF3D57,#FF7A3D); color:#fff;
+  cursor:pointer; user-select:none;
+}
+.flash-banner-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.flash-banner-title{font-size:15px; font-weight:800; display:flex; align-items:center; gap:6px;}
+.flash-banner-timer{font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; background:rgba(255,255,255,.22); padding:4px 10px; border-radius:8px;}
+.flash-banner-btn{
+  width:100%; background:rgba(255,255,255,.94); color:#FF3D57; border:none; border-radius:10px;
+  padding:9px; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:6px;
+}
+
+/* ===== FILTER BAR ===== */
+.filterbar{display:flex; gap:8px; padding:0 12px 12px; overflow-x:auto; scrollbar-width:none;}
+.filterbar::-webkit-scrollbar{display:none;}
+.sort-select{
+  flex-shrink:0; background:var(--surface-2); border:1px solid transparent; color:var(--text);
+  font-size:13px; font-weight:600; padding:8px 12px; border-radius:999px; outline:none;
+}
+.filter-chip{
+  flex-shrink:0; display:flex; align-items:center; gap:6px; white-space:nowrap;
+  background:var(--surface-2); padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600;
+  border:1px solid transparent; transition:background .15s ease,color .15s ease;
+}
+.filter-chip.active{background:var(--grad-main); color:#fff;}
+.filter-chip i{font-size:12px;}
 
 /* ===== PRODUCT GRID ===== */
 .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:0 12px 20px;}
@@ -564,6 +612,7 @@ a{color:inherit; text-decoration:none;}
   -webkit-transform:translateZ(0); transform:translateZ(0); isolation:isolate; overflow:hidden;
 }
 .mini-icon-btn:active{transform:scale(.9);}
+.mini-icon-btn.active{color:var(--violet);}
 
 /* ===== VARIANT SELECTOR (size/color) ===== */
 .chip-select{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px;}
@@ -701,7 +750,7 @@ a{color:inherit; text-decoration:none;}
 button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 .field-row{flex-wrap:wrap;}
 </style>
-</head>
+<link rel="manifest" href="blob:null/fa73755b-873e-4d5a-ada4-5f24b92904fa"></head>
 <body data-theme="light">
 
 <!-- FIREBASE SETUP GATE (показывается только пока не подключён Firebase) -->
@@ -727,6 +776,8 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <input id="fbStorageBucket" placeholder="storageBucket" style="width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #3a3454;background:#171429;color:#fff;font-size:13px;margin-bottom:7px;">
       <input id="fbMsgSenderId" placeholder="messagingSenderId" style="width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #3a3454;background:#171429;color:#fff;font-size:13px;margin-bottom:7px;">
       <input id="fbAppId" placeholder="appId *" style="width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #3a3454;background:#171429;color:#fff;font-size:13px;margin-bottom:7px;">
+      <input id="fbVapidKey" placeholder="VAPID public key (для push-уведомлений)" style="width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid #3a3454;background:#171429;color:#fff;font-size:13px;margin-bottom:7px;">
+      <div style="color:#7a7396;font-size:11px;margin:-2px 0 8px;line-height:1.4;">VAPID-ключ берётся в Firebase Console → Project settings → Cloud Messaging → Web configuration → Generate key pair. Без него push-уведомления при закрытом сайте работать не будут.</div>
       <div id="fbSetupErr2" style="color:#ff6b6b;font-size:12px;min-height:16px;margin-bottom:4px;"></div>
       <button id="fbSetupSaveBtn" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#7B2FF7,#E31C79);color:#fff;font-weight:700;font-size:14px;margin-top:6px;"><i class="fa-solid fa-floppy-disk"></i> Сохранить и запустить</button>
     </div>
@@ -753,13 +804,57 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </header>
 
 <!-- BANNER -->
-<div class="banner" id="bannerBox">
+<div class="banner" id="bannerBox" style="display: none;">
   <div class="banner-track" id="bannerTrack"></div>
   <div class="banner-dots" id="bannerDots"></div>
 </div>
 
+<!-- FLASH SALE -->
+<div class="flash-banner" id="flashSaleBanner" style="display:none;">
+  <div class="flash-banner-top">
+    <div class="flash-banner-title"><i class="fa-solid fa-bolt"></i> <span id="flashSaleTitle">Флеш-распродажа</span></div>
+    <div class="flash-banner-timer" id="flashSaleTimer">00:00:00</div>
+  </div>
+  <button class="flash-banner-btn" id="flashSaleViewBtn">Смотреть все товары <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
 <div class="section-title" id="gridTitle">Все товары</div>
-<main class="grid" id="productGrid"></main>
+<div class="filterbar" id="filterBar">
+  <select class="sort-select" id="sortSelect">
+    <option value="mix">Сначала популярные</option>
+    <option value="new">Сначала новые</option>
+    <option value="priceAsc">Сначала дешевле</option>
+    <option value="priceDesc">Сначала дороже</option>
+    <option value="rating">По рейтингу</option>
+  </select>
+  <button class="filter-chip" id="stockOnlyChip"><i class="fa-regular fa-square-check"></i> В наличии</button>
+  <button class="filter-chip" id="openPriceFilterBtn"><i class="fa-solid fa-sliders"></i> <span id="priceFilterChipLabel">Цена</span></button>
+</div>
+<main class="grid" id="productGrid"><div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div></div></main>
+
+<!-- PRICE FILTER -->
+<div class="overlay center" id="ovPriceFilter">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Фильтр по цене <button class="close-x" data-close="ovPriceFilter"><i class="fa-solid fa-xmark"></i></button></div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div class="field" style="flex:1;"><label>От</label><input id="priceMinInput" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+      <div class="field" style="flex:1;"><label>До</label><input id="priceMaxInput" type="number" min="0" placeholder="Любая" inputmode="numeric"></div>
+    </div>
+    <button class="btn btn-primary" id="priceFilterApplyBtn"><i class="fa-solid fa-check"></i> Применить</button>
+    <button class="btn" id="priceFilterResetBtn" style="margin-top:8px;">Сбросить</button>
+  </div>
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar" style="display:none;">
+  <div class="compare-bar-inner">
+    <span id="compareBarCount">0 товара выбрано</span>
+    <div style="display:flex;gap:8px;">
+      <button class="tiny-btn" id="compareBarClearBtn">Очистить</button>
+      <button class="tiny-btn primary" id="compareBarOpenBtn">Сравнить</button>
+    </div>
+  </div>
+</div>
 
 <!-- BOTTOM NAV -->
 <nav class="bottomnav">
@@ -770,6 +865,15 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <button class="navbtn" id="notifBellBtn" data-page="notifications"><i class="fa-solid fa-bell" id="notifBellIcon"></i>Уведомления<span class="badge hidden" id="notifBadge">0</span></button>
   <button class="navbtn" data-page="profile"><i class="fa-regular fa-user"></i>Профиль</button>
 </nav>
+
+<!-- COMPARE OVERLAY -->
+<div class="overlay page-overlay" id="ovCompare">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Сравнение товаров <button class="close-x" data-close="ovCompare"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="compareTableWrap" style="overflow-x:auto;"></div>
+  </div>
+</div>
 
 <!-- CONSULTANT -->
 <button class="consultant-fab" id="consultantFab"><i class="fa-solid fa-headset"></i></button>
@@ -836,9 +940,10 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
           <option value="+998">🇺🇿 +998</option>
         </select>
       </div>
-      <div class="field"><label>Номер телефона</label><input id="regPhone" placeholder="901234567" inputmode="numeric"></div>
+      <div class="field"><label>Номер телефона</label><input id="regPhone" placeholder="9012345678" inputmode="numeric"></div>
     </div>
     <div class="field"><label>Пароль</label><div class="pw-field"><input id="regPassword" type="password" placeholder="Придумайте пароль"><button type="button" class="pw-toggle" data-pwtoggle="regPassword"><i class="fa-regular fa-eye"></i></button></div></div>
+    <div class="field"><label>Реферальный код <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label><input id="regReferralCode" placeholder="Код друга, который вас пригласил"></div>
     <button class="btn btn-primary" id="regSubmitBtn"><i class="fa-solid fa-check"></i> Зарегистрироваться</button>
     <a class="link-btn" data-open="ovLogin" data-close="ovRegister">Уже есть аккаунт? Войти</a>
   </div>
@@ -858,7 +963,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
           <option value="+998">🇺🇿 +998</option>
         </select>
       </div>
-      <div class="field"><label>Номер телефона</label><input id="loginPhone" placeholder="901234567" inputmode="numeric"></div>
+      <div class="field"><label>Номер телефона</label><input id="loginPhone" placeholder="9012345678" inputmode="numeric"></div>
     </div>
     <div class="field"><label>Пароль</label><div class="pw-field"><input id="loginPassword" type="password" placeholder="Пароль"><button type="button" class="pw-toggle" data-pwtoggle="loginPassword"><i class="fa-regular fa-eye"></i></button></div></div>
     <button class="btn btn-primary" id="loginSubmitBtn"><i class="fa-solid fa-right-to-bracket"></i> Войти</button>
@@ -882,7 +987,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet" style="border-radius:24px;">
     <div class="sheet-title">Таблица размеров <button class="close-x" data-close="ovSizeChart"><i class="fa-solid fa-xmark"></i></button></div>
     <table class="char-table" id="pdSizeChartTable">
-      <tr><td style="font-weight:700;">RU</td><td style="font-weight:700;">EU</td><td style="font-weight:700;">Стелька, см</td></tr>
+      <tbody><tr><td style="font-weight:700;">RU</td><td style="font-weight:700;">EU</td><td style="font-weight:700;">Стелька, см</td></tr>
       <tr><td>39</td><td>40</td><td>25.0</td></tr>
       <tr><td>40</td><td>41</td><td>25.5</td></tr>
       <tr><td>41</td><td>42</td><td>26.5</td></tr>
@@ -891,7 +996,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <tr><td>44</td><td>45</td><td>28.5</td></tr>
       <tr><td>45</td><td>46</td><td>29.0</td></tr>
       <tr><td>46</td><td>47</td><td>30.0</td></tr>
-    </table>
+    </tbody></table>
     <div style="color:var(--text-dim);font-size:11.5px;margin-top:8px;">Значения ориентировочные и могут немного отличаться в зависимости от модели.</div>
   </div>
 </div>
@@ -929,8 +1034,10 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="pd-price-row">
       <div class="pd-price" id="pdPrice"></div>
       <div class="card-oldprice" id="pdOldPrice" style="font-size:14px;"></div>
+      <button class="mini-icon-btn" id="pdPriceWatchBtn" style="position:static;margin-left:auto;width:32px;height:32px;" title="Следить за ценой"><i class="fa-regular fa-bell"></i></button>
     </div>
     <div id="pdPromoLabel" style="margin:-4px 0 8px;"></div>
+    <div id="pdLowStock" style="font-size:12px;font-weight:700;color:#FF7A00;margin:-4px 0 8px;"></div>
     <div id="pdCartControls"></div>
     <div id="pdVariantInfo" style="margin-bottom:10px;"></div>
     <table class="char-table" id="pdCharTable"></table>
@@ -990,11 +1097,28 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="field">
       <label>Способ оплаты</label>
       <label class="pay-option active" id="coPayCardOption">
-        <input type="radio" name="coPayMethod" value="card" checked>
+        <input type="radio" name="coPayMethod" value="card" checked="">
         <div><div class="pay-option-title"><i class="fa-solid fa-credit-card"></i> На карту</div><div class="pay-option-sub">Переводом на карту продавца</div></div>
       </label>
     </div>
+    <div class="field"><label>Промокод</label>
+      <div class="field-row" style="gap:8px;">
+        <input id="coPromoInput" placeholder="Введите промокод" style="flex:1;text-transform:uppercase;">
+        <button type="button" class="btn btn-outline" style="width:auto;padding:11px 16px;" id="coPromoApplyBtn">Применить</button>
+      </div>
+      <div id="coPromoStatus" style="font-size:11.5px;margin-top:6px;"></div>
+    </div>
+    <div class="field" id="coBonusField" style="display:none;">
+      <label>Бонусы (доступно: <span id="coBonusAvailable">0</span>)</label>
+      <div class="field-row" style="gap:8px;">
+        <input id="coBonusInput" type="number" min="0" placeholder="0">
+        <button type="button" class="btn btn-outline" style="width:auto;padding:11px 16px;" id="coBonusMaxBtn">Списать всё</button>
+      </div>
+      <div id="coBonusStatus" style="font-size:11.5px;margin-top:6px;color:var(--text-dim);"></div>
+    </div>
     <div class="cart-total-row" style="padding:14px 0 4px;"><span>Сумма заказа</span><span id="coSubtotal">0 ₽</span></div>
+    <div class="cart-total-row" id="coPromoRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Скидка по промокоду</span><span id="coPromoDiscount">0 ₽</span></div>
+    <div class="cart-total-row" id="coBonusRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Списание бонусов</span><span id="coBonusApplied">0 ₽</span></div>
     <div class="cart-total-row" style="padding:0 0 10px;font-size:13px;font-weight:600;color:var(--text-dim);"><span>Доставка (оплачивает клиент)</span><span id="coDeliveryFee">Бесплатно</span></div>
     <div class="cart-total-row" style="border-top:1.5px solid var(--border);padding-top:12px;"><span>Итого к оплате</span><span id="coTotal">0 ₽</span></div>
     <button class="btn btn-primary" id="coSubmitBtn"><i class="fa-solid fa-check"></i> Заказ</button>
@@ -1066,7 +1190,20 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Профиль <button class="close-x" data-close="ovProfile"><i class="fa-solid fa-xmark"></i></button></div>
-    <div id="profileBody"></div>
+    <div id="profileBody"><div class="profile-head">
+    <div class="profile-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--grad-main);color:#fff;font-weight:800;font-size:22px;">U</div>
+    <div><div class="profile-name">UZ</div><div class="profile-role">Покупатель</div></div>
+  </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="flex:1;background:var(--grad-main);border-radius:14px;padding:14px;color:#fff;">
+        <div style="font-size:11px;opacity:.85;font-weight:600;">Бонусный баланс</div>
+        <div style="font-size:22px;font-weight:800;margin-top:2px;"><i class="fa-solid fa-coins"></i> 0</div>
+      </div>
+      <div style="flex:1;background:var(--surface-2);border-radius:14px;padding:14px;">
+        <div style="font-size:11px;color:var(--text-dim);font-weight:600;">Приглашайте друзей</div>
+        <button class="btn btn-outline" style="margin-top:6px;padding:8px;font-size:12px;" id="shareReferralBtn"><i class="fa-solid fa-user-plus"></i> Поделиться кодом</button>
+      </div>
+    </div><div class="menu-item" id="openAboutMenuBtn"><i class="fa-solid fa-circle-info"></i> О нас <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item"><i class="fa-solid fa-circle-half-stroke"></i> Тёмная тема <button class="theme-switch" id="themeSwitch" style="margin-left:auto;"><span class="knob"><i class="fa-solid fa-moon"></i></span></button></div><div class="menu-item" id="fullscreenBtn"><i class="fa-solid fa-expand"></i> Во весь экран <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item" data-open="ovEditProfile"><i class="fa-solid fa-pen"></i> Редактировать профиль <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item" id="openOrdersBtn"><i class="fa-solid fa-receipt"></i> История заказов <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item" id="logoutBtn" style="color:var(--danger);"><i class="fa-solid fa-right-from-bracket" style="color:var(--danger);"></i> Выйти</div></div>
   </div>
 </div>
 
@@ -1089,6 +1226,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">История заказов <button class="close-x" data-close="ovOrders"><i class="fa-solid fa-xmark"></i></button></div>
+    <button class="btn btn-outline" id="ordersExportBtn" style="display:none;margin-bottom:10px;"><i class="fa-solid fa-file-export"></i> Экспорт в CSV</button>
     <button class="btn btn-outline" id="ordersClearAllBtn" style="display:none;color:var(--danger);border-color:var(--danger);margin-bottom:12px;"><i class="fa-solid fa-trash-can"></i> Очистить историю заказов</button>
     <div id="ordersBody"></div>
   </div>
@@ -1123,6 +1261,10 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Заказы будут приходить в этот бот. Создайте бота через @BotFather и укажите токен и Chat ID.</p>
     <div class="field"><label>Bot Token</label><input id="botTokenInput"></div>
     <div class="field"><label>Chat ID</label><input id="botChatIdInput"></div>
+    <div class="field"><label>Автоответ в чате <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label>
+      <textarea id="chatAutoReplyInput" rows="2" placeholder="Например: Спасибо за сообщение! Обычно отвечаю в течение часа."></textarea>
+    </div>
+    <p style="color:var(--text-dim);font-size:11.5px;margin-top:-8px;">Это сообщение автоматически придёт покупателю сразу после того, как он напишет вам в первый раз по товару.</p>
     <button class="btn btn-primary" id="botSettingsSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
   </div>
 </div>
@@ -1141,9 +1283,11 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div class="field"><label>Старая цена (акция)</label><input id="pfOldPrice" type="number" placeholder="необязательно"></div>
     </div>
     <div class="field" style="display:flex;align-items:center;gap:8px;">
-      <input type="checkbox" id="pfInStock" style="width:auto;" checked>
+      <input type="checkbox" id="pfInStock" style="width:auto;" checked="">
       <label style="margin:0;">Товар в наличии</label>
     </div>
+    <div class="field"><label>Количество на складе <span style="color:var(--text-dim);font-weight:400;">(необязательно — если не указано, остаток не отслеживается)</span></label><input id="pfStockQty" type="number" min="0" placeholder="Например: 12"></div>
+    <p style="color:var(--text-dim);font-size:11.5px;margin:-8px 0 12px;">Если указано количество — при заказах оно будет автоматически уменьшаться, а при достижении нуля товар сам станет «нет в наличии». Галочка выше используется только если количество не указано.</p>
     <div class="field">
       <label>Надпись под ценой (необязательно)</label>
       <select id="pfPromoLabel">
@@ -1183,7 +1327,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="field">
       <label>Фото (до 10 шт.)</label>
       <div class="img-upload-row" id="pfImagesRow">
-        <label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*" multiple class="hidden" id="pfImagesInput"></label>
+        <label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*" multiple="" class="hidden" id="pfImagesInput"></label>
       </div>
     </div>
     <div class="field" style="display:flex;align-items:center;gap:8px;">
@@ -1211,6 +1355,8 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="admin-tab" data-tab="products">Товары</button>
       <button class="admin-tab" data-tab="users">Пользователи</button>
       <button class="admin-tab" data-tab="banners">Баннеры</button>
+      <button class="admin-tab" data-tab="promocodes">Промокоды</button>
+      <button class="admin-tab" data-tab="flashsale">Акция</button>
       <button class="admin-tab" data-tab="about">О нас</button>
       <button class="admin-tab" data-tab="security">Доступ</button>
     </div>
@@ -1223,8 +1369,52 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Мои товары <button class="close-x" data-close="ovMyCatalogs"><i class="fa-solid fa-xmark"></i></button></div>
-    <button class="btn btn-primary" style="margin-bottom:12px;" id="sellerAddProductBtn"><i class="fa-solid fa-plus"></i> Добавить товар</button>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <button class="btn btn-primary" style="width:auto;flex:1;min-width:140px;" id="sellerAddProductBtn"><i class="fa-solid fa-plus"></i> Добавить товар</button>
+      <label class="btn btn-outline" style="width:auto;flex:1;min-width:140px;margin:0;"><i class="fa-solid fa-file-csv"></i> Импорт CSV<input type="file" accept=".csv" class="hidden" id="sellerCsvInput"></label>
+      <button class="btn btn-outline" style="width:auto;flex:1;min-width:140px;" id="sellerBulkPriceBtn"><i class="fa-solid fa-percent"></i> Изменить цены</button>
+    </div>
+    <a href="#" id="sellerCsvTemplateLink" style="display:block;font-size:12px;color:var(--violet);margin:-6px 0 12px;">Скачать шаблон CSV</a>
     <div id="sellerProductsList"></div>
+  </div>
+</div>
+
+<!-- SELLER ANALYTICS -->
+<div class="overlay" id="ovSellerAnalytics">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Аналитика <button class="close-x" data-close="ovSellerAnalytics"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="sellerAnalyticsBody"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- SELLER CRM -->
+<div class="overlay" id="ovSellerCRM">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Клиенты <button class="close-x" data-close="ovSellerCRM"><i class="fa-solid fa-xmark"></i></button></div>
+    <input id="crmSearchInput" placeholder="Поиск по имени или телефону" style="margin-bottom:12px;">
+    <div id="sellerCrmBody"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- SELLER CRM CLIENT DETAIL -->
+<div class="overlay center" id="ovCrmClient">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Карточка клиента <button class="close-x" data-close="ovCrmClient"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="crmClientInfo" style="margin-bottom:14px;"></div>
+    <div class="field"><label>Заметка (видна только вам)</label><textarea id="crmClientNote" rows="4" placeholder="Например: предпочитает доставку вечером, часто берёт оптом…"></textarea></div>
+    <button class="btn btn-primary" id="crmSaveNoteBtn"><i class="fa-solid fa-check"></i> Сохранить заметку</button>
+  </div>
+</div>
+
+<!-- BULK PRICE CHANGE -->
+<div class="overlay center" id="ovBulkPrice">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Изменить цены <button class="close-x" data-close="ovBulkPrice"><i class="fa-solid fa-xmark"></i></button></div>
+    <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 12px;">Изменение применится ко всем вашим товарам сразу. Укажите процент: положительное число — подорожание, отрицательное — скидка.</p>
+    <div class="field"><label>Изменение цены, %</label><input id="bulkPricePercent" type="number" step="0.5" placeholder="Например: -10 или 15"></div>
+    <button class="btn btn-primary" id="bulkPriceApplyBtn"><i class="fa-solid fa-check"></i> Применить ко всем товарам</button>
   </div>
 </div>
 
@@ -1289,7 +1479,26 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <i class="fa-solid fa-star" data-star="1"></i><i class="fa-solid fa-star" data-star="2"></i><i class="fa-solid fa-star" data-star="3"></i><i class="fa-solid fa-star" data-star="4"></i><i class="fa-solid fa-star" data-star="5"></i>
     </div>
     <div class="field"><label>Комментарий</label><textarea id="reviewTextInput" rows="3" placeholder="Поделитесь впечатлением о товаре"></textarea></div>
+    <div class="field">
+      <label>Фото (необязательно)</label>
+      <label class="btn btn-outline" style="margin:0;"><i class="fa-solid fa-camera"></i> Добавить фото<input type="file" accept="image/*" class="hidden" id="reviewPhotoInput"></label>
+      <img id="reviewPhotoPreview" style="display:none;max-width:100px;border-radius:10px;margin-top:8px;">
+    </div>
     <button class="btn btn-primary" id="reviewSubmitBtn"><i class="fa-solid fa-check"></i> Отправить отзыв</button>
+  </div>
+</div>
+
+<!-- SELLER REVIEW FORM -->
+<div class="overlay center" id="ovSellerReviewForm">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Оценить продавца <button class="close-x" data-close="ovSellerReviewForm"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="sellerReviewName" style="font-weight:700;font-size:14px;margin-bottom:12px;"></div>
+    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;margin-bottom:12px;">Оцените работу продавца: скорость обработки заказа, качество общения, соответствие описанию.</p>
+    <div class="stars-input" id="sellerReviewStarsInput" style="text-align:center;margin-bottom:14px;">
+      <i class="fa-solid fa-star" data-star="1"></i><i class="fa-solid fa-star" data-star="2"></i><i class="fa-solid fa-star" data-star="3"></i><i class="fa-solid fa-star" data-star="4"></i><i class="fa-solid fa-star" data-star="5"></i>
+    </div>
+    <div class="field"><label>Комментарий</label><textarea id="sellerReviewTextInput" rows="3" placeholder="Поделитесь впечатлением о продавце"></textarea></div>
+    <button class="btn btn-primary" id="sellerReviewSubmitBtn"><i class="fa-solid fa-check"></i> Отправить отзыв</button>
   </div>
 </div>
 
@@ -1300,6 +1509,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="sheet-title">Магазин продавца <button class="close-x" data-close="ovSellerShop"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="seller-shop-head" id="sellerShopHead"></div>
     <div class="seller-shop-bio" id="sellerShopBio" style="display:none;"></div>
+    <div id="sellerShopReviewBtnWrap" style="margin-bottom:12px;"></div>
     <div class="grid" id="sellerShopGrid" style="padding:0;"></div>
   </div>
 </div>
@@ -1323,7 +1533,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
    файл нужно загрузить на хостинг вместо старого, тогда сайт
    заработает у всех клиентов без каких-либо паролей/экранов.
    ============================================================ */
-window.HZ_EMBEDDED_CONFIG = {"apiKey":"AIzaSyBS4crsvCIRwYIvUQWSItcG5geNdU1NLq4","authDomain":"horizon-bdbf0.firebaseapp.com","databaseURL":"https://horizon-bdbf0-default-rtdb.firebaseio.com","projectId":"horizon-bdbf0","storageBucket":"horizon-bdbf0.firebasestorage.app","messagingSenderId":"983614809094","appId":"1:983614809094:web:531322b11099d85fd94f87"};
+window.HZ_EMBEDDED_CONFIG = {"apiKey":"AIzaSyBS4crsvCIRwYIvUQWSItcG5geNdU1NLq4","authDomain":"horizon-bdbf0.firebaseapp.com","databaseURL":"https://horizon-bdbf0-default-rtdb.firebaseio.com","projectId":"horizon-bdbf0","storageBucket":"horizon-bdbf0.firebasestorage.app","messagingSenderId":"983614809094","appId":"1:983614809094:web:531322b11099d85fd94f87","vapidKey":"BC44CM4uZK6JUiaJraLyDUzkZuO3yNZIO_ddY4Yj03qD3pOeZbid2JJLMcwUQYymMxa1rsgIbt1GUzLoRS2MZXo"};
 </script>
 <script>
 window.HZ = window.HZ || {};
@@ -1365,6 +1575,7 @@ function hzFillSetupFields(cfg){
   document.getElementById('fbStorageBucket').value = cfg?.storageBucket||'';
   document.getElementById('fbMsgSenderId').value = cfg?.messagingSenderId||'';
   document.getElementById('fbAppId').value = cfg?.appId||'';
+  document.getElementById('fbVapidKey').value = cfg?.vapidKey||'';
 }
 
 /* Показывает экран настройки Firebase, сразу на шаге ввода данных
@@ -1388,7 +1599,8 @@ async function hzHandleSetupSave(){
     projectId: document.getElementById('fbProjectId').value.trim(),
     storageBucket: document.getElementById('fbStorageBucket').value.trim(),
     messagingSenderId: document.getElementById('fbMsgSenderId').value.trim(),
-    appId: document.getElementById('fbAppId').value.trim()
+    appId: document.getElementById('fbAppId').value.trim(),
+    vapidKey: document.getElementById('fbVapidKey').value.trim()
   };
   const err = document.getElementById('fbSetupErr2');
   if(!cfg.apiKey || !cfg.projectId || !cfg.appId){ err.textContent = 'Заполните обязательные поля: apiKey, projectId, appId'; return; }
@@ -1456,6 +1668,7 @@ const State = {
   subcatalogs: [],
   products: [],
   banners: [],
+  promocodes: [],
   settings: {},
   cart: [],               // [{productId, qty, size, color}]
   activeProductId: null,
@@ -2165,8 +2378,45 @@ function renderBanner(){
   }
 }
 
+/* ============ FLASH SALE ============ */
+let flashSaleTimerInterval = null;
+function renderFlashSaleBanner(){
+  const fs = State.settings.flashSale;
+  clearInterval(flashSaleTimerInterval);
+  if(!fs || !fs.active || !fs.endsAt || !(fs.productIds && fs.productIds.length)){
+    $('#flashSaleBanner').style.display = 'none';
+    return;
+  }
+  const endMs = fs.endsAt.toMillis ? fs.endsAt.toMillis() : new Date(fs.endsAt).getTime();
+  if(Date.now() >= endMs){
+    $('#flashSaleBanner').style.display = 'none';
+    return;
+  }
+  $('#flashSaleBanner').style.display = 'block';
+  $('#flashSaleTitle').textContent = fs.title || 'Флеш-распродажа';
+  function tick(){
+    const msLeft = endMs - Date.now();
+    if(msLeft <= 0){
+      clearInterval(flashSaleTimerInterval);
+      $('#flashSaleBanner').style.display = 'none';
+      return;
+    }
+    const h = Math.floor(msLeft/3600000);
+    const m = Math.floor((msLeft%3600000)/60000);
+    const s = Math.floor((msLeft%60000)/1000);
+    const pad = n=>String(n).padStart(2,'0');
+    $('#flashSaleTimer').textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+  tick();
+  flashSaleTimerInterval = setInterval(tick, 1000);
+}
+$('#flashSaleViewBtn').addEventListener('click', ()=>{
+  filterAndRenderGrid({catalogId:null, subcatalogId:null, search:'', flashOnly:true});
+  $('#gridTitle').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
 /* ============ PRODUCT GRID ============ */
-let currentFilter = {catalogId:null, subcatalogId:null, search:''};
+let currentFilter = {catalogId:null, subcatalogId:null, search:'', sort:'mix', stockOnly:false, priceMin:null, priceMax:null, flashOnly:false};
 function shuffleArray(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -2174,15 +2424,34 @@ function shuffleArray(arr){
 }
 function filterAndRenderGrid(f){
   currentFilter = Object.assign(currentFilter, f);
+  currentFilter.flashOnly = !!f.flashOnly; // not sticky: only applies to the call that explicitly asks for it
   let list = State.products.slice();
-  const isDefaultView = !currentFilter.catalogId && !currentFilter.subcatalogId && !currentFilter.search;
+  const isDefaultView = !currentFilter.catalogId && !currentFilter.subcatalogId && !currentFilter.search && !currentFilter.flashOnly;
+  if(currentFilter.flashOnly){
+    const fs = State.settings.flashSale;
+    const ids = new Set((fs && fs.productIds) || []);
+    list = list.filter(p=>ids.has(p.id));
+  }
   if(currentFilter.catalogId) list = list.filter(p=>p.catalogId===currentFilter.catalogId);
   if(currentFilter.subcatalogId) list = list.filter(p=>p.subcatalogId===currentFilter.subcatalogId);
   if(currentFilter.search){
     const q = currentFilter.search.toLowerCase();
     list = list.filter(p=>(p.name||'').toLowerCase().includes(q) || (p.articul||'').toLowerCase().includes(q));
   }
-  if(isDefaultView){
+  if(currentFilter.stockOnly) list = list.filter(p=>p.inStock!==false);
+  if(currentFilter.priceMin!=null) list = list.filter(p=>Number(p.price)>=currentFilter.priceMin);
+  if(currentFilter.priceMax!=null) list = list.filter(p=>Number(p.price)<=currentFilter.priceMax);
+
+  if(currentFilter.sort==='priceAsc'){
+    list.sort((a,b)=>Number(a.price)-Number(b.price));
+  } else if(currentFilter.sort==='priceDesc'){
+    list.sort((a,b)=>Number(b.price)-Number(a.price));
+  } else if(currentFilter.sort==='rating'){
+    list.sort((a,b)=>(Number(b.rating)||0)-(Number(a.rating)||0) || (Number(b.ratingCount)||0)-(Number(a.ratingCount)||0));
+  } else if(currentFilter.sort==='new'){
+    const millis = p=> (p.createdAt && typeof p.createdAt.toMillis==='function') ? p.createdAt.toMillis() : 0;
+    list.sort((a,b)=>millis(b)-millis(a));
+  } else if(isDefaultView){
     // "микс" — перемешанная витрина товаров из разных каталогов
     if(!State.mixedOrder || State.mixedOrderDirty){
       State.mixedOrder = shuffleArray(list.map(p=>p.id));
@@ -2196,13 +2465,51 @@ function filterAndRenderGrid(f){
     });
   }
   const cat = State.catalogs.find(c=>c.id===currentFilter.catalogId);
-  $('#gridTitle').textContent = currentFilter.search ? `Результаты поиска: "${currentFilter.search}"` : (cat ? cat.name : 'Все товары');
+  $('#gridTitle').textContent = currentFilter.flashOnly ? '⚡ Товары акции' : (currentFilter.search ? `Результаты поиска: "${currentFilter.search}"` : (cat ? cat.name : 'Все товары'));
   renderGrid(list, '#productGrid');
 }
+$('#sortSelect').addEventListener('change', (e)=>{ filterAndRenderGrid({sort: e.target.value}); });
+$('#stockOnlyChip').addEventListener('click', ()=>{
+  const next = !currentFilter.stockOnly;
+  $('#stockOnlyChip').classList.toggle('active', next);
+  $('#stockOnlyChip').innerHTML = next ? '<i class="fa-solid fa-square-check"></i> В наличии' : '<i class="fa-regular fa-square-check"></i> В наличии';
+  filterAndRenderGrid({stockOnly: next});
+});
+$('#openPriceFilterBtn').addEventListener('click', ()=>{
+  $('#priceMinInput').value = currentFilter.priceMin!=null ? currentFilter.priceMin : '';
+  $('#priceMaxInput').value = currentFilter.priceMax!=null ? currentFilter.priceMax : '';
+  openOv('ovPriceFilter');
+});
+function updatePriceChipLabel(){
+  const chip = $('#openPriceFilterBtn'), label = $('#priceFilterChipLabel');
+  const {priceMin, priceMax} = currentFilter;
+  if(priceMin==null && priceMax==null){ label.textContent = 'Цена'; chip.classList.remove('active'); return; }
+  chip.classList.add('active');
+  if(priceMin!=null && priceMax!=null) label.textContent = `${priceMin}–${priceMax}`;
+  else if(priceMin!=null) label.textContent = `от ${priceMin}`;
+  else label.textContent = `до ${priceMax}`;
+}
+$('#priceFilterApplyBtn').addEventListener('click', ()=>{
+  const minV = $('#priceMinInput').value.trim(), maxV = $('#priceMaxInput').value.trim();
+  filterAndRenderGrid({
+    priceMin: minV!=='' ? Number(minV) : null,
+    priceMax: maxV!=='' ? Number(maxV) : null
+  });
+  updatePriceChipLabel();
+  closeOv('ovPriceFilter');
+});
+$('#priceFilterResetBtn').addEventListener('click', ()=>{
+  $('#priceMinInput').value=''; $('#priceMaxInput').value='';
+  filterAndRenderGrid({priceMin:null, priceMax:null});
+  updatePriceChipLabel();
+  closeOv('ovPriceFilter');
+});
 function cardHtml(p){
   const hasVariants = (p.sizes&&p.sizes.length) || (p.colors&&p.colors.length);
   const inCart = !hasVariants ? State.cart.find(c=>c.productId===p.id && !c.wholesale) : null;
   const isFav = State.user && (State.user.favorites||[]).includes(p.id);
+  const isNotifySub = State.user && (State.user.stockNotify||[]).includes(p.id);
+  const isComparing = (State.compareList||[]).includes(p.id);
   const images = (p.images && p.images.length) ? p.images : [];
   const sale = p.oldPrice && Number(p.oldPrice) > Number(p.price) ? Math.round(100 - (p.price/p.oldPrice*100)) : 0;
   let mediaHtml;
@@ -2218,11 +2525,17 @@ function cardHtml(p){
   const sellerName = sellerObj ? sellerObj.fio : 'HORIZON MARKET';
   // promoLabel can hold one or more badges separated by "|" (e.g. "ХОРОШАЯ ЦЕНА|ЖАРКИЕ СКИДКИ")
   const promoBadges = p.promoLabel ? p.promoLabel.split('|').map(s=>s.trim()).filter(Boolean) : [];
-  const badgesHtml = (sale>0 || promoBadges.length)
+  const fsActive = State.settings.flashSale;
+  const isFlashProduct = fsActive && fsActive.active && fsActive.endsAt && (fsActive.productIds||[]).includes(p.id)
+    && Date.now() < (fsActive.endsAt.toMillis ? fsActive.endsAt.toMillis() : new Date(fsActive.endsAt).getTime());
+  const badgesHtml = (sale>0 || promoBadges.length || isFlashProduct)
     ? `<div class="card-img-badges">
+        ${isFlashProduct?`<div class="sale-ribbon" style="background:linear-gradient(135deg,#FF3D57,#FF7A3D);"><i class="fa-solid fa-bolt"></i> АКЦИЯ</div>`:''}
         ${sale>0?`<div class="sale-ribbon">-${sale}%</div>`:''}
         ${promoBadges.map((b,i)=>`<div class="promo-label ${i>0?'hot':''}">${b}</div>`).join('')}
       </div>` : '';
+  const lowStockHtml = (p.inStock!==false && p.stockQty!=null && p.stockQty<=5)
+    ? `<div style="font-size:11px;font-weight:700;color:#FF7A00;margin-top:2px;"><i class="fa-solid fa-triangle-exclamation"></i> Осталось ${p.stockQty} шт.</div>` : '';
   return `<div class="card" data-id="${p.id}">
     <div class="card-img" data-openpd="${p.id}" data-idx="0">
       <div class="card-img-clip">${mediaHtml}</div>
@@ -2230,11 +2543,12 @@ function cardHtml(p){
       ${badgesHtml}
       <div class="card-actions-top">
         <button class="fav-toggle ${isFav?'active':''}" data-fav="${p.id}"><i class="fa-${isFav?'solid':'regular'} fa-heart"></i></button>
+        <button class="mini-icon-btn ${isComparing?'active':''}" data-compare="${p.id}" title="Сравнить"><i class="fa-solid fa-scale-balanced"></i></button>
         <button class="mini-icon-btn" data-share="${p.id}" title="Поделиться"><i class="fa-solid fa-share-nodes"></i></button>
         <button class="mini-icon-btn" data-review="${p.id}" title="Оставить отзыв"><i class="fa-regular fa-star"></i></button>
       </div>
       <div class="card-footer">
-        ${p.inStock===false ? `<span class="out-of-stock-tag">Нет в наличии</span>`
+        ${p.inStock===false ? `<div style="display:flex;gap:6px;align-items:center;"><span class="out-of-stock-tag">Нет в наличии</span><button class="mini-icon-btn ${isNotifySub?'active':''}" data-notifystock="${p.id}" title="${isNotifySub?'Отменить уведомление':'Уведомить о поступлении'}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i></button></div>`
           : (hasVariants ? `<button class="cart-add-btn" data-openvariant="${p.id}"><i class="fa-solid fa-cart-shopping"></i></button>`
           : (inCart ? `<div class="qty-stepper"><button data-qty="-1" data-id="${p.id}">-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${p.id}">+</button></div>`
                     : `<button class="cart-add-btn" data-addcart="${p.id}"><i class="fa-solid fa-cart-shopping"></i></button>`))}
@@ -2242,6 +2556,7 @@ function cardHtml(p){
     </div>
     <div class="card-body">
       <div class="card-prices"><span class="card-price">${fmt(p.price)}</span>${p.oldPrice?`<span class="card-oldprice">${fmt(p.oldPrice)}</span>`:''}</div>
+      ${lowStockHtml}
       <div class="card-seller"><i class="fa-solid fa-circle-check"></i>${sellerName}</div>
       <div class="card-name" data-openpd="${p.id}">${p.name}</div>
       ${(p.characteristics&&p.characteristics.length)
@@ -2358,6 +2673,12 @@ document.addEventListener('touchcancel', endCardPinch, {passive:true});
 document.addEventListener('click', (e)=>{
   const favBtn = e.target.closest('[data-fav]');
   if(favBtn){ e.stopPropagation(); toggleFavorite(favBtn.getAttribute('data-fav')); return; }
+  const compareBtn = e.target.closest('[data-compare]');
+  if(compareBtn){ e.stopPropagation(); toggleCompare(compareBtn.getAttribute('data-compare')); return; }
+  const notifyStockBtn = e.target.closest('[data-notifystock]');
+  if(notifyStockBtn){ e.stopPropagation(); toggleStockNotify(notifyStockBtn.getAttribute('data-notifystock')); return; }
+  const reviewPhoto = e.target.closest('[data-reviewphoto]');
+  if(reviewPhoto){ openLightbox([reviewPhoto.getAttribute('data-reviewphoto')], 0); return; }
   const shareBtn = e.target.closest('[data-share]');
   if(shareBtn){ e.stopPropagation(); shareProduct(shareBtn.getAttribute('data-share')); return; }
   const reviewBtn = e.target.closest('[data-review]');
@@ -2424,6 +2745,79 @@ $('#searchInput').addEventListener('input', (e)=>{
   searchDebounce = setTimeout(()=>filterAndRenderGrid({search:e.target.value, catalogId:null, subcatalogId:null}), 250);
 });
 
+/* ============ COMPARE ============ */
+function loadCompareList(){ try{ State.compareList = JSON.parse(localStorage.getItem('hz_compare')||'[]'); }catch(e){ State.compareList=[]; } renderCompareBar(); }
+function persistCompareList(){ localStorage.setItem('hz_compare', JSON.stringify(State.compareList||[])); }
+function toggleCompare(pid){
+  State.compareList = State.compareList || [];
+  const idx = State.compareList.indexOf(pid);
+  if(idx>-1){ State.compareList.splice(idx,1); }
+  else {
+    if(State.compareList.length>=4){ toast('Можно сравнить не более 4 товаров','','fa-circle-exclamation'); return; }
+    State.compareList.push(pid);
+  }
+  persistCompareList();
+  renderCompareBar();
+  filterAndRenderGrid({});
+}
+function renderCompareBar(){
+  const bar = $('#compareBar');
+  const list = State.compareList||[];
+  if(list.length===0){ bar.style.display='none'; return; }
+  bar.style.display = 'block';
+  const n = list.length;
+  const word = n===1?'товар':(n<5?'товара':'товаров');
+  $('#compareBarCount').textContent = `${n} ${word} выбрано`;
+}
+$('#compareBarClearBtn').addEventListener('click', ()=>{ State.compareList=[]; persistCompareList(); renderCompareBar(); filterAndRenderGrid({}); });
+$('#compareBarOpenBtn').addEventListener('click', renderCompareTable);
+function renderCompareTable(){
+  const list = (State.compareList||[]).map(id=>State.products.find(p=>p.id===id)).filter(Boolean);
+  if(list.length<1){ toast('Выберите хотя бы 1 товар для сравнения','','fa-circle-exclamation'); return; }
+  const allKeys = [];
+  list.forEach(p=>(p.characteristics||[]).forEach(c=>{ if(!allKeys.includes(c.key)) allKeys.push(c.key); }));
+  const rows = [
+    ['Фото', list.map(p=>`<img src="${(p.images&&p.images[0])||''}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">`)],
+    ['Название', list.map(p=>p.name)],
+    ['Цена', list.map(p=>fmt(p.price))],
+    ['Рейтинг', list.map(p=>`<i class="fa-solid fa-star" style="color:#FFA800;"></i> ${(p.rating||5).toFixed(1)} (${p.ratingCount||0})`)],
+    ['Наличие', list.map(p=>p.inStock===false?'<span style="color:var(--danger);">Нет</span>':'<span style="color:var(--success);">Есть</span>')],
+    ...allKeys.map(k=>[k, list.map(p=>{ const c=(p.characteristics||[]).find(cc=>cc.key===k); return c?c.value:'—'; })]),
+    ['', list.map(p=>`<button class="tiny-btn primary" data-openpd="${p.id}" data-closecompare="1">Открыть</button> <button class="tiny-btn danger" data-compare="${p.id}">Убрать</button>`)]
+  ];
+  $('#compareTableWrap').innerHTML = `<table class="compare-table">
+    <tbody>
+      ${rows.map(([label,cells])=>`<tr><th>${label}</th>${cells.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}
+    </tbody>
+  </table>`;
+  openOv('ovCompare');
+}
+document.addEventListener('click', (e)=>{
+  const closeCompareOpen = e.target.closest('[data-closecompare]');
+  if(closeCompareOpen){ closeOv('ovCompare'); }
+});
+
+/* ============ PRICE WATCH ============ */
+function togglePriceWatch(pid){
+  if(!State.user){ openOv('ovAuthChoice'); return; }
+  const subs = new Set(State.user.priceWatch||[]);
+  const wasSubscribed = subs.has(pid);
+  wasSubscribed ? subs.delete(pid) : subs.add(pid);
+  State.user.priceWatch = Array.from(subs);
+  saveLocalUser(State.user);
+  if(State.user.role==='client' && State.user.docId){ db.collection('users').doc(State.user.docId).update({priceWatch: State.user.priceWatch}).catch(()=>{}); }
+  toast(wasSubscribed ? 'Слежение за ценой отключено' : 'Сообщим, если цена снизится', '', wasSubscribed ? 'fa-bell-slash' : 'fa-bell');
+  renderPriceWatchBtn(pid);
+}
+function renderPriceWatchBtn(pid){
+  const btn = $('#pdPriceWatchBtn');
+  if(!btn) return;
+  const isWatching = State.user && (State.user.priceWatch||[]).includes(pid);
+  btn.classList.toggle('active', !!isWatching);
+  btn.innerHTML = `<i class="fa-${isWatching?'solid':'regular'} fa-bell"></i>`;
+}
+$('#pdPriceWatchBtn').addEventListener('click', ()=>{ if(State.activeProductId) togglePriceWatch(State.activeProductId); });
+
 /* ============ FAVORITES ============ */
 function toggleFavorite(pid){
   if(!State.user){ openOv('ovAuthChoice'); return; }
@@ -2434,6 +2828,19 @@ function toggleFavorite(pid){
   if(State.user.role==='client' && State.user.docId){ db.collection('users').doc(State.user.docId).update({favorites: State.user.favorites}).catch(()=>{}); }
   filterAndRenderGrid({});
   renderFavorites();
+}
+/* ============ BACK-IN-STOCK NOTIFY ============ */
+function toggleStockNotify(pid){
+  if(!State.user){ openOv('ovAuthChoice'); return; }
+  const subs = new Set(State.user.stockNotify||[]);
+  const wasSubscribed = subs.has(pid);
+  wasSubscribed ? subs.delete(pid) : subs.add(pid);
+  State.user.stockNotify = Array.from(subs);
+  saveLocalUser(State.user);
+  if(State.user.role==='client' && State.user.docId){ db.collection('users').doc(State.user.docId).update({stockNotify: State.user.stockNotify}).catch(()=>{}); }
+  toast(wasSubscribed ? 'Уведомление отменено' : 'Уведомим вас о поступлении', '', wasSubscribed ? 'fa-bell-slash' : 'fa-bell');
+  filterAndRenderGrid({});
+  if(State.activeProductId===pid) openProductDetail(pid);
 }
 function renderFavorites(){
   const favIds = new Set((State.user && State.user.favorites) || []);
@@ -2473,13 +2880,35 @@ function changeCartQty(pid, delta, wholesale, size, color){
   if(!item) return;
   const p = State.products.find(pp=>pp.id===pid);
   const min = wholesale && p && p.wholesale ? (p.wholesale.minQty||1) : 1;
+  if(delta>0 && p && p.stockQty!=null){
+    const totalInCartForProduct = State.cart.filter(c=>c.productId===pid).reduce((s,c)=>s+c.qty,0);
+    if(totalInCartForProduct >= p.stockQty){ toast('Больше нельзя добавить','На складе доступно только '+p.stockQty+' шт.','fa-circle-exclamation'); return; }
+  }
   item.qty += delta;
   if(wholesale ? item.qty<min : item.qty<=0) State.cart = State.cart.filter(c=>c!==item);
   persistCart(); updateCartBadge(); filterAndRenderGrid({}); renderCart();
   if($('#ovProduct').classList.contains('open') && State.activeProductId===pid && p){ refreshPdCartControls(p); }
 }
-function persistCart(){ localStorage.setItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'), JSON.stringify(State.cart)); }
-function loadCart(){ try{ State.cart = JSON.parse(localStorage.getItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'))||'[]'); }catch(e){ State.cart=[]; } updateCartBadge(); }
+function persistCart(){ localStorage.setItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'), JSON.stringify(State.cart)); markCartActivity(); }
+function markCartActivity(){
+  const key = 'hz_cart_ts_'+(State.user?State.user.docId||'guest':'guest');
+  if(!State.cart || State.cart.length===0){ localStorage.removeItem(key); }
+  else if(!localStorage.getItem(key)){ localStorage.setItem(key, String(Date.now())); }
+}
+function checkAbandonedCart(){
+  if(!State.cart || State.cart.length===0) return;
+  if(sessionStorage.getItem('hz_abandoned_shown')) return;
+  const key = 'hz_cart_ts_'+(State.user?State.user.docId||'guest':'guest');
+  const ts = Number(localStorage.getItem(key));
+  if(!ts) return;
+  const hoursSince = (Date.now()-ts)/3600000;
+  if(hoursSince >= 2){
+    sessionStorage.setItem('hz_abandoned_shown','1');
+    const itemsCount = State.cart.reduce((s,c)=>s+c.qty,0);
+    toast('🛒 У вас есть незавершённая корзина', `${itemsCount} товар(ов) ждут оформления заказа`, 'fa-cart-shopping');
+  }
+}
+function loadCart(){ try{ State.cart = JSON.parse(localStorage.getItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'))||'[]'); }catch(e){ State.cart=[]; } updateCartBadge(); markCartActivity(); }
 function updateCartBadge(){ $('#cartBadge').textContent = State.cart.reduce((s,c)=>s+c.qty,0); }
 function cartTotal(){
   return State.cart.reduce((sum,c)=>{
@@ -2574,6 +3003,76 @@ document.querySelectorAll('input[name="coPayMethod"]').forEach(inp=>{
     $('#coPayCardOption').classList.toggle('active', inp.value==='card' && inp.checked);
   });
 });
+/* ============ PROMO CODE & BONUS POINTS ============ */
+let appliedPromo = null; // {id, code, type, value, discount}
+function maxRedeemableBonus(subtotalAfterPromo){
+  const balance = Number(State.user && State.user.bonusBalance) || 0;
+  return Math.max(0, Math.min(balance, subtotalAfterPromo));
+}
+function getBonusToRedeem(subtotalAfterPromo){
+  const requested = Number($('#coBonusInput').value) || 0;
+  return Math.max(0, Math.min(requested, maxRedeemableBonus(subtotalAfterPromo)));
+}
+function recalcCheckoutTotals(){
+  const subtotal = cartTotal(), fee = currentDeliveryFee();
+  const promoDiscount = appliedPromo ? appliedPromo.discount : 0;
+  const afterPromo = Math.max(0, subtotal - promoDiscount);
+  const bonusUsed = getBonusToRedeem(afterPromo);
+  $('#coSubtotal').textContent = fmt(subtotal);
+  $('#coDeliveryFee').textContent = fee>0 ? fmt(fee) : 'Бесплатно';
+  if(appliedPromo){
+    $('#coPromoRow').style.display = 'flex';
+    $('#coPromoDiscount').textContent = '-'+fmt(promoDiscount);
+  } else {
+    $('#coPromoRow').style.display = 'none';
+  }
+  const balance = Number(State.user && State.user.bonusBalance) || 0;
+  if(balance > 0){
+    $('#coBonusField').style.display = 'block';
+    $('#coBonusAvailable').textContent = fmt(balance);
+  } else {
+    $('#coBonusField').style.display = 'none';
+  }
+  if(bonusUsed > 0){
+    $('#coBonusRow').style.display = 'flex';
+    $('#coBonusApplied').textContent = '-'+fmt(bonusUsed);
+  } else {
+    $('#coBonusRow').style.display = 'none';
+  }
+  $('#coTotal').textContent = fmt(Math.max(0, afterPromo - bonusUsed) + fee);
+}
+$('#coBonusInput').addEventListener('input', recalcCheckoutTotals);
+$('#coBonusMaxBtn').addEventListener('click', ()=>{
+  const subtotal = cartTotal(), promoDiscount = appliedPromo ? appliedPromo.discount : 0;
+  $('#coBonusInput').value = maxRedeemableBonus(Math.max(0, subtotal-promoDiscount));
+  recalcCheckoutTotals();
+});
+function resetPromoUI(){
+  appliedPromo = null;
+  $('#coPromoInput').value = '';
+  $('#coPromoStatus').textContent = '';
+  $('#coPromoRow').style.display = 'none';
+  $('#coBonusInput').value = '';
+  $('#coBonusRow').style.display = 'none';
+}
+$('#coPromoApplyBtn').addEventListener('click', ()=>{
+  const code = $('#coPromoInput').value.trim().toUpperCase();
+  const statusEl = $('#coPromoStatus');
+  if(!code){ statusEl.style.color='var(--danger)'; statusEl.textContent='Введите промокод'; return; }
+  const promo = State.promocodes.find(p=>p.code===code);
+  const subtotal = cartTotal();
+  if(!promo || promo.active===false){ statusEl.style.color='var(--danger)'; statusEl.textContent='Промокод не найден или отключён'; appliedPromo=null; recalcCheckoutTotals(); return; }
+  if(promo.expiresAt){
+    const expMs = promo.expiresAt.toMillis ? promo.expiresAt.toMillis() : new Date(promo.expiresAt).getTime();
+    if(Date.now() > expMs){ statusEl.style.color='var(--danger)'; statusEl.textContent='Срок действия промокода истёк'; appliedPromo=null; recalcCheckoutTotals(); return; }
+  }
+  if(promo.usageLimit && (promo.usedCount||0) >= promo.usageLimit){ statusEl.style.color='var(--danger)'; statusEl.textContent='Лимит использований промокода исчерпан'; appliedPromo=null; recalcCheckoutTotals(); return; }
+  if(promo.minOrder && subtotal < promo.minOrder){ statusEl.style.color='var(--danger)'; statusEl.textContent=`Минимальная сумма заказа для этого промокода: ${fmt(promo.minOrder)}`; appliedPromo=null; recalcCheckoutTotals(); return; }
+  const discount = promo.type==='percent' ? Math.round(subtotal*promo.value/100) : Math.min(promo.value, subtotal);
+  appliedPromo = {id:promo.id, code:promo.code, type:promo.type, value:promo.value, discount};
+  statusEl.style.color='var(--success)'; statusEl.textContent = `Промокод применён: скидка ${fmt(discount)}`;
+  recalcCheckoutTotals();
+});
 $('#checkoutOpenBtn').addEventListener('click', ()=>{
   if(State.cart.length===0){ toast('Корзина пуста','','fa-circle-exclamation'); return; }
   $('#coName').value = State.user.fio||'';
@@ -2583,10 +3082,8 @@ $('#checkoutOpenBtn').addEventListener('click', ()=>{
   $('#coGeoStatus').style.display = 'none';
   renderDeliveryMethodOptions();
   updateCoPayOptionsVisibility();
-  const subtotal = cartTotal(), fee = currentDeliveryFee();
-  $('#coSubtotal').textContent = fmt(subtotal);
-  $('#coDeliveryFee').textContent = fee>0 ? fmt(fee) : 'Бесплатно';
-  $('#coTotal').textContent = fmt(subtotal+fee);
+  resetPromoUI();
+  recalcCheckoutTotals();
   closeOv('ovCart'); openOv('ovCheckout');
 });
 $('#coGeoBtn').addEventListener('click', ()=>{
@@ -2628,17 +3125,58 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   });
   const subtotal = cartTotal();
   const deliveryFee = currentDeliveryFee();
-  const total = subtotal + deliveryFee;
+  const promoDiscount = appliedPromo ? appliedPromo.discount : 0;
+  const afterPromo = Math.max(0, subtotal - promoDiscount);
+  const bonusUsed = getBonusToRedeem(afterPromo);
+  const total = Math.max(0, afterPromo - bonusUsed) + deliveryFee;
   const paymentMethod = 'card';
   const initialStatus = 'Ожидает оплаты';
-  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, deliveryMethod, deliveryMethodLabel, address, items, subtotal, deliveryFee, total, paymentMethod, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, deliveryMethod, deliveryMethodLabel, address, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, bonusUsed, total, paymentMethod, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  const orderRef = db.collection('orders').doc();
   try{
-    await db.collection('orders').add(order);
+    // Reserve stock atomically: aggregate quantity per product (a product can appear in
+    // several cart lines with different size/color), then check + decrement inside a
+    // single transaction so two buyers can never both "win" the last item.
+    const qtyByProduct = {};
+    items.forEach(it=>{ qtyByProduct[it.productId] = (qtyByProduct[it.productId]||0) + it.qty; });
+    const productIds = Object.keys(qtyByProduct);
+    await db.runTransaction(async (tx)=>{
+      const refs = productIds.map(pid=>db.collection('products').doc(pid));
+      const snaps = await Promise.all(refs.map(ref=>tx.get(ref)));
+      const shortages = [];
+      snaps.forEach((snap,i)=>{
+        if(!snap.exists) return;
+        const pdata = snap.data();
+        if(pdata.stockQty!=null && pdata.stockQty < qtyByProduct[productIds[i]]){
+          shortages.push(`${pdata.name} (доступно: ${pdata.stockQty})`);
+        }
+      });
+      if(shortages.length){ throw new Error('STOCK_SHORTAGE:'+shortages.join('; ')); }
+      snaps.forEach((snap,i)=>{
+        if(!snap.exists) return;
+        const pdata = snap.data();
+        if(pdata.stockQty!=null){
+          const newQty = pdata.stockQty - qtyByProduct[productIds[i]];
+          tx.update(refs[i], {stockQty:newQty, inStock: newQty>0});
+        }
+      });
+      tx.set(orderRef, order);
+    });
+    if(appliedPromo) db.collection('promocodes').doc(appliedPromo.id).update({usedCount: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+    if(bonusUsed>0 && State.user.docId){
+      db.collection('users').doc(State.user.docId).update({bonusBalance: firebase.firestore.FieldValue.increment(-bonusUsed)}).catch(()=>{});
+      State.user.bonusBalance = Math.max(0, (Number(State.user.bonusBalance)||0) - bonusUsed);
+      saveLocalUser(State.user);
+    }
     if(State.user.docId) db.collection('users').doc(State.user.docId).set({address}, {merge:true}).catch(()=>{});
     State.user.address = address;
   }catch(e){
     console.warn(e);
-    toast('Не удалось оформить заказ', 'Проверьте подключение и попробуйте снова', 'fa-circle-exclamation');
+    if(String(e.message||'').startsWith('STOCK_SHORTAGE:')){
+      toast('Недостаточно товара на складе', e.message.replace('STOCK_SHORTAGE:',''), 'fa-circle-exclamation');
+    } else {
+      toast('Не удалось оформить заказ', 'Проверьте подключение и попробуйте снова', 'fa-circle-exclamation');
+    }
     return; // stop here: don't clear the cart or claim success if the order was never saved
   }
 
@@ -2651,7 +3189,9 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
       const variantTxt = [i.size?`размер ${i.size}`:'', i.color?`цвет ${i.color}`:''].filter(Boolean).join(', ');
       return `• ${i.wholesale?'[ОПТ] ':''}${i.name}${variantTxt?` (${variantTxt})`:''} x${i.qty} — ${fmt(i.price*i.qty)}`;
     }).join('\n');
-    const text = `🛍️ <b>Новый заказ HORIZON MARKET</b>\n👤 ${name}\n📞 ${code}${phone}\n🌍 ${country}${deliveryMethodLabel?`\n🚚 Способ доставки: ${deliveryMethodLabel}`:''}\n📍 ${address}\n\n${list}\n\n💵 Сумма заказа: ${fmt(subtotal)}\n🚚 Доставка: ${deliveryFee>0?fmt(deliveryFee):'бесплатно'}\n💰 Итого: ${fmt(total)}`;
+    const promoLine = appliedPromo ? `\n🏷️ Промокод ${appliedPromo.code}: -${fmt(promoDiscount)}` : '';
+    const bonusLine = bonusUsed>0 ? `\n🪙 Списано бонусов: -${fmt(bonusUsed)}` : '';
+    const text = `🛍️ <b>Новый заказ HORIZON MARKET</b>\n👤 ${name}\n📞 ${code}${phone}\n🌍 ${country}${deliveryMethodLabel?`\n🚚 Способ доставки: ${deliveryMethodLabel}`:''}\n📍 ${address}\n\n${list}\n\n💵 Сумма заказа: ${fmt(subtotal)}${promoLine}${bonusLine}\n🚚 Доставка: ${deliveryFee>0?fmt(deliveryFee):'бесплатно'}\n💰 Итого: ${fmt(total)}`;
     if(seller && seller.botToken && seller.botChatId) sendTelegram(seller.botToken, seller.botChatId, text);
     if(State.settings.adminBotToken && State.settings.adminBotChatId) sendTelegram(State.settings.adminBotToken, State.settings.adminBotChatId, text);
     // auto seller "thanks" chat message to client
@@ -2665,6 +3205,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     }
   }
   State.cart = []; persistCart(); updateCartBadge();
+  resetPromoUI();
   closeOv('ovCheckout');
   toast('Заказ оформлен!', 'Продавец скоро с вами свяжется', 'fa-circle-check');
 
@@ -2908,6 +3449,25 @@ function getLightboxActiveImg(){
 attachFullscreenZoom($('#lightbox'), getLightboxActiveImg);
 
 /* ============ SHARE PRODUCT ============ */
+function shareReferralLink(){
+  if(!State.user || !State.user.docId) return;
+  const url = new URL(window.location.href);
+  url.search=''; url.hash='';
+  url.searchParams.set('ref', State.user.docId);
+  const shareUrl = url.toString();
+  const bonus = Number(State.settings.referralBonusPoints)||0;
+  const shareText = bonus>0
+    ? `Присоединяйся к HORIZON MARKET по моей ссылке и получи ${bonus} бонусов на первую покупку!`
+    : `Присоединяйся к HORIZON MARKET по моей ссылке!`;
+  const shareData = {title:'HORIZON MARKET', text: shareText, url: shareUrl};
+  if(navigator.share){
+    navigator.share(shareData).catch(()=>{});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(shareUrl).then(()=>toast('Ссылка скопирована','Отправьте её другу','fa-link')).catch(()=>toast('Не удалось скопировать ссылку','','fa-circle-exclamation'));
+  } else {
+    toast('Ваша реферальная ссылка', shareUrl, 'fa-link');
+  }
+}
 function shareProduct(pid){
   const p = State.products.find(pp=>pp.id===pid);
   if(!p) return;
@@ -2924,6 +3484,13 @@ function shareProduct(pid){
     toast('Ссылка на товар', shareUrl, 'fa-link');
   }
 }
+let pendingReferralCode = null;
+function checkReferralInUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if(ref){ pendingReferralCode = ref; const inp = $('#regReferralCode'); if(inp && !inp.value) inp.value = ref; }
+}
+checkReferralInUrl();
 function checkSharedProductInUrl(){
   const params = new URLSearchParams(window.location.search);
   const pid = params.get('product');
@@ -2946,12 +3513,19 @@ function openSellerShop(sellerId){
   const avatarHtml = isAdminShop
     ? `<div class="seller-shop-avatar"><i class="fa-solid fa-diamond"></i></div>`
     : (seller && seller.photo ? `<img class="seller-shop-avatar" src="${seller.photo}" style="object-fit:cover;">` : `<div class="seller-shop-avatar">${(sellerName||'S')[0]}</div>`);
+  const ratingHtml = (!isAdminShop && seller && seller.sellerRatingCount)
+    ? `<div style="font-size:12px;color:var(--text-dim);margin-top:2px;"><i class="fa-solid fa-star" style="color:#FFA800;"></i> ${(seller.sellerRating||5).toFixed(1)} · ${seller.sellerRatingCount} оценок продавца</div>`
+    : (!isAdminShop ? `<div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Пока нет оценок продавца</div>` : '');
   $('#sellerShopHead').innerHTML = `
     ${avatarHtml}
     <div>
-      <div style="font-weight:800;font-size:16px;">${sellerName}</div>
+      <div style="font-weight:800;font-size:16px;">${sellerName} ${(!isAdminShop && seller && seller.verified) ? '<i class="fa-solid fa-circle-check" style="color:#3AA0FF;font-size:14px;" title="Проверенный продавец"></i>' : ''}</div>
       <div style="color:var(--text-dim);font-size:12px;">${sellerProducts.length} товар(ов) в магазине</div>
+      ${ratingHtml}
     </div>`;
+  $('#sellerShopReviewBtnWrap').innerHTML = (!isAdminShop && State.user && State.user.role==='client')
+    ? `<button class="tiny-btn primary" id="sellerShopRateBtn" data-rateseller="${sellerId}" data-sellername="${sellerName.replace(/"/g,'&quot;')}"><i class="fa-solid fa-star"></i> Оценить продавца</button>`
+    : '';
   const bioText = isAdminShop ? (State.settings.about && State.settings.about.text) : (seller && seller.bio);
   $('#sellerShopBio').innerHTML = bioText ? bioText.replace(/</g,'&lt;').replace(/\n/g,'<br>') : '';
   $('#sellerShopBio').style.display = bioText ? 'block' : 'none';
@@ -2974,6 +3548,7 @@ function reviewsHTML(docs){
     return `<div class="review-item">
       <div class="review-head"><span class="review-name">${r.userName||'Покупатель'}</span><span class="review-stars">${stars}</span></div>
       ${r.text?`<div class="review-text">${r.text}</div>`:''}
+      ${r.photo?`<img src="${r.photo}" style="max-width:110px;border-radius:10px;margin-top:6px;cursor:pointer;" data-reviewphoto="${r.photo.replace(/"/g,'&quot;')}">`:''}
       ${dateTxt?`<div class="review-date">${dateTxt}</div>`:''}
     </div>`;
   }).join('');
@@ -2995,17 +3570,23 @@ async function loadAndRenderReviews(pid){
     if(!reviewsCache[pid]) wrap.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">Не удалось загрузить отзывы</div>';
   }
 }
-let reviewTargetPid = null, reviewSelectedStars = 5;
+let reviewTargetPid = null, reviewSelectedStars = 5, reviewPhotoData = '';
 function openReviewForm(pid){
   if(!State.user){ openOv('ovAuthChoice'); return; }
   const p = State.products.find(pp=>pp.id===pid);
   if(!p) return;
-  reviewTargetPid = pid; reviewSelectedStars = 5;
+  reviewTargetPid = pid; reviewSelectedStars = 5; reviewPhotoData = '';
   $('#reviewProductName').textContent = p.name;
   $('#reviewTextInput').value = '';
+  $('#reviewPhotoPreview').style.display = 'none'; $('#reviewPhotoPreview').src = '';
   renderReviewStars();
   openOv('ovReviewForm');
 }
+$('#reviewPhotoInput').addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  reviewPhotoData = await compressImage(f, 700, 0.7);
+  $('#reviewPhotoPreview').src = reviewPhotoData; $('#reviewPhotoPreview').style.display = 'block';
+});
 function renderReviewStars(){
   $('#reviewStarsInput').querySelectorAll('i').forEach(star=>{
     star.classList.toggle('active', parseInt(star.getAttribute('data-star'))<=reviewSelectedStars);
@@ -3020,10 +3601,10 @@ $('#reviewSubmitBtn').addEventListener('click', async ()=>{
   const text = $('#reviewTextInput').value.trim();
   const reviewsRef = db.collection('products').doc(reviewTargetPid).collection('reviews');
   try{
-    await reviewsRef.add({
+    await reviewsRef.add(stripUndefinedDeep({
       userId: State.user.docId||'guest', userName: State.user.fio||'Покупатель',
-      rating: reviewSelectedStars, text, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+      rating: reviewSelectedStars, text, photo: reviewPhotoData||null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }));
     const snap = await reviewsRef.get();
     const ratings = snap.docs.map(d=>d.data().rating||5);
     const avg = ratings.reduce((a,b)=>a+b,0)/ratings.length;
@@ -3045,6 +3626,52 @@ $('#pdReviewsToggle').addEventListener('click', ()=>{
   $('#pdReviewsToggleLabel').textContent = isOpen ? 'Скрыть отзывы' : 'Посмотреть отзывы';
 });
 
+/* ============ SELLER REVIEWS ============ */
+let sellerReviewTargetId = null, sellerReviewSelectedStars = 5;
+function openSellerReviewForm(sellerId, sellerName){
+  if(!State.user){ openOv('ovAuthChoice'); return; }
+  sellerReviewTargetId = sellerId; sellerReviewSelectedStars = 5;
+  $('#sellerReviewName').textContent = sellerName || 'Продавец';
+  $('#sellerReviewTextInput').value = '';
+  renderSellerReviewStars();
+  closeOv('ovSellerShop');
+  openOv('ovSellerReviewForm');
+}
+function renderSellerReviewStars(){
+  $('#sellerReviewStarsInput').querySelectorAll('i').forEach(star=>{
+    star.classList.toggle('active', parseInt(star.getAttribute('data-star'))<=sellerReviewSelectedStars);
+  });
+}
+$('#sellerReviewStarsInput').addEventListener('click', (e)=>{
+  const star = e.target.closest('[data-star]');
+  if(star){ sellerReviewSelectedStars = parseInt(star.getAttribute('data-star')); renderSellerReviewStars(); }
+});
+document.addEventListener('click', (e)=>{
+  const rateBtn = e.target.closest('[data-rateseller]');
+  if(rateBtn){ openSellerReviewForm(rateBtn.getAttribute('data-rateseller'), rateBtn.getAttribute('data-sellername')); }
+});
+$('#sellerReviewSubmitBtn').addEventListener('click', async ()=>{
+  if(!sellerReviewTargetId || !State.user) return;
+  const text = $('#sellerReviewTextInput').value.trim();
+  const reviewsRef = db.collection('users').doc(sellerReviewTargetId).collection('sellerReviews');
+  try{
+    await reviewsRef.add({
+      clientId: State.user.docId||'guest', clientName: State.user.fio||'Покупатель',
+      rating: sellerReviewSelectedStars, text, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const snap = await reviewsRef.get();
+    const ratings = snap.docs.map(d=>d.data().rating||5);
+    const avg = ratings.reduce((a,b)=>a+b,0)/ratings.length;
+    await db.collection('users').doc(sellerReviewTargetId).update({sellerRating: avg, sellerRatingCount: ratings.length});
+    if(State.sellersCache && State.sellersCache[sellerReviewTargetId]){
+      State.sellersCache[sellerReviewTargetId].sellerRating = avg;
+      State.sellersCache[sellerReviewTargetId].sellerRatingCount = ratings.length;
+    }
+    closeOv('ovSellerReviewForm');
+    toast('Спасибо за оценку продавца!', '', 'fa-circle-check');
+  }catch(e){ toast('Не удалось отправить отзыв','','fa-circle-exclamation'); }
+});
+
 /* ============ PRODUCT DETAIL ============ */
 function openProductDetail(pid){
   const p = State.products.find(pp=>pp.id===pid);
@@ -3058,6 +3685,9 @@ function openProductDetail(pid){
   pdGalleryState = {images: p.images||[], idx:0};
   renderPdGalleryViewer();
   $('#pdPrice').textContent = fmt(p.price);
+  renderPriceWatchBtn(pid);
+  $('#pdLowStock').innerHTML = (p.inStock!==false && p.stockQty!=null && p.stockQty<=5)
+    ? `<i class="fa-solid fa-triangle-exclamation"></i> Осталось всего ${p.stockQty} шт.` : '';
   $('#pdOldPrice').textContent = p.oldPrice ? fmt(p.oldPrice) : '';
   $('#pdPromoLabel').innerHTML = p.promoLabel ? `<div class="promo-label"><i class="fa-solid fa-tag"></i> ${p.promoLabel}</div>` : '';
   $('#pdRating').innerHTML = `<i class="fa-solid fa-star" style="color:#FFA800"></i> ${(p.rating||5).toFixed(1)} · ${p.ratingCount||0} отзывов`;
@@ -3068,9 +3698,11 @@ function openProductDetail(pid){
   const effectiveSellerId = p.sellerId || 'admin';
   const seller = (effectiveSellerId!=='admin' && State.sellersCache) ? State.sellersCache[effectiveSellerId] : null;
   const sellerName = effectiveSellerId==='admin' ? 'HORIZON MARKET' : (seller ? seller.fio : 'Продавец');
+  const sellerRatingBadge = (effectiveSellerId!=='admin' && seller && seller.sellerRatingCount)
+    ? `<span style="font-size:11px;color:var(--text-dim);font-weight:600;margin-left:6px;"><i class="fa-solid fa-star" style="color:#FFA800;font-size:10px;"></i> ${(seller.sellerRating||5).toFixed(1)}</span>` : '';
   $('#pdSellerLink').innerHTML = `<div data-openseller="${effectiveSellerId}" style="display:flex;align-items:center;gap:8px;cursor:pointer;width:100%;">
       <div class="chat-avatar" style="width:32px;height:32px;font-size:13px;">${(sellerName||'S')[0]}</div>
-      <span style="font-size:13px;font-weight:600;">${sellerName}</span>
+      <span style="font-size:13px;font-weight:600;">${sellerName}</span>${(seller && seller.verified)?'<i class="fa-solid fa-circle-check" style="color:#3AA0FF;font-size:12px;" title="Проверенный продавец"></i>':''}${sellerRatingBadge}
       <i class="fa-solid fa-chevron-right" style="margin-left:auto;color:var(--text-dim);font-size:12px;"></i>
     </div>`;
   renderPdVariantPicker(p);
@@ -3134,9 +3766,10 @@ function refreshPdCartControls(p){
   const wStartQty = inCartWholesale ? Math.max(wMin, inCartWholesale.qty) : wMin;
   const sizeAttr = curSize ? ` data-size="${curSize}"` : '';
   const colorAttr = curColor ? ` data-color="${curColor}"` : '';
+  const isNotifySub = State.user && (State.user.stockNotify||[]).includes(pid);
   $('#pdCartControls').innerHTML = `<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
     ${p.inStock===false
-      ? `<button class="btn btn-outline" disabled style="opacity:.6;"><i class="fa-solid fa-ban"></i> Нет в наличии</button>`
+      ? `<button class="btn btn-outline" disabled style="opacity:.6;"><i class="fa-solid fa-ban"></i> Нет в наличии</button><button class="btn ${isNotifySub?'btn-primary':'btn-outline'}" data-notifystock="${pid}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i> ${isNotifySub?'Вы будете уведомлены':'Уведомить о поступлении'}</button>`
       : (inCart
         ? `<div class="qty-stepper" style="width:fit-content;"><button data-qty="-1" data-id="${pid}"${sizeAttr}${colorAttr}>-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${pid}"${sizeAttr}${colorAttr}>+</button></div>`
         : `<button class="btn btn-primary" data-addcart="${pid}"${sizeAttr}${colorAttr}><i class="fa-solid fa-cart-plus"></i> В корзину</button>`)}
@@ -3207,20 +3840,37 @@ $('#regSubmitBtn').addEventListener('click', async ()=>{
   const code = $('#regCountry').value;
   const phone = $('#regPhone').value.trim();
   const pass = $('#regPassword').value;
+  const referralCode = $('#regReferralCode').value.trim();
   if(!fio || !phone || !pass){ toast('Заполните все поля','','fa-circle-exclamation'); return; }
   const expectedLen = PHONE_LEN_BY_CODE[code] || 10;
   if(phone.length !== expectedLen){ toast(`Номер должен содержать ${expectedLen} цифр`,'','fa-circle-exclamation'); return; }
   const fullPhone = code+phone;
   const existing = await db.collection('users').where('fullPhone','==',fullPhone).limit(1).get();
   if(!existing.empty){ toast('Этот номер уже зарегистрирован','Попробуйте войти','fa-circle-exclamation'); return; }
-  const docRef = await db.collection('users').add({
+  // referral: award both sides bonus points, once, only if the referrer exists and isn't self
+  let referredBy = null, welcomeBonus = 0;
+  const referralBonus = Number(State.settings.referralBonusPoints) || 0;
+  if(referralCode){
+    try{
+      const refDoc = await db.collection('users').doc(referralCode).get();
+      if(refDoc.exists){
+        referredBy = referralCode;
+        if(referralBonus>0) welcomeBonus = referralBonus;
+      }
+    }catch(e){}
+  }
+  const docRef = await db.collection('users').add(stripUndefinedDeep({
     fio, countryCode:code, phone, fullPhone, password: pass, photo: regPhotoData||'',
-    role:'client', favorites:[], botToken:'', botChatId:'', createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  const userObj = {docId:docRef.id, fio, countryCode:code, phone, fullPhone, role:'client', favorites:[], photo:regPhotoData||''};
+    role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, referredBy,
+    botToken:'', botChatId:'', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }));
+  if(referredBy && referralBonus>0){
+    db.collection('users').doc(referredBy).update({bonusBalance: firebase.firestore.FieldValue.increment(referralBonus)}).catch(()=>{});
+  }
+  const userObj = {docId:docRef.id, fio, countryCode:code, phone, fullPhone, role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, photo:regPhotoData||''};
   State.user = userObj; saveLocalUser(userObj);
   closeOv('ovRegister'); loadCart(); refreshUserUI();
-  toast('Добро пожаловать!', fio, 'fa-circle-check');
+  toast('Добро пожаловать!', welcomeBonus>0 ? `Начислено ${welcomeBonus} бонусов за приглашение` : fio, 'fa-circle-check');
 });
 $('#loginSubmitBtn').addEventListener('click', async ()=>{
   const code = $('#loginCountry').value, phone = $('#loginPhone').value.trim(), pass = $('#loginPassword').value;
@@ -3245,7 +3895,12 @@ $('#adminLoginSubmitBtn').addEventListener('click', ()=>{
     toast('Добро пожаловать, Админ', '', 'fa-shield-halved');
   } else { toast('Неверный логин или пароль','','fa-circle-exclamation'); }
 });
-function logout(){ State.user=null; clearLocalUser(); loadCart(); refreshUserUI(); closeAllOverlays(); stopUnpaidOrderReminder(); toast('Вы вышли','','fa-right-from-bracket'); }
+function logout(){
+  if(State.chatsMetaUnsub){ State.chatsMetaUnsub(); State.chatsMetaUnsub=null; }
+  if(State.orderStatusUnsub){ State.orderStatusUnsub(); State.orderStatusUnsub=null; }
+  State.chatMsgListeners = {}; State.orderStatusCache = {};
+  State.user=null; clearLocalUser(); loadCart(); refreshUserUI(); closeAllOverlays(); stopUnpaidOrderReminder(); toast('Вы вышли','','fa-right-from-bracket');
+}
 
 /* ============ UNPAID ORDER REMINDER (client hasn't sent payment receipt yet) ============ */
 function showUnpaidOrderReminder(){
@@ -3281,7 +3936,9 @@ function stopUnpaidOrderReminder(){
 function refreshUserUI(){
   filterAndRenderGrid({}); renderProfile(); updateChatBadgeVisibility(); loadNotifications();
   if(State.user && State.user.docId) setupMessageNotifications();
+  if(State.user && State.user.docId) setupOrderStatusNotifications();
   if(State.user && State.user.role==='client') startUnpaidOrderReminder(); else stopUnpaidOrderReminder();
+  syncPushTokenAfterAuth();
 }
 function renderProfile(){
   const body = $('#profileBody');
@@ -3301,6 +3958,8 @@ function renderProfile(){
     menu += `<div class="menu-item" id="openOrdersBtn"><i class="fa-solid fa-receipt"></i> История заказов <i class="fa-solid fa-chevron-right"></i></div>`;
   }
   if(u.role==='seller'){
+    menu += `<div class="menu-item" id="openSellerAnalyticsBtn"><i class="fa-solid fa-chart-line"></i> Аналитика <i class="fa-solid fa-chevron-right"></i></div>`;
+    menu += `<div class="menu-item" id="openSellerCrmBtn"><i class="fa-solid fa-address-book"></i> Клиенты <i class="fa-solid fa-chevron-right"></i></div>`;
     menu += `<div class="menu-item" data-open="ovMyCatalogs" id="mySellerProductsBtn"><i class="fa-solid fa-store"></i> Мои товары (+) <i class="fa-solid fa-chevron-right"></i></div>`;
     menu += `<div class="menu-item" id="openPaymentMethodsBtn"><i class="fa-solid fa-credit-card"></i> Способы оплаты <i class="fa-solid fa-chevron-right"></i></div>`;
     menu += `<div class="menu-item" id="openBotSettingsBtn"><i class="fa-brands fa-telegram"></i> Telegram-бот <i class="fa-solid fa-chevron-right"></i></div>`;
@@ -3312,19 +3971,35 @@ function renderProfile(){
   }
   menu += `<div class="menu-item" id="logoutBtn" style="color:var(--danger);"><i class="fa-solid fa-right-from-bracket" style="color:var(--danger);"></i> Выйти</div>`;
   const bioHtml = u.bio ? `<div class="seller-shop-bio" style="margin:0 0 14px;">${u.bio.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>` : '';
+  const loyaltyHtml = (u.role==='client' && u.docId) ? `
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="flex:1;background:var(--grad-main);border-radius:14px;padding:14px;color:#fff;">
+        <div style="font-size:11px;opacity:.85;font-weight:600;">Бонусный баланс</div>
+        <div style="font-size:22px;font-weight:800;margin-top:2px;"><i class="fa-solid fa-coins"></i> ${u.bonusBalance||0}</div>
+      </div>
+      <div style="flex:1;background:var(--surface-2);border-radius:14px;padding:14px;">
+        <div style="font-size:11px;color:var(--text-dim);font-weight:600;">Приглашайте друзей</div>
+        <button class="btn btn-outline" style="margin-top:6px;padding:8px;font-size:12px;" id="shareReferralBtn"><i class="fa-solid fa-user-plus"></i> Поделиться кодом</button>
+      </div>
+    </div>` : '';
   body.innerHTML = `<div class="profile-head">
     ${u.photo?`<img class="profile-avatar" src="${u.photo}">`:`<div class="profile-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--grad-main);color:#fff;font-weight:800;font-size:22px;">${(u.fio||'A')[0]}</div>`}
     <div><div class="profile-name">${u.fio||'Пользователь'}</div><div class="profile-role">${roleLabel}</div></div>
-  </div>${bioHtml}${menu}`;
+  </div>${bioHtml}${loyaltyHtml}${menu}`;
+  $('#shareReferralBtn')?.addEventListener('click', ()=>shareReferralLink());
   $('#logoutBtn')?.addEventListener('click', logout);
   $('#openAboutMenuBtn')?.addEventListener('click', ()=>{ renderAbout(); openOv('ovAbout'); });
   $('#openOrdersBtn')?.addEventListener('click', ()=>{ renderOrders(); openOv('ovOrders'); });
   $('#openBotSettingsBtn')?.addEventListener('click', ()=>{
     if(u.role==='admin'){ $('#botTokenInput').value = State.settings.adminBotToken||''; $('#botChatIdInput').value = State.settings.adminBotChatId||''; }
     else { $('#botTokenInput').value = u.botToken||''; $('#botChatIdInput').value = u.botChatId||''; }
+    $('#chatAutoReplyInput').value = u.chatAutoReply||'';
+    $('#chatAutoReplyInput').closest('.field').style.display = u.role==='admin' ? 'none' : 'block';
     openOv('ovBotSettings');
   });
   $('#mySellerProductsBtn')?.addEventListener('click', renderSellerProducts);
+  $('#openSellerAnalyticsBtn')?.addEventListener('click', ()=>{ openOv('ovSellerAnalytics'); renderSellerAnalytics(); });
+  $('#openSellerCrmBtn')?.addEventListener('click', ()=>{ openOv('ovSellerCRM'); renderSellerCRM(); });
   $('#openPaymentMethodsBtn')?.addEventListener('click', openPaymentMethodsSheet);
 }
 $('#botSettingsSaveBtn').addEventListener('click', async ()=>{
@@ -3333,8 +4008,9 @@ $('#botSettingsSaveBtn').addEventListener('click', async ()=>{
     await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId}, {merge:true});
     State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId;
   } else {
-    await db.collection('users').doc(State.user.docId).update({botToken:token, botChatId:chatId});
-    State.user.botToken = token; State.user.botChatId = chatId; saveLocalUser(State.user);
+    const chatAutoReply = $('#chatAutoReplyInput').value.trim();
+    await db.collection('users').doc(State.user.docId).update({botToken:token, botChatId:chatId, chatAutoReply});
+    State.user.botToken = token; State.user.botChatId = chatId; State.user.chatAutoReply = chatAutoReply; saveLocalUser(State.user);
   }
   closeOv('ovBotSettings'); toast('Настройки бота сохранены','','fa-circle-check');
 });
@@ -3435,7 +4111,7 @@ async function renderOrders(){
   // .catch() below silently swallows it, making order history look empty/"not saved".
   // We fetch and sort client-side instead, which needs no extra index.
   const snap = await query.get().catch((e)=>{ console.warn('orders query failed', e); return null; });
-  if(!snap || snap.empty){ $('#ordersClearAllBtn').style.display='none'; body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt"></i><div>Заказов пока нет</div></div>'; return; }
+  if(!snap || snap.empty){ $('#ordersClearAllBtn').style.display='none'; $('#ordersExportBtn').style.display='none'; body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt"></i><div>Заказов пока нет</div></div>'; return; }
   let docs = snap.docs.slice().sort((a,b)=>{
     const ta = a.data().createdAt ? a.data().createdAt.toMillis() : 0;
     const tb = b.data().createdAt ? b.data().createdAt.toMillis() : 0;
@@ -3445,8 +4121,9 @@ async function renderOrders(){
     docs = docs.filter(d=>(d.data().items||[]).some(it=>it.sellerId===State.user.docId));
   }
   docs = docs.slice(0,50);
-  if(docs.length===0){ $('#ordersClearAllBtn').style.display='none'; body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt"></i><div>Заказов пока нет</div></div>'; return; }
+  if(docs.length===0){ $('#ordersClearAllBtn').style.display='none'; $('#ordersExportBtn').style.display='none'; body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt"></i><div>Заказов пока нет</div></div>'; return; }
   $('#ordersClearAllBtn').style.display = 'flex';
+  $('#ordersExportBtn').style.display = State.user.role==='seller' ? 'flex' : 'none';
   body.innerHTML = docs.map(d=>{
     const o = d.data();
     const canPay = State.user.role==='client' && o.paymentMethod==='card' && o.status!=='Оплачено' && o.status!=='Отменён';
@@ -3455,6 +4132,8 @@ async function renderOrders(){
       <div class="row"><b>${o.clientName}</b><span class="order-status">${o.status||'Новый'}</span></div>
       <div class="row" style="color:var(--text-dim)"><span>${o.clientPhone} · ${o.country}</span><span>${fmt(o.total)}</span></div>
       ${o.paymentMethod==='card' ? `<div style="font-size:11.5px;color:var(--violet);"><i class="fa-solid fa-credit-card"></i> Оплата на карту</div>` : ''}
+      ${o.promoCode ? `<div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-tag"></i> Промокод ${o.promoCode}: -${fmt(o.promoDiscount||0)}</div>` : ''}
+      ${o.bonusUsed ? `<div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-coins"></i> Списано бонусов: -${fmt(o.bonusUsed)}</div>` : ''}
       ${o.deliveryMethodLabel ? `<div style="font-size:11.5px;color:var(--text-dim);"><i class="fa-solid fa-box"></i> Способ доставки: ${o.deliveryMethodLabel}</div>` : ''}
       ${o.deliveryFee ? `<div style="font-size:11.5px;color:var(--text-dim);"><i class="fa-solid fa-truck"></i> Доставка: ${fmt(o.deliveryFee)}</div>` : ''}
       ${o.address?`<div style="font-size:12px;color:var(--text-dim);margin-top:2px;"><i class="fa-solid fa-location-dot"></i> ${o.address}</div>`:''}
@@ -3462,17 +4141,48 @@ async function renderOrders(){
       <div class="order-actions">
         ${canPay ? `<button class="btn btn-primary" style="padding:10px;font-size:13px;" data-pay-order="${d.id}"><i class="fa-solid fa-credit-card"></i> Оплатить</button>` : ''}
         ${statusSelectHtml}
+        ${State.user.role==='client' ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-reorder="${d.id}"><i class="fa-solid fa-rotate-right"></i> Заказать снова</button>` : ''}
         <button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;color:var(--danger);border-color:var(--danger);" data-del-order="${d.id}"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>`;
   }).join('');
+  body.querySelectorAll('[data-reorder]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const orderId = btn.getAttribute('data-reorder');
+      const orderDoc = docs.find(dd=>dd.id===orderId);
+      if(!orderDoc) return;
+      const items = orderDoc.data().items || [];
+      let addedCount = 0, unavailable = 0;
+      items.forEach(it=>{
+        const p = State.products.find(pp=>pp.id===it.productId);
+        if(!p || p.inStock===false){ unavailable++; return; }
+        const existing = State.cart.find(c=>c.productId===it.productId && c.size===(it.size||null) && c.color===(it.color||null) && !!c.wholesale===!!it.wholesale);
+        if(existing){ existing.qty += it.qty; } else { State.cart.push({productId:it.productId, qty:it.qty, size:it.size||null, color:it.color||null, wholesale:!!it.wholesale}); }
+        addedCount++;
+      });
+      persistCart(); updateCartBadge();
+      if(addedCount>0){ toast('Товары добавлены в корзину', unavailable>0?`Недоступно: ${unavailable} товар(ов)`:'', 'fa-cart-shopping'); }
+      else { toast('Не удалось повторить заказ','Товары больше недоступны','fa-circle-exclamation'); }
+    });
+  });
   body.querySelectorAll('[data-pay-order]').forEach(btn=>{
     btn.addEventListener('click', ()=>openPayOrderSheet(btn.getAttribute('data-pay-order')));
   });
   body.querySelectorAll('[data-order-status]').forEach(sel=>{
     sel.addEventListener('change', async ()=>{
       const orderId = sel.getAttribute('data-order-status');
-      await db.collection('orders').doc(orderId).update({status: sel.value}).catch(()=>{});
+      const newStatus = sel.value;
+      const orderDoc = docs.find(d=>d.id===orderId);
+      const prevData = orderDoc ? orderDoc.data() : null;
+      await db.collection('orders').doc(orderId).update({status: newStatus}).catch(()=>{});
+      if(newStatus==='Доставлен' && prevData && prevData.status!=='Доставлен' && prevData.clientId && prevData.clientId!=='guest'){
+        const rate = Number(State.settings.loyaltyEarnRate) || 0;
+        const points = Math.round((prevData.total||0) * rate/100);
+        if(points>0){
+          db.collection('users').doc(prevData.clientId).update({bonusBalance: firebase.firestore.FieldValue.increment(points)}).catch(()=>{});
+          db.collection('orders').doc(orderId).update({loyaltyPointsAwarded: points}).catch(()=>{});
+        }
+      }
       toast('Статус заказа обновлён','','fa-circle-check');
       renderOrders();
     });
@@ -3488,6 +4198,7 @@ async function renderOrders(){
     });
   });
   const visibleOrderIds = docs.map(d=>d.id);
+  $('#ordersExportBtn').onclick = exportOrdersToCSV;
   $('#ordersClearAllBtn').onclick = async ()=>{
     if(!confirm(`Удалить все заказы (${visibleOrderIds.length}) из истории? Это действие нельзя отменить.`)) return;
     try{
@@ -3597,7 +4308,7 @@ function openChatThread(otherId, otherName, productId, productName){
       $('#chatMessages').innerHTML = snap.docs.map(d=>{
         const m = d.data();
         const mine = m.senderId === (State.user.docId||State.user.role);
-        return `<div class="msg ${mine?'out':'in'}">${m.productName?`<div style="font-size:11px;opacity:.8;margin-bottom:3px;"><i class="fa-solid fa-tag"></i> ${m.productName}</div>`:''}${m.image?`<img class="chat-img" src="${m.image}">`:''}${m.text?`<div${m.image?' style="margin-top:6px;"':''}>${m.text}</div>`:''}</div>`;
+        return `<div class="msg ${mine?'out':'in'}">${m.productName?`<div style="font-size:11px;opacity:.8;margin-bottom:3px;"><i class="fa-solid fa-tag"></i> ${m.productName}</div>`:''}${m.image?`<img class="chat-img" src="${m.image}">`:''}${m.text?`<div${m.image?' style="margin-top:6px;"':''}>${m.text}${m.isAutoReply?' <span style="opacity:.6;font-size:10px;">(автоответ)</span>':''}</div>`:''}</div>`;
       }).join('');
       $('#chatMessages').scrollTop = $('#chatMessages').scrollHeight;
     }, err=>console.warn(err));
@@ -3617,8 +4328,27 @@ function sendChatMessage(imageData){
   const msgData = { senderId: State.user.docId, text, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
   if(imageData) msgData.image = imageData;
   if(State.activeChatProductId){ msgData.productId = State.activeChatProductId; msgData.productName = State.activeChatProductName||''; }
-  db.collection('chats').doc(chatDocId).collection('messages').add(msgData);
+  db.collection('chats').doc(chatDocId).collection('messages').add(msgData).then(()=>{
+    if(State.user.role==='client') maybeTriggerSellerAutoReply(chatDocId, State.activeChatSellerId);
+  });
   $('#chatInputMsg').value='';
+}
+async function maybeTriggerSellerAutoReply(chatDocId, sellerId){
+  if(!sellerId || sellerId==='admin') return;
+  try{
+    const metaDoc = await db.collection('chats').doc(chatDocId).get();
+    if(metaDoc.exists && metaDoc.data().autoReplySent) return;
+    let sellerData = State.sellersCache && State.sellersCache[sellerId];
+    if(!sellerData){ const sd = await db.collection('users').doc(sellerId).get(); sellerData = sd.exists ? sd.data() : null; }
+    const autoReply = sellerData && sellerData.chatAutoReply;
+    if(!autoReply) return;
+    await db.collection('chats').doc(chatDocId).set({autoReplySent:true}, {merge:true});
+    setTimeout(()=>{
+      db.collection('chats').doc(chatDocId).collection('messages').add({
+        senderId: sellerId, text: autoReply, isAutoReply:true, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(()=>{});
+    }, 1500);
+  }catch(e){}
 }
 $('#chatSendBtn').addEventListener('click', ()=>sendChatMessage());
 $('#chatInputMsg').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendChatMessage(); });
@@ -3705,6 +4435,36 @@ function setupMessageNotifications(){
   }, ()=>{});
 }
 
+/* ============ ORDER STATUS NOTIFICATIONS ============ */
+/* Уведомляет покупателя, когда продавец/админ меняет статус его заказа (например "Собран" → "В пути"). */
+State.orderStatusCache = State.orderStatusCache || {};
+function setupOrderStatusNotifications(){
+  if(!State.user || !State.user.docId || State.user.role!=='client') return;
+  if(State.orderStatusUnsub) State.orderStatusUnsub();
+  let firstSnapshot = true;
+  State.orderStatusUnsub = db.collection('orders').where('clientId','==',State.user.docId).onSnapshot(snap=>{
+    snap.docChanges().forEach(change=>{
+      const o = change.doc.data();
+      const status = o.status || 'Новый';
+      const prev = State.orderStatusCache[change.doc.id];
+      State.orderStatusCache[change.doc.id] = status;
+      if(firstSnapshot) return; // не уведомляем про уже существующие заказы при первом подключении
+      if(change.type==='modified' && prev && prev!==status){
+        const shortId = change.doc.id.slice(-5).toUpperCase();
+        const bonusNote = (status==='Доставлен' && Number(State.settings.loyaltyEarnRate)>0) ? ' · Бонусы начислены на баланс' : '';
+        const body = `Заказ №${shortId}: ${status}${bonusNote}`;
+        toast('📦 Статус заказа обновлён', body, 'fa-truck');
+        if('Notification' in window && Notification.permission==='granted'){
+          new Notification('📦 Статус заказа обновлён', {body});
+        }
+        addNotification('order', {title:'Статус заказа обновлён', body, icon:'fa-truck'});
+        if($('#ovOrders').classList.contains('open')) renderOrders();
+      }
+    });
+    firstSnapshot = false;
+  }, ()=>{});
+}
+
 /* ============ ABOUT ============ */
 function renderAbout(){
   const links = State.settings.social || {};
@@ -3726,7 +4486,7 @@ function renderSellerProducts(){
   const list = State.products.filter(p=>p.sellerId===State.user.docId);
   const wrap = $('#sellerProductsList');
   wrap.innerHTML = list.map(p=>`<div class="list-row">
-    <div><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
+    <div><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.stockQty!=null?`· Остаток: ${p.stockQty}`:''} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
     <div style="display:flex;gap:6px;">
       <button class="tiny-btn ${p.inStock===false?'primary':''}" data-togglestock="${p.id}">${p.inStock===false?'Вернуть в наличие':'Нет в наличии'}</button>
       <button class="tiny-btn" data-editprod="${p.id}">Изменить</button>
@@ -3741,12 +4501,283 @@ document.addEventListener('click', (e)=>{
     const p = State.products.find(pp=>pp.id===pid);
     if(!p) return;
     const newVal = !(p.inStock===false);
+    if(newVal && p.stockQty!=null && p.stockQty<=0){
+      toast('Укажите новое количество','Откройте «Изменить» и введите остаток на складе','fa-circle-exclamation');
+      openProductForm(pid);
+      return;
+    }
     db.collection('products').doc(pid).update({inStock: newVal}).then(()=>{
       toast(newVal ? 'Товар снова в наличии' : 'Товар отмечен как отсутствующий', '', newVal ? 'fa-circle-check' : 'fa-ban');
     }).catch(()=>{ toast('Не удалось обновить наличие','','fa-circle-exclamation'); });
   }
 });
 $('#sellerAddProductBtn').addEventListener('click', ()=>openProductForm(null));
+$('#sellerCsvTemplateLink').addEventListener('click', (e)=>{ e.preventDefault(); downloadCsvTemplate(); });
+$('#sellerCsvInput').addEventListener('change', (e)=>{ if(e.target.files[0]) importProductsFromCSV(e.target.files[0], State.user.docId); e.target.value=''; });
+
+/* ============ BULK PRICE CHANGE ============ */
+let bulkPriceTargetSellerId = undefined; // undefined = not set, null = admin products (no sellerId)
+function openBulkPrice(sellerIdOrNull){
+  bulkPriceTargetSellerId = sellerIdOrNull;
+  $('#bulkPricePercent').value = '';
+  openOv('ovBulkPrice');
+}
+$('#bulkPriceApplyBtn').addEventListener('click', async ()=>{
+  const pct = Number($('#bulkPricePercent').value);
+  if(!pct){ toast('Укажите процент изменения','','fa-circle-exclamation'); return; }
+  const targets = bulkPriceTargetSellerId===null
+    ? State.products.filter(p=>!p.sellerId || p.sellerId==='admin')
+    : State.products.filter(p=>p.sellerId===bulkPriceTargetSellerId);
+  if(targets.length===0){ toast('Нет товаров для изменения','','fa-circle-exclamation'); return; }
+  if(!confirm(`Изменить цену на ${pct}% у ${targets.length} товар(ов)?`)) return;
+  let batch = db.batch(); let count = 0;
+  for(const p of targets){
+    const newPrice = Math.max(1, Math.round(Number(p.price) * (1 + pct/100)));
+    batch.update(db.collection('products').doc(p.id), {price: newPrice});
+    count++;
+    if(count>=400){ await batch.commit().catch(()=>{}); batch = db.batch(); count=0; }
+  }
+  if(count>0) await batch.commit().catch(()=>{});
+  closeOv('ovBulkPrice');
+  toast('Цены обновлены', `Изменено товаров: ${targets.length}`, 'fa-circle-check');
+});
+$('#sellerBulkPriceBtn').addEventListener('click', ()=>openBulkPrice(State.user.docId));
+
+/* ============ SELLER CRM ============ */
+let sellerCrmClients = [];
+async function renderSellerCRM(){
+  const body = $('#sellerCrmBody');
+  body.innerHTML = '<div class="spinner"></div>';
+  const sellerId = State.user.docId;
+  let snap;
+  try{ snap = await db.collection('orders').get(); }catch(e){ body.innerHTML = '<div class="empty-state"><div>Не удалось загрузить заказы</div></div>'; return; }
+  const byClient = {};
+  snap.docs.forEach(d=>{
+    const o = d.data();
+    const myItems = (o.items||[]).filter(it=>it.sellerId===sellerId);
+    if(myItems.length===0 || !o.clientId || o.clientId==='guest') return;
+    const sum = myItems.reduce((s,it)=>s+(Number(it.price)||0)*(Number(it.qty)||0), 0);
+    const createdMs = o.createdAt && o.createdAt.toMillis ? o.createdAt.toMillis() : 0;
+    if(!byClient[o.clientId]) byClient[o.clientId] = {clientId:o.clientId, name:o.clientName||'Клиент', phone:o.clientPhone||'', orderCount:0, totalSpent:0, lastOrderMs:0};
+    const c = byClient[o.clientId];
+    c.orderCount++; c.totalSpent += sum;
+    if(createdMs > c.lastOrderMs){ c.lastOrderMs = createdMs; c.name = o.clientName||c.name; c.phone = o.clientPhone||c.phone; }
+  });
+  sellerCrmClients = Object.values(byClient).sort((a,b)=>b.totalSpent-a.totalSpent);
+  renderSellerCrmList(sellerCrmClients);
+}
+function renderSellerCrmList(list){
+  const body = $('#sellerCrmBody');
+  if(list.length===0){ body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-address-book"></i><div>Клиентов пока нет</div></div>'; return; }
+  body.innerHTML = list.map(c=>`<div class="list-row" data-crmclient="${c.clientId}" style="cursor:pointer;">
+    <div><div class="list-row-title">${c.name}</div><div class="list-row-sub">${c.phone} · ${c.orderCount} заказ(ов) · ${c.lastOrderMs?new Date(c.lastOrderMs).toLocaleDateString('ru-RU'):''}</div></div>
+    <div style="font-weight:800;">${fmt(c.totalSpent)}</div>
+  </div>`).join('');
+}
+$('#crmSearchInput').addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  const filtered = q ? sellerCrmClients.filter(c=>c.name.toLowerCase().includes(q) || c.phone.toLowerCase().includes(q)) : sellerCrmClients;
+  renderSellerCrmList(filtered);
+});
+let crmActiveClientId = null;
+document.addEventListener('click', async (e)=>{
+  const row = e.target.closest('[data-crmclient]');
+  if(!row) return;
+  crmActiveClientId = row.getAttribute('data-crmclient');
+  const c = sellerCrmClients.find(cc=>cc.clientId===crmActiveClientId);
+  if(!c) return;
+  $('#crmClientInfo').innerHTML = `
+    <div style="font-weight:800;font-size:16px;">${c.name}</div>
+    <div style="color:var(--text-dim);font-size:13px;margin-top:2px;">${c.phone}</div>
+    <div class="stat-grid" style="margin-top:12px;">
+      <div class="stat-card"><div class="stat-label">Заказов</div><div class="stat-value">${c.orderCount}</div></div>
+      <div class="stat-card"><div class="stat-label">Потрачено у вас</div><div class="stat-value">${fmt(c.totalSpent)}</div></div>
+    </div>`;
+  $('#crmClientNote').value = 'Загрузка…';
+  const noteId = `${State.user.docId}_${crmActiveClientId}`;
+  try{
+    const noteDoc = await db.collection('sellerClientNotes').doc(noteId).get();
+    $('#crmClientNote').value = noteDoc.exists ? (noteDoc.data().note||'') : '';
+  }catch(err){ $('#crmClientNote').value = ''; }
+  openOv('ovCrmClient');
+});
+$('#crmSaveNoteBtn').addEventListener('click', async ()=>{
+  if(!crmActiveClientId) return;
+  const noteId = `${State.user.docId}_${crmActiveClientId}`;
+  const note = $('#crmClientNote').value.trim();
+  try{
+    await db.collection('sellerClientNotes').doc(noteId).set({sellerId: State.user.docId, clientId: crmActiveClientId, note, updatedAt: firebase.firestore.FieldValue.serverTimestamp()});
+    toast('Заметка сохранена','','fa-circle-check');
+    closeOv('ovCrmClient');
+  }catch(e){ toast('Не удалось сохранить заметку','','fa-circle-exclamation'); }
+});
+
+/* ============ SELLER ANALYTICS ============ */
+async function renderSellerAnalytics(){
+  const body = $('#sellerAnalyticsBody');
+  body.innerHTML = '<div class="spinner"></div>';
+  const sellerId = State.user.docId;
+  const myProducts = State.products.filter(p=>p.sellerId===sellerId);
+  const inStockCount = myProducts.filter(p=>p.inStock!==false).length;
+  const avgRating = myProducts.length ? (myProducts.reduce((s,p)=>s+(Number(p.rating)||0),0)/myProducts.length) : 0;
+  const totalReviews = myProducts.reduce((s,p)=>s+(Number(p.ratingCount)||0),0);
+  let snap;
+  try{ snap = await db.collection('orders').get(); }catch(e){ body.innerHTML = '<div class="empty-state"><div>Не удалось загрузить данные заказов</div></div>'; return; }
+  let ordersCount = 0, totalRevenue = 0, confirmedRevenue = 0, pendingCount = 0;
+  const qtyByProduct = {};
+  snap.docs.forEach(d=>{
+    const o = d.data();
+    const myItems = (o.items||[]).filter(it=>it.sellerId===sellerId);
+    if(myItems.length===0) return;
+    ordersCount++;
+    const isCancelled = o.status==='Отменён';
+    const isDelivered = o.status==='Доставлен' || o.status==='Оплачено';
+    if(o.status==='Новый' || o.status==='Ожидает оплаты' || o.status==='Оплата проверяется') pendingCount++;
+    myItems.forEach(it=>{
+      const sum = (Number(it.price)||0)*(Number(it.qty)||0);
+      if(!isCancelled){ totalRevenue += sum; if(isDelivered) confirmedRevenue += sum; }
+      qtyByProduct[it.name] = (qtyByProduct[it.name]||0) + (Number(it.qty)||0);
+    });
+  });
+  const topProducts = Object.entries(qtyByProduct).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  body.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Товаров</div><div class="stat-value">${myProducts.length}</div></div>
+      <div class="stat-card"><div class="stat-label">В наличии</div><div class="stat-value">${inStockCount}</div></div>
+      <div class="stat-card"><div class="stat-label">Заказов всего</div><div class="stat-value">${ordersCount}</div></div>
+      <div class="stat-card"><div class="stat-label">Ожидают обработки</div><div class="stat-value">${pendingCount}</div></div>
+      <div class="stat-card"><div class="stat-label">Выручка (всего)</div><div class="stat-value">${fmt(totalRevenue)}</div></div>
+      <div class="stat-card"><div class="stat-label">Подтверждено</div><div class="stat-value">${fmt(confirmedRevenue)}</div></div>
+      <div class="stat-card"><div class="stat-label">Средний рейтинг</div><div class="stat-value"><i class="fa-solid fa-star" style="color:#FFA800;font-size:15px;"></i> ${avgRating.toFixed(1)}</div></div>
+      <div class="stat-card"><div class="stat-label">Отзывов</div><div class="stat-value">${totalReviews}</div></div>
+    </div>
+    <div class="section-title" style="padding:0 0 8px;font-size:14px;">Топ товаров по продажам</div>
+    ${topProducts.length ? topProducts.map(([name,qty])=>`<div class="list-row"><div class="list-row-title">${name}</div><div style="font-weight:800;">${qty} шт.</div></div>`).join('') : '<div class="empty-state"><div>Продаж пока нет</div></div>'}
+  `;
+}
+/* ============ CSV EXPORT (ORDERS) ============ */
+function csvEscape(v){
+  const s = String(v==null?'':v);
+  return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+}
+async function exportOrdersToCSV(){
+  toast('Готовим экспорт…','','fa-spinner');
+  let snap;
+  try{ snap = await db.collection('orders').get(); }catch(e){ toast('Не удалось загрузить заказы','','fa-circle-exclamation'); return; }
+  const isSeller = State.user.role==='seller';
+  const rows = [['Дата','№ заказа','Клиент','Телефон','Товары','Сумма','Скидка промокод','Списано бонусов','Доставка','Итого','Статус']];
+  snap.docs.forEach(d=>{
+    const o = d.data();
+    const items = isSeller ? (o.items||[]).filter(it=>it.sellerId===State.user.docId) : (o.items||[]);
+    if(isSeller && items.length===0) return;
+    const dateTxt = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString('ru-RU') : '';
+    const itemsTxt = items.map(i=>`${i.name} x${i.qty}`).join('; ');
+    const sum = isSeller ? items.reduce((s,it)=>s+(Number(it.price)||0)*(Number(it.qty)||0),0) : o.subtotal;
+    rows.push([dateTxt, d.id, o.clientName, o.clientPhone, itemsTxt, sum, o.promoDiscount||0, o.bonusUsed||0, o.deliveryFee||0, o.total, o.status]);
+  });
+  const csv = rows.map(r=>r.map(csvEscape).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `orders_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  toast('Файл готов','','fa-circle-check');
+}
+
+/* ============ CSV IMPORT ============ */
+function parseCSV(text){
+  const rows = []; let row = [], field = '', inQuotes = false;
+  text = text.replace(/^\uFEFF/, ''); // strip BOM if present
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i++; } else { inQuotes=false; } }
+      else field += c;
+    } else {
+      if(c==='"') inQuotes = true;
+      else if(c===','){ row.push(field); field=''; }
+      else if(c==='\n' || c==='\r'){
+        if(c==='\r' && text[i+1]==='\n') i++;
+        row.push(field); field=''; rows.push(row); row=[];
+      } else field += c;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r=>!(r.length===1 && r[0].trim()===''));
+}
+function downloadCsvTemplate(){
+  const header = 'name,price,oldPrice,articul,catalog,subcatalog,description,characteristics,imageUrl,inStock,stockQty';
+  const example = 'Кроссовки Air Max,4990,6990,SKU-001,Обувь,Кроссовки,Лёгкие и удобные кроссовки,Материал:Текстиль;Цвет:Белый,https://example.com/img.jpg,1,25';
+  const csv = header+'\n'+example+'\n';
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'products_template.csv'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+async function importProductsFromCSV(file, sellerId){
+  const text = await file.text();
+  const rows = parseCSV(text);
+  if(rows.length < 2){ toast('Файл пуст или содержит только заголовок','','fa-circle-exclamation'); return; }
+  const header = rows[0].map(h=>h.trim().toLowerCase());
+  const idx = (col)=>header.indexOf(col);
+  const iName=idx('name'), iPrice=idx('price'), iOldPrice=idx('oldprice'), iArticul=idx('articul'),
+        iCatalog=idx('catalog'), iSubcatalog=idx('subcatalog'), iDesc=idx('description'),
+        iChars=idx('characteristics'), iImg=idx('imageurl'), iStock=idx('instock'), iStockQty=idx('stockqty');
+  if(iName===-1 || iPrice===-1){ toast('В файле должны быть колонки name и price','','fa-circle-exclamation'); return; }
+  toast('Импорт запущен…', `Обрабатываем ${rows.length-1} строк`, 'fa-spinner');
+  let added = 0, skipped = 0; const skipReasons = [];
+  let batch = db.batch(); let batchCount = 0;
+  for(let r=1;r<rows.length;r++){
+    const row = rows[r];
+    if(!row || row.every(c=>!c || !c.trim())) continue;
+    const name = (row[iName]||'').trim();
+    const price = parseFloat(row[iPrice]);
+    if(!name || !price){ skipped++; skipReasons.push(`Строка ${r+1}: нет названия или цены`); continue; }
+    let catalogId = null, subcatalogId = null;
+    const catalogName = iCatalog>-1 ? (row[iCatalog]||'').trim() : '';
+    const subcatalogName = iSubcatalog>-1 ? (row[iSubcatalog]||'').trim() : '';
+    if(catalogName){
+      const cat = State.catalogs.find(c=>c.name.toLowerCase()===catalogName.toLowerCase());
+      if(cat){
+        catalogId = cat.id;
+        if(subcatalogName){
+          const sub = State.subcatalogs.find(s=>s.catalogId===cat.id && s.name.toLowerCase()===subcatalogName.toLowerCase());
+          if(sub) subcatalogId = sub.id;
+        }
+      }
+    }
+    const characteristics = [];
+    if(iChars>-1 && row[iChars]){
+      row[iChars].split(';').forEach(pair=>{
+        const [k,v] = pair.split(':');
+        if(k && v) characteristics.push({key:k.trim(), value:v.trim()});
+      });
+    }
+    const imageUrl = iImg>-1 ? (row[iImg]||'').trim() : '';
+    const stockQty = (iStockQty>-1 && row[iStockQty] && row[iStockQty].trim()!=='') ? Math.max(0, parseInt(row[iStockQty])) : null;
+    const inStock = stockQty!=null ? stockQty>0 : (iStock>-1 ? !(row[iStock]==='0' || /^(false|нет)$/i.test((row[iStock]||'').trim())) : true);
+    const data = stripUndefinedDeep({
+      name, price,
+      oldPrice: (iOldPrice>-1 && row[iOldPrice]) ? parseFloat(row[iOldPrice]) : null,
+      articul: (iArticul>-1 && row[iArticul]) ? row[iArticul].trim() : null,
+      catalogId, subcatalogId,
+      desc: iDesc>-1 ? (row[iDesc]||'').trim() : '',
+      characteristics, images: imageUrl ? [imageUrl] : [],
+      sizes: [], colors: [], wholesale: null,
+      inStock, stockQty, rating:5, ratingCount:0,
+      sellerId, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(db.collection('products').doc(), data);
+    batchCount++; added++;
+    if(batchCount>=400){ await batch.commit().catch(()=>{}); batch = db.batch(); batchCount=0; }
+  }
+  if(batchCount>0) await batch.commit().catch(()=>{});
+  State.mixedOrderDirty = true;
+  toast(
+    added>0 ? `Импорт завершён: добавлено ${added}` : 'Импорт завершён',
+    skipped>0 ? `Пропущено строк: ${skipped}${skipReasons[0]?(' · '+skipReasons[0]):''}` : '',
+    added>0 ? 'fa-circle-check' : 'fa-circle-exclamation'
+  );
+}
 
 /* ============ PRODUCT FORM (admin + seller) ============ */
 let pfChars = [], pfImages = [], pfSizes = [], pfColors = [];
@@ -3896,6 +4927,7 @@ function openProductForm(productId){
   $('#pfPrice').value = p?p.price:'';
   $('#pfOldPrice').value = p&&p.oldPrice?p.oldPrice:'';
   $('#pfInStock').checked = p ? (p.inStock !== false) : true;
+  $('#pfStockQty').value = (p && p.stockQty!=null) ? p.stockQty : '';
   const presetLabels = ['Распродажа','Акция','Хит продаж','Новинка'];
   if(p && p.promoLabel && presetLabels.includes(p.promoLabel)){
     $('#pfPromoLabel').value = p.promoLabel; $('#pfPromoLabelCustom').style.display = 'none'; $('#pfPromoLabelCustom').value = '';
@@ -3941,9 +4973,12 @@ $('#pfSaveBtn').addEventListener('click', async ()=>{
   if(!name || !price){ toast('Укажите название и цену','','fa-circle-exclamation'); return; }
   const promoLabelSel = $('#pfPromoLabel').value;
   const promoLabel = promoLabelSel==='custom' ? $('#pfPromoLabelCustom').value.trim() : promoLabelSel;
+  const stockQtyRaw = $('#pfStockQty').value.trim();
+  const stockQty = stockQtyRaw!=='' ? Math.max(0, parseInt(stockQtyRaw)) : null;
   const data = {
     name, price, articul: $('#pfArticul').value.trim() || null, oldPrice: $('#pfOldPrice').value ? parseFloat($('#pfOldPrice').value) : null,
-    inStock: $('#pfInStock').checked,
+    inStock: stockQty!=null ? stockQty>0 : $('#pfInStock').checked,
+    stockQty,
     promoLabel: promoLabel || null,
     desc: $('#pfDesc').value.trim(), catalogId: $('#pfCatalog').value, subcatalogId: $('#pfSubcatalog').value,
     characteristics: pfChars.filter(c=>c.key), images: pfImages,
@@ -4026,10 +5061,20 @@ function renderAdminTab(){
     });
     renderAdminCatList();
   } else if(adminActiveTab==='products'){
-    body.innerHTML = `<button class="btn btn-primary" style="margin-bottom:10px;" id="adminAddProductBtn"><i class="fa-solid fa-plus"></i> Новый товар</button><div id="adminProductList"></div>`;
+    body.innerHTML = `
+      <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+        <button class="btn btn-primary" style="width:auto;flex:1;min-width:140px;" id="adminAddProductBtn"><i class="fa-solid fa-plus"></i> Новый товар</button>
+        <label class="btn btn-outline" style="width:auto;flex:1;min-width:140px;margin:0;"><i class="fa-solid fa-file-csv"></i> Импорт CSV<input type="file" accept=".csv" class="hidden" id="adminCsvInput"></label>
+        <button class="btn btn-outline" style="width:auto;flex:1;min-width:140px;" id="adminBulkPriceBtn"><i class="fa-solid fa-percent"></i> Изменить цены</button>
+      </div>
+      <a href="#" id="adminCsvTemplateLink" style="display:block;font-size:12px;color:var(--violet);margin:0 0 10px;">Скачать шаблон CSV</a>
+      <div id="adminProductList"></div>`;
     $('#adminAddProductBtn').addEventListener('click', ()=>openProductForm(null));
+    $('#adminBulkPriceBtn').addEventListener('click', ()=>openBulkPrice(null));
+    $('#adminCsvTemplateLink').addEventListener('click', (e)=>{ e.preventDefault(); downloadCsvTemplate(); });
+    $('#adminCsvInput').addEventListener('change', (e)=>{ if(e.target.files[0]) importProductsFromCSV(e.target.files[0], 'admin'); e.target.value=''; });
     $('#adminProductList').innerHTML = State.products.map(p=>`<div class="list-row">
-      <div><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
+      <div><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.stockQty!=null?`· Остаток: ${p.stockQty}`:''} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
       <div style="display:flex;gap:6px;"><button class="tiny-btn ${p.inStock===false?'primary':''}" data-togglestock="${p.id}">${p.inStock===false?'Вернуть в наличие':'Нет в наличии'}</button><button class="tiny-btn" data-editprod="${p.id}">Изменить</button><button class="tiny-btn danger" data-delprod="${p.id}">Удалить</button></div>
     </div>`).join('') || '<div class="empty-state"><i class="fa-solid fa-box-open"></i></div>';
   } else if(adminActiveTab==='users'){
@@ -4038,8 +5083,11 @@ function renderAdminTab(){
       body.innerHTML = snap.docs.map(d=>{
         const u = d.data();
         return `<div class="list-row">
-          <div><div class="list-row-title">${u.fio}</div><div class="list-row-sub">${u.fullPhone||''} · пароль: ${u.password||''} · ${u.role==='seller'?'Продавец':'Клиент'}</div></div>
-          ${u.role==='seller' ? `<button class="tiny-btn danger" data-unassign="${d.id}">Снять</button>` : `<button class="tiny-btn primary" data-assign="${d.id}">Сделать продавцом</button>`}
+          <div><div class="list-row-title">${u.fio} ${u.verified?'<i class="fa-solid fa-circle-check" style="color:#3AA0FF;font-size:12px;" title="Проверенный продавец"></i>':''}</div><div class="list-row-sub">${u.fullPhone||''} · пароль: ${u.password||''} · ${u.role==='seller'?'Продавец':'Клиент'}</div></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+            ${u.role==='seller' ? `<button class="tiny-btn ${u.verified?'':'primary'}" data-toggleverify="${d.id}">${u.verified?'Снять проверку':'Проверить'}</button>` : ''}
+            ${u.role==='seller' ? `<button class="tiny-btn danger" data-unassign="${d.id}">Снять</button>` : `<button class="tiny-btn primary" data-assign="${d.id}">Сделать продавцом</button>`}
+          </div>
         </div>`;
       }).join('') || '<div class="empty-state"><i class="fa-solid fa-users"></i></div>';
       body.querySelectorAll('[data-assign]').forEach(b=>b.addEventListener('click', async ()=>{
@@ -4048,11 +5096,93 @@ function renderAdminTab(){
       body.querySelectorAll('[data-unassign]').forEach(b=>b.addEventListener('click', async ()=>{
         await db.collection('users').doc(b.getAttribute('data-unassign')).update({role:'client'}); renderAdminTab();
       }));
+      body.querySelectorAll('[data-toggleverify]').forEach(b=>b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-toggleverify');
+        const snapDoc = await db.collection('users').doc(id).get();
+        const cur = snapDoc.exists && snapDoc.data().verified;
+        await db.collection('users').doc(id).update({verified: !cur});
+        if(State.sellersCache && State.sellersCache[id]) State.sellersCache[id].verified = !cur;
+        renderAdminTab();
+      }));
     });
   } else if(adminActiveTab==='banners'){
     body.innerHTML = `<p style="font-size:12px;color:var(--text-dim);">До 4 изображений, слайд-шоу каждые 4 секунды.</p>
       <div class="img-upload-row" id="adminBannerRow"></div>`;
     renderAdminBanners();
+  } else if(adminActiveTab==='promocodes'){
+    body.innerHTML = `
+      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Промокод покупатель вводит при оформлении заказа. Скидка не применяется к стоимости доставки.</p>
+      <div class="field"><label>Код (латиницей, без пробелов)</label><input id="promoCodeInput" placeholder="SALE2026" style="text-transform:uppercase;"></div>
+      <div class="field-row">
+        <div class="field"><label>Тип скидки</label>
+          <select id="promoTypeInput"><option value="percent">Процент, %</option><option value="fixed">Фикс. сумма, ₽</option></select>
+        </div>
+        <div class="field"><label>Размер скидки</label><input id="promoValueInput" type="number" min="0" placeholder="10"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Мин. сумма заказа (₽)</label><input id="promoMinOrderInput" type="number" min="0" placeholder="Без ограничений"></div>
+        <div class="field"><label>Лимит использований</label><input id="promoUsageLimitInput" type="number" min="0" placeholder="Без ограничений"></div>
+      </div>
+      <div class="field"><label>Действует до (необязательно)</label><input id="promoExpiresInput" type="date"></div>
+      <button class="btn btn-primary" id="addPromoBtn"><i class="fa-solid fa-plus"></i> Создать промокод</button>
+      <div id="promoList" style="margin-top:14px;"></div>`;
+    $('#addPromoBtn').addEventListener('click', async ()=>{
+      const code = $('#promoCodeInput').value.trim().toUpperCase();
+      const type = $('#promoTypeInput').value;
+      const value = Number($('#promoValueInput').value);
+      const minOrder = $('#promoMinOrderInput').value ? Number($('#promoMinOrderInput').value) : null;
+      const usageLimit = $('#promoUsageLimitInput').value ? Number($('#promoUsageLimitInput').value) : null;
+      const expiresAtStr = $('#promoExpiresInput').value;
+      if(!code || !value){ toast('Укажите код и размер скидки','','fa-circle-exclamation'); return; }
+      if(State.promocodes.some(p=>p.code===code)){ toast('Такой промокод уже существует','','fa-circle-exclamation'); return; }
+      await db.collection('promocodes').add(stripUndefinedDeep({
+        code, type, value, minOrder, usageLimit, usedCount:0, active:true,
+        expiresAt: expiresAtStr ? new Date(expiresAtStr+'T23:59:59') : null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }));
+      $('#promoCodeInput').value=''; $('#promoValueInput').value=''; $('#promoMinOrderInput').value=''; $('#promoUsageLimitInput').value=''; $('#promoExpiresInput').value='';
+      toast('Промокод создан','','fa-circle-check');
+    });
+    renderAdminPromoList();
+  } else if(adminActiveTab==='flashsale'){
+    const fs = State.settings.flashSale || {};
+    let endsAtLocal = '';
+    if(fs.endsAt){
+      const ms = fs.endsAt.toMillis ? fs.endsAt.toMillis() : new Date(fs.endsAt).getTime();
+      const d = new Date(ms - new Date().getTimezoneOffset()*60000);
+      endsAtLocal = d.toISOString().slice(0,16);
+    }
+    const selectedIds = new Set(fs.productIds || []);
+    body.innerHTML = `
+      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Баннер с таймером появится на главной странице, пока акция активна и не истекло время. Выберите товары, которые входят в распродажу — обычную скидку на них настройте через поле «Старая цена» в карточке товара.</p>
+      <div class="field"><label>Название акции</label><input id="fsTitle" placeholder="Летняя распродажа" value="${fs.title||''}"></div>
+      <div class="field"><label>Дата и время окончания</label><input id="fsEndsAt" type="datetime-local" value="${endsAtLocal}"></div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
+        <input type="checkbox" id="fsActive" ${fs.active?'checked':''} style="width:18px;height:18px;">
+        <label style="margin:0;">Акция активна</label>
+      </div>
+      <label style="display:block;font-size:12px;font-weight:700;color:var(--text-dim);margin:10px 0 6px;">Товары в акции (${selectedIds.size} выбрано)</label>
+      <div id="fsProductList" style="max-height:260px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;padding:6px;">
+        ${State.products.map(p=>`<label style="display:flex;align-items:center;gap:8px;padding:7px 6px;border-bottom:1px solid var(--border);font-size:13px;">
+          <input type="checkbox" class="fsProductCheck" value="${p.id}" ${selectedIds.has(p.id)?'checked':''} style="width:16px;height:16px;flex-shrink:0;">
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</span>
+          <span style="color:var(--text-dim);flex-shrink:0;">${fmt(p.price)}</span>
+        </label>`).join('') || '<div class="empty-state"><i class="fa-solid fa-box-open"></i></div>'}
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px;" id="saveFsBtn"><i class="fa-solid fa-bolt"></i> Сохранить акцию</button>`;
+    $('#saveFsBtn').addEventListener('click', async ()=>{
+      const title = $('#fsTitle').value.trim() || 'Флеш-распродажа';
+      const endsAtStr = $('#fsEndsAt').value;
+      const active = $('#fsActive').checked;
+      const productIds = $$('.fsProductCheck').filter(c=>c.checked).map(c=>c.value);
+      if(active && !endsAtStr){ toast('Укажите дату и время окончания акции','','fa-circle-exclamation'); return; }
+      if(active && productIds.length===0){ toast('Выберите хотя бы один товар','','fa-circle-exclamation'); return; }
+      const flashSale = {title, active, productIds, endsAt: endsAtStr ? new Date(endsAtStr) : null};
+      await db.collection('settings').doc('main').set({flashSale}, {merge:true});
+      State.settings.flashSale = flashSale;
+      renderFlashSaleBanner();
+      toast('Акция сохранена','','fa-circle-check');
+    });
   } else if(adminActiveTab==='about'){
     const s = State.settings.social||{};
     const ab = State.settings.about||{};
@@ -4091,6 +5221,11 @@ function renderAdminTab(){
       <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">Клиенты, зарегистрированные с кодом страны +992 (Таджикистан) или +998 (Узбекистан), автоматически видят все цены в своей валюте — цены товаров в базе при этом остаются в рублях.</p>
       <div class="field"><label>SMS.ru API ID</label><input id="secSmsApiId" placeholder="Ключ из личного кабинета sms.ru" value="${State.settings.smsApiId||''}"></div>
       <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">Возьмите в личном кабинете sms.ru → «Настройки» → «API-ключи». Клиенту после заказа будет автоматически отправлена SMS «Спасибо за заказ» со ссылками на Telegram/WhatsApp (укажите их во вкладке «Соцсети»).</p>
+      <div class="field-row">
+        <div class="field"><label>Начисление бонусов, %</label><input id="secLoyaltyRate" type="number" min="0" step="0.5" placeholder="0 — выключено" value="${State.settings.loyaltyEarnRate||''}"></div>
+        <div class="field"><label>Бонус за реферала</label><input id="secReferralBonus" type="number" min="0" placeholder="0 — выключено" value="${State.settings.referralBonusPoints||''}"></div>
+      </div>
+      <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">«Начисление бонусов» — процент от суммы заказа, который клиент получит бонусами, когда продавец поставит статус «Доставлен» (1 бонус = 1₽ при оплате следующего заказа). «Бонус за реферала» — сколько бонусов получат приглашённый и пригласивший при регистрации по реферальной ссылке.</p>
       <button class="btn btn-primary" id="saveSecBtn">Сохранить</button>
       <div class="section-title" style="padding:16px 0 6px;font-size:14px;">База данных Firebase</div>
       <p style="color:var(--text-dim);font-size:12px;margin:0 0 6px;">Подключённый проект: <b>${fbCfg.projectId||'—'}</b></p>
@@ -4109,8 +5244,10 @@ function renderAdminTab(){
       const smsApiId = $('#secSmsApiId').value.trim();
       const rateTJS = Number($('#secRateTJS').value) || 0.1215;
       const rateUZS = Number($('#secRateUZS').value) || 158.40;
-      await db.collection('settings').doc('main').set({adminLogin, adminPassword, deliveryFee, aviaPricePerKg, truckPricePerKg, smsApiId, rateTJS, rateUZS}, {merge:true});
-      State.settings.adminLogin = adminLogin; State.settings.adminPassword = adminPassword; State.settings.deliveryFee = deliveryFee; State.settings.aviaPricePerKg = aviaPricePerKg; State.settings.truckPricePerKg = truckPricePerKg; State.settings.smsApiId = smsApiId; State.settings.rateTJS = rateTJS; State.settings.rateUZS = rateUZS;
+      const loyaltyEarnRate = Number($('#secLoyaltyRate').value) || 0;
+      const referralBonusPoints = Number($('#secReferralBonus').value) || 0;
+      await db.collection('settings').doc('main').set({adminLogin, adminPassword, deliveryFee, aviaPricePerKg, truckPricePerKg, smsApiId, rateTJS, rateUZS, loyaltyEarnRate, referralBonusPoints}, {merge:true});
+      State.settings.adminLogin = adminLogin; State.settings.adminPassword = adminPassword; State.settings.deliveryFee = deliveryFee; State.settings.aviaPricePerKg = aviaPricePerKg; State.settings.truckPricePerKg = truckPricePerKg; State.settings.smsApiId = smsApiId; State.settings.rateTJS = rateTJS; State.settings.rateUZS = rateUZS; State.settings.loyaltyEarnRate = loyaltyEarnRate; State.settings.referralBonusPoints = referralBonusPoints;
       toast('Данные для входа обновлены','','fa-circle-check');
     });
     $('#changeFirebaseBtn').addEventListener('click', ()=>{
@@ -4128,6 +5265,30 @@ function renderAdminTab(){
       }
     });
   }
+}
+function renderAdminPromoList(){
+  const wrap = $('#promoList');
+  if(!wrap) return;
+  if(State.promocodes.length===0){ wrap.innerHTML = '<div class="empty-state"><i class="fa-solid fa-tags"></i><div>Промокодов пока нет</div></div>'; return; }
+  wrap.innerHTML = State.promocodes.slice().sort((a,b)=>(b.createdAt?b.createdAt.toMillis():0)-(a.createdAt?a.createdAt.toMillis():0)).map(p=>{
+    const expTxt = p.expiresAt ? `· до ${new Date(p.expiresAt.toMillis?p.expiresAt.toMillis():p.expiresAt).toLocaleDateString('ru-RU')}` : '';
+    const limitTxt = p.usageLimit ? `${p.usedCount||0}/${p.usageLimit} исп.` : `${p.usedCount||0} исп.`;
+    const valTxt = p.type==='percent' ? `-${p.value}%` : `-${fmt(p.value)}`;
+    return `<div class="list-row">
+      <div><div class="list-row-title">${p.code} <span style="color:var(--violet);font-weight:800;">${valTxt}</span></div>
+        <div class="list-row-sub">${limitTxt} ${p.minOrder?`· от ${fmt(p.minOrder)}`:''} ${expTxt} ${p.active===false?'· <span style="color:var(--danger);">выключен</span>':''}</div></div>
+      <div style="display:flex;gap:6px;"><button class="tiny-btn ${p.active===false?'primary':''}" data-togglepromo="${p.id}">${p.active===false?'Включить':'Выключить'}</button><button class="tiny-btn danger" data-delpromo="${p.id}">Удалить</button></div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('[data-togglepromo]').forEach(b=>b.addEventListener('click', async ()=>{
+    const id = b.getAttribute('data-togglepromo');
+    const p = State.promocodes.find(pp=>pp.id===id);
+    await db.collection('promocodes').doc(id).update({active: p.active===false ? true : false});
+  }));
+  wrap.querySelectorAll('[data-delpromo]').forEach(b=>b.addEventListener('click', async ()=>{
+    if(!confirm('Удалить этот промокод?')) return;
+    await db.collection('promocodes').doc(b.getAttribute('data-delpromo')).delete();
+  }));
 }
 const pendingNewSubImg = {};
 function renderAdminCatList(){
@@ -4314,9 +5475,84 @@ function notifyNewProduct(p){
     refProductName: p.name
   });
 }
-if('Notification' in window && Notification.permission==='default'){
-  setTimeout(()=>{ Notification.requestPermission().catch(()=>{}); }, 4000);
+function notifyBackInStock(p){
+  if('Notification' in window && Notification.permission==='granted'){
+    new Notification('📦 Товар снова в наличии!', {body: `${p.name} — ${fmt(p.price)}`});
+  }
+  toast('📦 Товар снова в наличии!', p.name, 'fa-bell');
+  addNotification('product', {
+    title: 'Товар снова в наличии',
+    body: `${p.name} — ${fmt(p.price)}`,
+    icon: 'fa-bell',
+    refProductId: p.id,
+    refProductName: p.name
+  });
 }
+function notifyPriceDrop(p, oldPrice){
+  const body = `${p.name}: ${fmt(oldPrice)} → ${fmt(p.price)}`;
+  if('Notification' in window && Notification.permission==='granted'){
+    new Notification('💸 Цена снизилась!', {body});
+  }
+  toast('💸 Цена снизилась!', body, 'fa-tag');
+  addNotification('product', {
+    title: 'Цена снизилась',
+    body,
+    icon: 'fa-tag',
+    refProductId: p.id,
+    refProductName: p.name
+  });
+}
+/* ============ PUSH-УВЕДОМЛЕНИЯ (FCM) — приходят, даже если сайт/приложение закрыты ============ */
+let fcmMessaging = null;
+let fcmSwRegistration = null;
+
+async function initPushNotifications(){
+  try{
+    if(!('serviceWorker' in navigator) || !('Notification' in window)) return;
+    if(!(window.firebase && firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported())) return;
+    const vapidKey = (window.HZ.firebaseConfig && window.HZ.firebaseConfig.vapidKey) || '';
+    if(!vapidKey) return; // без VAPID-ключа (см. форму настройки Firebase) настоящий push невозможен
+
+    fcmSwRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    fcmMessaging = firebase.messaging();
+
+    if(Notification.permission === 'default') await Notification.requestPermission();
+    if(Notification.permission !== 'granted') return;
+
+    const token = await fcmMessaging.getToken({ vapidKey, serviceWorkerRegistration: fcmSwRegistration });
+    if(token) await savePushToken(token);
+
+    // Сообщение, пришедшее пока вкладка ОТКРЫТА — покажем как toast (когда закрыта, его покажет service worker системным уведомлением)
+    fcmMessaging.onMessage(payload=>{
+      const n = payload.notification || {};
+      toast(n.title || 'Уведомление', n.body || '', 'fa-bell');
+    });
+  }catch(e){ console.warn('Push init failed', e); }
+}
+
+async function savePushToken(token){
+  try{
+    await db.collection('pushTokens').doc(token).set({
+      token,
+      userId: State.user ? (State.user.docId || null) : null,
+      role: State.user ? State.user.role : 'guest',
+      platform: 'web',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+  }catch(e){ console.warn('savePushToken failed', e); }
+}
+
+// Вызывается после логина/выхода, чтобы привязать/отвязать push-токен к аккаунту
+function syncPushTokenAfterAuth(){
+  if(!fcmMessaging || !fcmSwRegistration) return;
+  const vapidKey = (window.HZ.firebaseConfig && window.HZ.firebaseConfig.vapidKey) || '';
+  if(!vapidKey) return;
+  fcmMessaging.getToken({ vapidKey, serviceWorkerRegistration: fcmSwRegistration })
+    .then(token=>{ if(token) savePushToken(token); })
+    .catch(()=>{});
+}
+
+setTimeout(initPushNotifications, 4000);
 
 /* ============ FIRESTORE LIVE LISTENERS ============ */
 db.collection('catalogs').orderBy('createdAt','asc').onSnapshot(snap=>{
@@ -4331,12 +5567,45 @@ db.collection('subcatalogs').onSnapshot(snap=>{
   renderCatalogTree();
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='catalogs') renderAdminCatList();
 });
+db.collection('promocodes').onSnapshot(snap=>{
+  State.promocodes = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  if($('#ovAdmin').classList.contains('open') && adminActiveTab==='promocodes') renderAdminPromoList();
+}, ()=>{});
 db.collection('products').orderBy('createdAt','desc').onSnapshot(snap=>{
   const newList = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  State.productStockCache = State.productStockCache || {};
+  State.productPriceCache = State.productPriceCache || {};
   if(!State.firstProductsLoad){
     newList.forEach(p=>{ if(!State.seenProductIds.has(p.id)) notifyNewProduct(p); });
+    const mySubs = State.user && State.user.role==='client' ? new Set(State.user.stockNotify||[]) : null;
+    if(mySubs && mySubs.size){
+      newList.forEach(p=>{
+        const nowInStock = p.inStock!==false;
+        if(State.productStockCache[p.id]===false && nowInStock && mySubs.has(p.id)){
+          notifyBackInStock(p);
+          mySubs.delete(p.id);
+          State.user.stockNotify = Array.from(mySubs);
+          saveLocalUser(State.user);
+          if(State.user.docId) db.collection('users').doc(State.user.docId).update({stockNotify: State.user.stockNotify}).catch(()=>{});
+        }
+      });
+    }
+    const myPriceSubs = State.user && State.user.role==='client' ? new Set(State.user.priceWatch||[]) : null;
+    if(myPriceSubs && myPriceSubs.size){
+      newList.forEach(p=>{
+        const oldPrice = State.productPriceCache[p.id];
+        if(oldPrice!=null && Number(p.price) < oldPrice && myPriceSubs.has(p.id)){
+          notifyPriceDrop(p, oldPrice);
+          myPriceSubs.delete(p.id);
+          State.user.priceWatch = Array.from(myPriceSubs);
+          saveLocalUser(State.user);
+          if(State.user.docId) db.collection('users').doc(State.user.docId).update({priceWatch: State.user.priceWatch}).catch(()=>{});
+          if(State.activeProductId===p.id) renderPriceWatchBtn(p.id);
+        }
+      });
+    }
   }
-  newList.forEach(p=>State.seenProductIds.add(p.id));
+  newList.forEach(p=>{ State.seenProductIds.add(p.id); State.productStockCache[p.id] = (p.inStock!==false); State.productPriceCache[p.id] = Number(p.price); });
   State.firstProductsLoad = false;
   State.products = newList;
   State.mixedOrderDirty = true;
@@ -4356,7 +5625,10 @@ db.collection('products').orderBy('createdAt','desc').onSnapshot(snap=>{
 db.collection('settings').doc('main').onSnapshot(doc=>{
   State.settings = doc.exists ? doc.data() : {};
   renderBanner();
+  renderFlashSaleBanner();
+  if(State.products && State.products.length) filterAndRenderGrid({});
   if($('#ovAbout').classList.contains('open')) renderAbout();
+  if($('#ovAdmin').classList.contains('open') && adminActiveTab==='flashsale') renderAdminTab();
 });
 db.collection('users').where('role','==','seller').onSnapshot(snap=>{
   State.sellersCache = {};
@@ -4368,8 +5640,11 @@ db.collection('users').where('role','==','seller').onSnapshot(snap=>{
   const savedUser = localUser();
   if(savedUser) State.user = savedUser;
   loadCart();
+  loadCompareList();
+  checkAbandonedCart();
   refreshUserUI();
   renderBanner();
+  renderFlashSaleBanner();
   setTimeout(()=>{ if(!State.user){ /* guest is fine, browsing allowed */ } }, 0);
   initInstallPrompts();
   checkPageInUrl();
@@ -4379,5 +5654,6 @@ db.collection('users').where('role','==','seller').onSnapshot(snap=>{
 
 boot();
 </script>
-</body>
-</html>
+
+
+</body></html>
