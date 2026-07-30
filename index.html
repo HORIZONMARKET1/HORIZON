@@ -281,6 +281,25 @@ a{color:inherit; text-decoration:none;}
 .empty-state{padding:60px 20px; text-align:center; color:var(--text-dim);}
 .empty-state i{font-size:40px; margin-bottom:12px; color:var(--border);}
 
+/* ===== SKELETON LOADING (пока грузятся товары) ===== */
+.skel-card{background:var(--card-bg); border-radius:18px; overflow:hidden; box-shadow:var(--card-shadow); display:flex; flex-direction:column;}
+.skel-img{aspect-ratio:3/4; background:var(--surface-2);}
+.skel-line{height:10px; border-radius:6px; background:var(--surface-2); margin:8px 10px 0;}
+.skel-line.w60{width:60%;}
+.skel-line.w40{width:40%; margin-bottom:10px;}
+.skel-img, .skel-line{position:relative; overflow:hidden;}
+.skel-img::after, .skel-line::after{
+  content:''; position:absolute; inset:0; transform:translateX(-100%);
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  animation:skelShimmer 1.4s ease-in-out infinite;
+}
+@keyframes skelShimmer{100%{transform:translateX(100%);}}
+
+/* ===== AD POPUP (реклама по центру при входе) ===== */
+.ad-popup-box{position:relative; width:84%; max-width:340px; border-radius:20px; overflow:hidden; background:var(--surface); box-shadow:0 24px 60px rgba(0,0,0,.4); animation:slideUp .28s ease;}
+.ad-popup-box img{width:100%; display:block; cursor:pointer; background:var(--surface-2);}
+.ad-popup-close{position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; z-index:2; border:none;}
+
 /* ===== BOTTOM NAV ===== */
 .bottomnav{
   position:fixed; bottom:0; left:0; right:0; height:var(--tabbar-h); background:var(--surface);
@@ -750,7 +769,7 @@ a{color:inherit; text-decoration:none;}
 button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 .field-row{flex-wrap:wrap;}
 </style>
-<link rel="manifest" href="blob:null/fa73755b-873e-4d5a-ada4-5f24b92904fa"></head>
+<link rel="manifest" href="blob:null/f67efefb-0dfb-47a7-9847-f553879effb2"></head>
 <body data-theme="light">
 
 <!-- FIREBASE SETUP GATE (показывается только пока не подключён Firebase) -->
@@ -831,6 +850,14 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <button class="filter-chip" id="openPriceFilterBtn"><i class="fa-solid fa-sliders"></i> <span id="priceFilterChipLabel">Цена</span></button>
 </div>
 <main class="grid" id="productGrid"><div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div></div></main>
+
+<!-- AD POPUP -->
+<div class="overlay center" id="ovAdPopup">
+  <div class="ad-popup-box">
+    <button class="ad-popup-close" data-close="ovAdPopup"><i class="fa-solid fa-xmark"></i></button>
+    <img id="adPopupImg" src="" alt="Реклама">
+  </div>
+</div>
 
 <!-- PRICE FILTER -->
 <div class="overlay center" id="ovPriceFilter">
@@ -1355,6 +1382,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="admin-tab" data-tab="products">Товары</button>
       <button class="admin-tab" data-tab="users">Пользователи</button>
       <button class="admin-tab" data-tab="banners">Баннеры</button>
+      <button class="admin-tab" data-tab="popupad">Реклама</button>
       <button class="admin-tab" data-tab="promocodes">Промокоды</button>
       <button class="admin-tab" data-tab="flashsale">Акция</button>
       <button class="admin-tab" data-tab="about">О нас</button>
@@ -1881,6 +1909,84 @@ document.addEventListener('click', (e)=>{
   if(e.target.classList && e.target.classList.contains('overlay')){ closeOv(e.target.id); }
 });
 
+/* ===== EDGE SWIPE-BACK (свайп от левого края вправо = назад, как на iPhone) ===== */
+(function(){
+  const EDGE_ZONE = 28;      // ширина зоны у левого края, где начинается жест, px
+  const CLOSE_RATIO = 0.28;  // доля ширины экрана, после которой страница закрывается
+  const FLICK_VX = 0.5;      // px/ms — быстрый смах закрывает даже при малом смещении
+  let sw = null;
+
+  function topPageOverlay(){
+    const list = Array.from(document.querySelectorAll('.overlay.page-overlay.open:not(.closing)'));
+    if(!list.length) return null;
+    list.sort((a,b)=>(parseInt(b.style.zIndex)||0)-(parseInt(a.style.zIndex)||0));
+    return list[0];
+  }
+
+  document.addEventListener('touchstart', (e)=>{
+    if(sw || e.touches.length!==1) return;
+    const t = e.touches[0];
+    if(t.clientX > EDGE_ZONE) return;
+    const ov = topPageOverlay();
+    if(!ov) return;
+    const sheet = ov.querySelector('.sheet');
+    if(!sheet) return;
+    sw = { ov, sheet, startX:t.clientX, startY:t.clientY, startT:Date.now(), dx:0, active:false, width:window.innerWidth };
+  }, {passive:true});
+
+  document.addEventListener('touchmove', (e)=>{
+    if(!sw) return;
+    const t = e.touches[0];
+    const dx = t.clientX - sw.startX;
+    const dy = t.clientY - sw.startY;
+    if(!sw.active){
+      if(Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if(Math.abs(dy) > Math.abs(dx)){ sw = null; return; }
+      sw.active = true;
+      sw.sheet.classList.add('dragging');
+    }
+    if(dx < 0){ sw.dx = 0; } else { sw.dx = Math.min(dx, sw.width); }
+    sw.sheet.style.transform = `translateX(${sw.dx}px)`;
+    e.preventDefault();
+  }, {passive:false});
+
+  function finishSwipe(){
+    if(!sw) return;
+    const { ov, sheet, dx, width, startT } = sw;
+    if(!sw.active){ sw = null; return; }
+    const elapsed = Math.max(1, Date.now() - startT);
+    const vx = dx / elapsed;
+    const shouldClose = dx > width*CLOSE_RATIO || vx > FLICK_VX;
+    sheet.style.transition = 'transform .28s cubic-bezier(.32,.72,0,1)';
+    if(shouldClose){
+      sheet.style.transform = 'translateX(100%)';
+      setTimeout(()=>{
+        sheet.classList.remove('dragging');
+        sheet.style.transition = '';
+        sheet.style.transform = '';
+        ov.classList.remove('open');
+        ov.classList.remove('closing');
+        ov.style.zIndex = '';
+        if(ov.id==='ovChatThread'){ State.activeOpenChatDocId = null; }
+        if(ov.id==='ovAbout'){
+          $('#consultantFab').classList.remove('show');
+          $('#consultantPanel').classList.remove('open');
+        }
+      }, 280);
+    } else {
+      sheet.style.transform = 'translateX(0)';
+      setTimeout(()=>{
+        sheet.classList.remove('dragging');
+        sheet.style.transition = '';
+        sheet.style.transform = '';
+      }, 280);
+    }
+    sw = null;
+  }
+  document.addEventListener('touchend', finishSwipe, {passive:true});
+  document.addEventListener('touchcancel', finishSwipe, {passive:true});
+})();
+
 /* Находит рамку самого товара на фото (обрезает лишние пустые поля фона)
    и возвращает координаты в исходных пикселях изображения */
 function detectContentBox(img){
@@ -2355,6 +2461,27 @@ $('#catalogSearchInput').addEventListener('input', (e)=>{
 $('#catalogSearchClear').addEventListener('click', ()=>{
   $('#catalogSearchInput').value=''; catView.search=''; $('#catalogSearchClear').style.display='none'; renderCatalogTree();
 });
+
+/* ============ AD POPUP (реклама по центру при входе) ============ */
+$('#adPopupImg').addEventListener('click', ()=>{
+  const pa = State.settings.popupAd;
+  const link = pa && pa.link;
+  if(link){
+    const url = /^https?:\/\//i.test(link) ? link : ('https://' + link);
+    window.open(url, '_blank', 'noopener');
+  }
+  closeOv('ovAdPopup');
+});
+function maybeShowAdPopup(){
+  if(State.adPopupChecked) return;
+  State.adPopupChecked = true;
+  const pa = State.settings.popupAd;
+  if(!pa || !pa.enabled || !pa.image) return;
+  if(sessionStorage.getItem('hzAdPopupShown')) return;
+  sessionStorage.setItem('hzAdPopupShown', '1');
+  $('#adPopupImg').src = pa.image;
+  setTimeout(()=>{ openOv('ovAdPopup'); }, 900);
+}
 
 /* ============ BANNER ============ */
 let bannerIdx = 0, bannerTimer = null;
@@ -5109,6 +5236,30 @@ function renderAdminTab(){
     body.innerHTML = `<p style="font-size:12px;color:var(--text-dim);">До 4 изображений, слайд-шоу каждые 4 секунды.</p>
       <div class="img-upload-row" id="adminBannerRow"></div>`;
     renderAdminBanners();
+  } else if(adminActiveTab==='popupad'){
+    const pa = State.settings.popupAd || {};
+    body.innerHTML = `
+      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Всплывающее окно с рекламой появится по центру экрана один раз за сеанс, когда клиент откроет приложение. При нажатии на картинку клиент перейдёт по указанной ссылке.</p>
+      <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
+        <input type="checkbox" id="paActive" ${pa.enabled?'checked':''} style="width:18px;height:18px;">
+        <label style="margin:0;">Реклама включена</label>
+      </div>
+      <div class="field"><label>Изображение баннера</label>
+        <div class="img-upload-row" id="adminPopupAdRow"></div>
+      </div>
+      <div class="field"><label>Ссылка при нажатии (URL)</label><input id="paLink" placeholder="https://example.com" value="${pa.link||''}"></div>
+      <button class="btn btn-primary" id="savePopupAdBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>`;
+    renderAdminPopupAdImage();
+    $('#savePopupAdBtn').addEventListener('click', async ()=>{
+      const enabled = $('#paActive').checked;
+      const link = $('#paLink').value.trim();
+      const image = (State.settings.popupAd && State.settings.popupAd.image) || '';
+      if(enabled && !image){ toast('Добавьте изображение','','fa-circle-exclamation'); return; }
+      const popupAd = { enabled, link, image };
+      await db.collection('settings').doc('main').set({popupAd}, {merge:true});
+      State.settings.popupAd = popupAd;
+      toast('Настройки рекламы сохранены','','fa-circle-check');
+    });
   } else if(adminActiveTab==='promocodes'){
     body.innerHTML = `
       <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Промокод покупатель вводит при оформлении заказа. Скидка не применяется к стоимости доставки.</p>
@@ -5399,6 +5550,38 @@ function renderAdminBanners(){
   }));
 }
 
+function renderAdminPopupAdImage(){
+  const row = $('#adminPopupAdRow');
+  if(!row) return;
+  const img = (State.settings.popupAd && State.settings.popupAd.image) || '';
+  row.innerHTML = img
+    ? `<div class="img-thumb"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-popupadrm="1">✕</span></div>`
+    : `<label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*,.gif" class="hidden" id="popupAdInput"></label>`;
+  const input = $('#popupAdInput');
+  if(input){
+    input.addEventListener('change', async (e)=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      try{
+        const d = await processBannerFile(f);
+        if(d){
+          State.settings.popupAd = Object.assign({}, State.settings.popupAd, {image: d});
+          renderAdminPopupAdImage();
+        }
+      }catch(err){
+        toast('Ошибка загрузки', 'Не удалось загрузить файл', 'fa-triangle-exclamation');
+      }
+    });
+  }
+  const rm = $('[data-popupadrm]');
+  if(rm){
+    rm.addEventListener('click', ()=>{
+      State.settings.popupAd = Object.assign({}, State.settings.popupAd, {image: ''});
+      renderAdminPopupAdImage();
+    });
+  }
+}
+
 /* ============ IMAGE SEARCH ("search by photo") ============ */
 let imgSearchMode = 'similar';
 $('#photoSearchBtn').addEventListener('click', ()=>{ $('#imageSearchResults').innerHTML=''; openOv('ovImageSearch'); });
@@ -5629,6 +5812,8 @@ db.collection('settings').doc('main').onSnapshot(doc=>{
   if(State.products && State.products.length) filterAndRenderGrid({});
   if($('#ovAbout').classList.contains('open')) renderAbout();
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='flashsale') renderAdminTab();
+  if($('#ovAdmin').classList.contains('open') && adminActiveTab==='popupad') renderAdminPopupAdImage();
+  maybeShowAdPopup();
 });
 db.collection('users').where('role','==','seller').onSnapshot(snap=>{
   State.sellersCache = {};
