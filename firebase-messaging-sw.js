@@ -6,9 +6,14 @@
    Firestore offline persistence (IndexedDB) — это надёжнее для "живых" данных.
    Service worker отвечает только за саму страницу и статику.
 
-   Push-уведомления обслуживает отдельный service worker OneSignal
-   (OneSignalSDKWorker.js, регистрируется автоматически SDK-скриптом OneSignal,
-   см. вкладку "Push" в админ-панели) — он не связан с этим файлом. */
+   Push-уведомления OneSignal подключены прямо сюда через importScripts ниже —
+   это ОДИН service worker на scope '/', а не два разных (раньше OneSignal
+   регистрировал свой отдельный OneSignalSDKWorker.js на том же scope, и два SW
+   конфликтовали друг с другом — из-за этого запрос разрешения на push мог
+   зависать/не срабатывать). См. также OneSignal.init({serviceWorkerPath:...})
+   в index.html — он теперь указывает именно на этот файл. */
+
+importScripts('https://cdn.onesignal.com/sdks/OneSignalSDKWorker.js');
 
 const CACHE_VERSION = 'v1';
 const SHELL_CACHE = 'hz-shell-' + CACHE_VERSION;
@@ -89,4 +94,3 @@ self.addEventListener('fetch', (event)=>{
     )
   );
 });
-
