@@ -16,7 +16,10 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
+<!-- OneSignal Web Push SDK. Сам подключает свой service worker (OneSignalSDKWorker.js) с корня сайта. -->
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.page.js" defer=""></script>
+<script>window.OneSignalDeferred = window.OneSignalDeferred || [];</script>
 
 <style>
 :root{
@@ -1377,6 +1380,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="admin-tab" data-tab="users">Пользователи</button>
       <button class="admin-tab" data-tab="banners">Баннеры</button>
       <button class="admin-tab" data-tab="popupad">Реклама</button>
+      <button class="admin-tab" data-tab="push">Push</button>
       <button class="admin-tab" data-tab="promocodes">Промокоды</button>
       <button class="admin-tab" data-tab="flashsale">Акция</button>
       <button class="admin-tab" data-tab="about">О нас</button>
@@ -2318,7 +2322,8 @@ document.addEventListener('click', (e)=>{
 /* ============ ОФЛАЙН-КЭШ (Service Worker) ============
    Кэширует саму страницу + шрифты/иконки/Firebase SDK, чтобы приложение открывалось
    и грид не был пустым даже без интернета. Регистрируется сразу, не дожидаясь push-уведомлений
-   (этот же файл service worker'а позже будет дополнен обработчиками FCM push). */
+   (этот же файл service worker'а — только офлайн-кэш; push-уведомления регистрирует свой
+   отдельный service worker OneSignalSDKWorker.js, см. вкладку "Push" в админке). */
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
     navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(e=>{
@@ -3370,6 +3375,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     const text = `🛍️ <b>Новый заказ HORIZON MARKET</b>\n👤 ${name}\n📞 ${code}${phone}\n🌍 ${country}${deliveryMethodLabel?`\n🚚 Способ доставки: ${deliveryMethodLabel}`:''}\n📍 ${address}\n\n${list}\n\n💵 Сумма заказа: ${fmt(subtotal)}${promoLine}${bonusLine}\n🚚 Доставка: ${deliveryFee>0?fmt(deliveryFee):'бесплатно'}\n💰 Итого: ${fmt(total)}`;
     if(seller && seller.botToken && seller.botChatId) sendTelegram(seller.botToken, seller.botChatId, text);
     if(State.settings.adminBotToken && State.settings.adminBotChatId) sendTelegram(State.settings.adminBotToken, State.settings.adminBotChatId, text);
+    pushNewOrderNotification(sellerId, `${name}: ${list.split('\n')[0]}${bySeller[sellerId].length>1?` и ещё ${bySeller[sellerId].length-1}`:''} — ${fmt(total)}`);
     // auto seller "thanks" chat message to client
     if(sellerId){
       const chatId = [State.user.docId, sellerId].sort().join('_');
@@ -4351,6 +4357,9 @@ async function renderOrders(){
       const orderDoc = docs.find(d=>d.id===orderId);
       const prevData = orderDoc ? orderDoc.data() : null;
       await db.collection('orders').doc(orderId).update({status: newStatus}).catch(()=>{});
+      if(prevData && prevData.clientId && prevData.clientId!=='guest' && newStatus!==prevData.status){
+        sendOneSignalPushToUsers('Статус заказа изменён', `Ваш заказ теперь: «${newStatus}»`, [prevData.clientId]);
+      }
       if(newStatus==='Доставлен' && prevData && prevData.status!=='Доставлен' && prevData.clientId && prevData.clientId!=='guest'){
         const rate = Number(State.settings.loyaltyEarnRate) || 0;
         const points = Math.round((prevData.total||0) * rate/100);
@@ -5184,8 +5193,13 @@ $('#pfSaveBtn').addEventListener('click', async ()=>{
   }
   State.mixedOrderDirty = true;
   if(editingProductId){
+    const oldProduct = State.products.find(p=>p.id===editingProductId);
     await db.collection('products').doc(editingProductId).update(stripUndefinedDeep(data)).catch(e=>{ console.warn(e); toast('Не удалось сохранить товар','','fa-circle-exclamation'); throw e; });
     toast('Товар обновлён','','fa-circle-check');
+    if(oldProduct){
+      if(Number(data.price) < Number(oldProduct.price)) pushWatchersNotification('priceWatch', editingProductId, `💸 Цена снизилась: ${data.name}`, `${fmt(oldProduct.price)} → ${fmt(data.price)}`);
+      if(data.inStock && oldProduct.inStock===false) pushWatchersNotification('stockNotify', editingProductId, `📦 Снова в наличии: ${data.name}`, `${fmt(data.price)}`);
+    }
   } else {
     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
     await db.collection('products').add(stripUndefinedDeep(data)).catch(e=>{ console.warn(e); toast('Не удалось добавить товар','','fa-circle-exclamation'); throw e; });
@@ -5308,6 +5322,29 @@ function renderAdminTab(){
       await db.collection('settings').doc('main').set({popupAd}, {merge:true});
       State.settings.popupAd = popupAd;
       toast('Настройки рекламы сохранены','','fa-circle-check');
+    });
+  } else if(adminActiveTab==='push'){
+    const pu = State.settings.push || {};
+    body.innerHTML = `
+      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Push-уведомления через OneSignal (id.onesignal.com). App ID и REST API Key берутся в дашборде OneSignal → Settings → Keys & IDs. После сохранения перезагрузите страницу, чтобы подписка на push заработала.</p>
+      <div class="field"><label>OneSignal App ID</label><input id="puAppId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value="${pu.appId||''}"></div>
+      <div class="field"><label>REST API Key</label><input id="puApiKey" placeholder="os_v2_app_..." value="${pu.restApiKey||''}"></div>
+      <button class="btn btn-primary" id="savePushCfgBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
+      <button class="btn" id="testPushBtn" style="margin-top:8px;"><i class="fa-solid fa-bell"></i> Отправить тестовый push себе</button>
+      <p style="color:var(--text-dim);font-size:12px;margin-top:10px;">Подписчиков (устройств): <b id="puSubCount">…</b></p>`;
+    db.collection('pushTokens').get().then(snap=>{ const el=$('#puSubCount'); if(el) el.textContent = snap.size; }).catch(()=>{});
+    $('#savePushCfgBtn').addEventListener('click', async ()=>{
+      const appId = $('#puAppId').value.trim();
+      const restApiKey = $('#puApiKey').value.trim();
+      const push = { appId, restApiKey };
+      await db.collection('settings').doc('main').set({push}, {merge:true});
+      State.settings.push = push;
+      toast('Настройки push сохранены','Перезагрузите страницу','fa-circle-check');
+    });
+    $('#testPushBtn').addEventListener('click', async ()=>{
+      if(!oneSignalSubscriptionId){ toast('Вы ещё не подписаны на push в этом браузере','','fa-circle-exclamation'); return; }
+      const ok = await sendOneSignalPush('Тестовое уведомление', 'Push-уведомления работают ✅', [oneSignalSubscriptionId]);
+      toast(ok?'Отправлено':'Не удалось отправить', ok?'Проверьте уведомления телефона':'Проверьте App ID и REST API Key', ok?'fa-circle-check':'fa-circle-exclamation');
     });
   } else if(adminActiveTab==='promocodes'){
     body.innerHTML = `
@@ -5734,38 +5771,43 @@ function notifyPriceDrop(p, oldPrice){
     refProductName: p.name
   });
 }
-/* ============ PUSH-УВЕДОМЛЕНИЯ (FCM) — приходят, даже если сайт/приложение закрыты ============ */
-let fcmMessaging = null;
-let fcmSwRegistration = null;
+/* ============ PUSH-УВЕДОМЛЕНИЯ (OneSignal) — приходят, даже если сайт/приложение закрыты ============
+   Настройка (App ID + REST API Key) — в админке, вкладка "Push". Ключ REST API используется
+   только с устройства администратора/продавца, отправляющего уведомление — отдельный сервер не нужен. */
+let oneSignalReady = false;
+let oneSignalSubscriptionId = null;
 
 async function initPushNotifications(){
   try{
-    if(!('serviceWorker' in navigator) || !('Notification' in window)) return;
-    if(!(window.firebase && firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported())) return;
-    const vapidKey = (window.HZ.firebaseConfig && window.HZ.firebaseConfig.vapidKey) || '';
-    if(!vapidKey) return; // без VAPID-ключа (см. форму настройки Firebase) настоящий push невозможен
+    const appId = State.settings.push && State.settings.push.appId;
+    if(!appId) return; // OneSignal ещё не настроен в админке
+    if(!window.OneSignalDeferred) return; // SDK-скрипт не подключился (нет сети/CDN заблокирован)
 
-    fcmSwRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    fcmMessaging = firebase.messaging();
+    window.OneSignalDeferred.push(async function(OneSignal){
+      try{
+        if(!oneSignalReady){
+          await OneSignal.init({ appId, allowLocalhostAsSecureOrigin:true });
+          oneSignalReady = true;
+        }
+        // Привязываем подписку к аккаунту, чтобы позже слать push конкретному пользователю
+        if(State.user && State.user.docId) await OneSignal.login(State.user.docId);
 
-    if(Notification.permission === 'default') await Notification.requestPermission();
-    if(Notification.permission !== 'granted') return;
+        oneSignalSubscriptionId = OneSignal.User.PushSubscription.id || null;
+        if(oneSignalSubscriptionId) await savePushToken(oneSignalSubscriptionId);
 
-    const token = await fcmMessaging.getToken({ vapidKey, serviceWorkerRegistration: fcmSwRegistration });
-    if(token) await savePushToken(token);
-
-    // Сообщение, пришедшее пока вкладка ОТКРЫТА — покажем как toast (когда закрыта, его покажет service worker системным уведомлением)
-    fcmMessaging.onMessage(payload=>{
-      const n = payload.notification || {};
-      toast(n.title || 'Уведомление', n.body || '', 'fa-bell');
+        OneSignal.User.PushSubscription.addEventListener('change', (e)=>{
+          oneSignalSubscriptionId = (e && e.current && e.current.id) || null;
+          if(oneSignalSubscriptionId) savePushToken(oneSignalSubscriptionId);
+        });
+      }catch(e){ console.warn('OneSignal init failed', e); }
     });
   }catch(e){ console.warn('Push init failed', e); }
 }
 
-async function savePushToken(token){
+async function savePushToken(subscriptionId){
   try{
-    await db.collection('pushTokens').doc(token).set({
-      token,
+    await db.collection('pushTokens').doc(subscriptionId).set({
+      subscriptionId,
       userId: State.user ? (State.user.docId || null) : null,
       role: State.user ? State.user.role : 'guest',
       platform: 'web',
@@ -5774,14 +5816,82 @@ async function savePushToken(token){
   }catch(e){ console.warn('savePushToken failed', e); }
 }
 
-// Вызывается после логина/выхода, чтобы привязать/отвязать push-токен к аккаунту
+// Вызывается после логина/выхода, чтобы привязать/отвязать подписку к аккаунту
 function syncPushTokenAfterAuth(){
-  if(!fcmMessaging || !fcmSwRegistration) return;
-  const vapidKey = (window.HZ.firebaseConfig && window.HZ.firebaseConfig.vapidKey) || '';
-  if(!vapidKey) return;
-  fcmMessaging.getToken({ vapidKey, serviceWorkerRegistration: fcmSwRegistration })
-    .then(token=>{ if(token) savePushToken(token); })
-    .catch(()=>{});
+  if(!oneSignalReady || !window.OneSignalDeferred) return;
+  window.OneSignalDeferred.push(async function(OneSignal){
+    try{
+      if(State.user && State.user.docId) await OneSignal.login(State.user.docId);
+      else await OneSignal.logout();
+    }catch(e){}
+  });
+}
+
+/* Отправка push через REST API OneSignal — вызывается прямо из браузера того, кто
+   инициировал событие (админ/продавец сохранил заказ/цену и т.п.), без сервера.
+   targetIds — массив subscription id (из коллекции pushTokens) ИЛИ имён "внешних id" (docId
+   пользователя, если он логинился через OneSignal.login). Возвращает true/false. */
+async function sendOneSignalPush(title, body, targetIds, opts){
+  opts = opts || {};
+  const cfg = State.settings.push || {};
+  if(!cfg.appId || !cfg.restApiKey || !targetIds || !targetIds.length) return false;
+  try{
+    const payload = {
+      app_id: cfg.appId,
+      headings: {en: title, ru: title},
+      contents: {en: body, ru: body},
+      include_subscription_ids: targetIds
+    };
+    if(opts.url) payload.url = opts.url;
+    const res = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization':'Key ' + cfg.restApiKey},
+      body: JSON.stringify(payload)
+    });
+    return res.ok;
+  }catch(e){ console.warn('sendOneSignalPush failed', e); return false; }
+}
+
+// Отправка по внешним id (docId пользователя) — не нужно заранее знать subscription id
+async function sendOneSignalPushToUsers(title, body, userDocIds, opts){
+  opts = opts || {};
+  const cfg = State.settings.push || {};
+  if(!cfg.appId || !cfg.restApiKey || !userDocIds || !userDocIds.length) return false;
+  try{
+    const payload = {
+      app_id: cfg.appId,
+      headings: {en: title, ru: title},
+      contents: {en: body, ru: body},
+      include_aliases: {external_id: userDocIds},
+      target_channel: 'push'
+    };
+    if(opts.url) payload.url = opts.url;
+    const res = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization':'Key ' + cfg.restApiKey},
+      body: JSON.stringify(payload)
+    });
+    return res.ok;
+  }catch(e){ console.warn('sendOneSignalPushToUsers failed', e); return false; }
+}
+
+// Push о новом заказе — админу (все его устройства) и продавцу (по внешнему id = docId)
+async function pushNewOrderNotification(sellerId, summaryText){
+  try{
+    const adminSnap = await db.collection('pushTokens').where('role','==','admin').get();
+    const adminSubIds = adminSnap.docs.map(d=>d.id);
+    if(adminSubIds.length) sendOneSignalPush('🛍️ Новый заказ HORIZON MARKET', summaryText, adminSubIds);
+    if(sellerId && sellerId!=='admin') sendOneSignalPushToUsers('🛍️ Новый заказ', summaryText, [sellerId]);
+  }catch(e){ console.warn('pushNewOrderNotification failed', e); }
+}
+
+// Push тем, кто подписан на снижение цены (priceWatch) или наличие (stockNotify) товара
+async function pushWatchersNotification(field, productId, title, body){
+  try{
+    const snap = await db.collection('users').where(field,'array-contains',productId).get();
+    const userIds = snap.docs.map(d=>d.id);
+    if(userIds.length) sendOneSignalPushToUsers(title, body, userIds, {url: undefined});
+  }catch(e){ console.warn('pushWatchersNotification failed', e); }
 }
 
 setTimeout(initPushNotifications, 4000);
