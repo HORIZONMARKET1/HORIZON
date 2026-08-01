@@ -1,4 +1,4 @@
-<html lang="ru" style="--topbar-h: 106px;"><head>
+<html lang="ru"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>HORIZON MARKET</title>
@@ -772,7 +772,7 @@ a{color:inherit; text-decoration:none;}
 button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 .field-row{flex-wrap:wrap;}
 </style>
-<link rel="manifest" href="blob:null/78a933ed-83e6-45d1-b6fe-cdbd0f02a923"></head>
+</head>
 <body data-theme="light">
 
 <!-- FIREBASE SETUP GATE (показывается только пока не подключён Firebase) -->
@@ -847,7 +847,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </header>
 
 <!-- BANNER -->
-<div class="banner" id="bannerBox" style="display: none;">
+<div class="banner" id="bannerBox">
   <div class="banner-track" id="bannerTrack"></div>
   <div class="banner-dots" id="bannerDots"></div>
 </div>
@@ -873,7 +873,14 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <button class="filter-chip" id="stockOnlyChip"><i class="fa-regular fa-square-check"></i> В наличии</button>
   <button class="filter-chip" id="openPriceFilterBtn"><i class="fa-solid fa-sliders"></i> <span id="priceFilterChipLabel">Цена</span></button>
 </div>
-<main class="grid" id="productGrid"><div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div><div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div></main>
+<main class="grid" id="productGrid">
+  <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
+  <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
+  <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
+  <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
+  <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
+  <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
+</main>
 
 <!-- AD POPUP -->
 <div class="overlay center" id="ovAdPopup">
@@ -991,7 +998,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
           <option value="+998">🇺🇿 +998</option>
         </select>
       </div>
-      <div class="field"><label>Номер телефона</label><input id="regPhone" placeholder="9012345678" inputmode="numeric"></div>
+      <div class="field"><label>Номер телефона</label><input id="regPhone" placeholder="901234567" inputmode="numeric"></div>
     </div>
     <div class="field"><label>Пароль</label><div class="pw-field"><input id="regPassword" type="password" placeholder="Придумайте пароль"><button type="button" class="pw-toggle" data-pwtoggle="regPassword"><i class="fa-regular fa-eye"></i></button></div></div>
     <div class="field"><label>Реферальный код <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label><input id="regReferralCode" placeholder="Код друга, который вас пригласил"></div>
@@ -1014,7 +1021,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
           <option value="+998">🇺🇿 +998</option>
         </select>
       </div>
-      <div class="field"><label>Номер телефона</label><input id="loginPhone" placeholder="9012345678" inputmode="numeric"></div>
+      <div class="field"><label>Номер телефона</label><input id="loginPhone" placeholder="901234567" inputmode="numeric"></div>
     </div>
     <div class="field"><label>Пароль</label><div class="pw-field"><input id="loginPassword" type="password" placeholder="Пароль"><button type="button" class="pw-toggle" data-pwtoggle="loginPassword"><i class="fa-regular fa-eye"></i></button></div></div>
     <button class="btn btn-primary" id="loginSubmitBtn"><i class="fa-solid fa-right-to-bracket"></i> Войти</button>
@@ -1246,20 +1253,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Профиль <button class="close-x" data-close="ovProfile"><i class="fa-solid fa-xmark"></i></button></div>
-    <div id="profileBody"><div class="profile-head">
-    <div class="profile-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--grad-main);color:#fff;font-weight:800;font-size:22px;">U</div>
-    <div><div class="profile-name">UZ</div><div class="profile-role">Покупатель</div></div>
-  </div>
-    <div style="display:flex;gap:10px;margin-bottom:14px;">
-      <div style="flex:1;background:var(--grad-main);border-radius:14px;padding:14px;color:#fff;">
-        <div style="font-size:11px;opacity:.85;font-weight:600;">Бонусный баланс</div>
-        <div style="font-size:22px;font-weight:800;margin-top:2px;"><i class="fa-solid fa-coins"></i> 0</div>
-      </div>
-      <div style="flex:1;background:var(--surface-2);border-radius:14px;padding:14px;">
-        <div style="font-size:11px;color:var(--text-dim);font-weight:600;">Приглашайте друзей</div>
-        <button class="btn btn-outline" style="margin-top:6px;padding:8px;font-size:12px;" id="shareReferralBtn"><i class="fa-solid fa-user-plus"></i> Поделиться кодом</button>
-      </div>
-    </div><div class="menu-item" id="openAboutMenuBtn"><i class="fa-solid fa-circle-info"></i> О нас <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item"><i class="fa-solid fa-circle-half-stroke"></i> Тёмная тема <button class="theme-switch" id="themeSwitch" style="margin-left:auto;"><span class="knob"><i class="fa-solid fa-moon"></i></span></button></div><div class="menu-item" id="fullscreenBtn"><i class="fa-solid fa-expand"></i> Во весь экран <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item" data-open="ovEditProfile"><i class="fa-solid fa-pen"></i> Редактировать профиль <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item" id="openOrdersBtn"><i class="fa-solid fa-receipt"></i> История заказов <i class="fa-solid fa-chevron-right"></i></div><div class="menu-item" id="logoutBtn" style="color:var(--danger);"><i class="fa-solid fa-right-from-bracket" style="color:var(--danger);"></i> Выйти</div></div>
+    <div id="profileBody"></div>
   </div>
 </div>
 
@@ -2397,28 +2391,16 @@ document.addEventListener('click', (e)=>{
 })();
 
 /* ============ SERVICE WORKER ============
-   Раньше здесь регистрировался firebase-messaging-sw.js (старая, так и не доведённая до конца
-   попытка сделать push через чистый Firebase Cloud Messaging). Реальной офлайн-кэширующей логики
-   в нём не было, а токен через firebase.messaging()/getToken() нигде в приложении не запрашивался —
-   то есть пользы он не приносил, а только держал за собой корневой scope ('/'), из-за чего конфликтовал
-   с OneSignalSDKWorker.js, который OneSignal регистрирует на том же scope для push-уведомлений. Два
-   service worker'а не могут одновременно контролировать один и тот же scope — из-за этого разрешение
-   на уведомления могло зависать/не срабатывать. Регистрацию убрали, push теперь работает только через
-   OneSignal (см. вкладку "Push" в админке). Файл firebase-messaging-sw.js на хостинге можно удалить —
-   он больше не используется. */
-
-/* Разово отключаем уже установленный на устройстве старый firebase-messaging-sw.js у тех,
-   кто заходил в приложение до этого фикса — иначе он продолжит конфликтовать с OneSignal,
-   пока браузер сам его когда-нибудь не обновит (может не произойти месяцами). */
+   firebase-messaging-sw.js — офлайн-кэш приложения (app shell). Внутри него подключён
+   OneSignalSDKWorker.js через importScripts, поэтому push-уведомления OneSignal и офлайн-кэш
+   теперь работают из ОДНОГО файла на scope '/' — без конфликта двух разных service worker'ов
+   за один и тот же scope (раньше именно это могло вызывать зависание запроса разрешения). */
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(regs=>{
-    regs.forEach(reg=>{
-      const url = (reg.active && reg.active.scriptURL) || (reg.installing && reg.installing.scriptURL) || (reg.waiting && reg.waiting.scriptURL) || '';
-      if(url.includes('firebase-messaging-sw.js')){
-        reg.unregister().catch(()=>{});
-      }
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(e=>{
+      console.warn('SW registration failed', e);
     });
-  }).catch(()=>{});
+  });
 }
 
 /* ============ ИНДИКАТОР ОФЛАЙН-РЕЖИМА ============ */
@@ -5886,7 +5868,15 @@ function ensureOneSignalInit(){
     window.OneSignalDeferred.push(async function(OneSignal){
       try{
         if(!oneSignalReady){
-          await OneSignal.init({ appId, safariWebId: "web.onesignal.auto.2e77cfdc-f6e8-4572-82d4-363b6713f2bc", allowLocalhostAsSecureOrigin:true });
+          await OneSignal.init({
+            appId,
+            safariWebId: "web.onesignal.auto.2e77cfdc-f6e8-4572-82d4-363b6713f2bc",
+            allowLocalhostAsSecureOrigin: true,
+            // Используем уже существующий service worker (офлайн-кэш) вместо отдельного
+            // OneSignalSDKWorker.js — иначе два SW на одном scope '/' конфликтуют друг с другом.
+            serviceWorkerParam: { scope: '/' },
+            serviceWorkerPath: 'firebase-messaging-sw.js'
+          });
           oneSignalReady = true;
         }
       }catch(e){
