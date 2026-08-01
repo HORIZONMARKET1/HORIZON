@@ -1178,6 +1178,11 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="sheet-title">Уведомления
       <button class="close-x" data-close="ovNotifications"><i class="fa-solid fa-xmark"></i></button>
     </div>
+    <div id="pushEnableBanner" style="display:none; align-items:center; gap:10px; padding:12px 14px; border-radius:14px; background:var(--surface-2); margin-bottom:12px;">
+      <i class="fa-solid fa-bell" style="font-size:18px;color:var(--accent);"></i>
+      <div style="flex:1;font-size:12.5px;color:var(--text-dim);">Включите push-уведомления — узнаете о статусе заказа и снижении цены, даже когда приложение закрыто</div>
+      <button class="btn btn-primary" id="pushEnableBtn" style="padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
+    </div>
     <button class="btn btn-outline notif-clear-btn" id="notifClearAllBtn" style="display:none;margin-bottom:12px;">
       <i class="fa-solid fa-trash-can"></i> Очистить все уведомления
     </button>
@@ -1875,8 +1880,29 @@ function handleNotifClick(id){
 }
 function openNotifications(){
   renderNotifications();
+  updatePushEnableBanner();
   openOv('ovNotifications');
 }
+// Показываем баннер только если push настроен админом, поддерживается браузером и ещё не разрешён
+function updatePushEnableBanner(){
+  const banner = $('#pushEnableBanner');
+  if(!banner) return;
+  const appId = State.settings.push && State.settings.push.appId;
+  const supported = 'Notification' in window;
+  const alreadyGranted = supported && Notification.permission === 'granted';
+  const blocked = supported && Notification.permission === 'denied';
+  banner.style.display = (appId && supported && !alreadyGranted && !blocked) ? 'flex' : 'none';
+}
+$('#pushEnableBtn').addEventListener('click', async ()=>{
+  if(!window.OneSignalDeferred){ toast('Не удалось подключиться к сервису push','','fa-circle-exclamation'); return; }
+  window.OneSignalDeferred.push(async function(OneSignal){
+    try{
+      await OneSignal.Notifications.requestPermission();
+      updatePushEnableBanner();
+      if(Notification.permission==='granted') toast('Push-уведомления включены','','fa-circle-check');
+    }catch(e){ console.warn('requestPermission failed', e); toast('Не удалось включить уведомления','','fa-circle-exclamation'); }
+  });
+});
 $('#notifBellBtn').addEventListener('click', openNotifications);
 $('#notifClearAllBtn').addEventListener('click', ()=>{
   State.notifications = [];
