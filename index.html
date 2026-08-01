@@ -17,8 +17,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-<!-- OneSignal Web Push SDK. Сам подключает свой service worker (OneSignalSDKWorker.js) с корня сайта. -->
-<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.page.js" defer=""></script>
+<!-- OneSignal Web Push SDK v16 (важно: именно версия v16, у неё другой API — Notifications.requestPermission, User.PushSubscription и т.п., которым пользуется код ниже). Service worker подключён через importScripts прямо в firebase-messaging-sw.js. -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer=""></script>
 <script>window.OneSignalDeferred = window.OneSignalDeferred || [];</script>
 
 <style>
@@ -1204,6 +1204,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div style="flex:1;font-size:12.5px;color:var(--text-dim);" id="pushEnableBannerText">Включите push-уведомления — узнаете о статусе заказа и снижении цены, даже когда приложение закрыто</div>
       <button class="btn btn-primary" id="pushEnableBtn" style="width:auto;padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
     </div>
+    <button id="pushDiagBtn" style="display:flex;align-items:center;gap:6px;justify-content:center;width:100%;padding:8px;margin-bottom:12px;border-radius:10px;background:none;border:1.5px dashed var(--border);color:var(--text-dim);font-size:11.5px;"><i class="fa-solid fa-stethoscope"></i> Диагностика push</button>
     <button class="btn btn-outline notif-clear-btn" id="notifClearAllBtn" style="display:none;margin-bottom:12px;">
       <i class="fa-solid fa-trash-can"></i> Очистить все уведомления
     </button>
@@ -1949,6 +1950,31 @@ $('#pushEnableBtn').addEventListener('click', async ()=>{
   }finally{ btn.disabled = false; updatePushEnableBanner(); }
 });
 $('#notifBellBtn').addEventListener('click', openNotifications);
+$('#pushDiagBtn').addEventListener('click', async ()=>{
+  const lines = [];
+  lines.push('appId настроен: ' + (!!(State.settings.push && State.settings.push.appId) ? 'да' : 'НЕТ'));
+  lines.push('OneSignal SDK загружен (window.OneSignal): ' + (typeof window.OneSignal !== 'undefined' ? 'да' : 'НЕТ'));
+  lines.push('OneSignalDeferred существует: ' + (window.OneSignalDeferred ? 'да, длина=' + window.OneSignalDeferred.length : 'НЕТ'));
+  lines.push('oneSignalReady (init прошёл): ' + oneSignalReady);
+  lines.push('cachedOneSignal готов: ' + (!!cachedOneSignal));
+  lines.push('Notification API поддерживается: ' + ('Notification' in window));
+  lines.push('Notification.permission: ' + (('Notification' in window) ? Notification.permission : 'н/д'));
+  lines.push('iOS: ' + isIOS() + ' / standalone: ' + isStandalone());
+  lines.push('HTTPS: ' + (location.protocol === 'https:'));
+  try{
+    const regs = await navigator.serviceWorker.getRegistrations();
+    lines.push('Service worker\'ов зарегистрировано: ' + regs.length);
+    regs.forEach((r,i)=>{
+      const sw = r.active || r.installing || r.waiting;
+      lines.push('  SW' + i + ': scope=' + r.scope + ' script=' + (sw ? sw.scriptURL : '?') + ' state=' + (sw ? sw.state : '?'));
+    });
+  }catch(e){ lines.push('Ошибка чтения service worker: ' + e.message); }
+  if(cachedOneSignal){
+    try{ lines.push('PushSubscription.id: ' + (cachedOneSignal.User.PushSubscription.id || 'нет')); }catch(e){}
+    try{ lines.push('PushSubscription.optedIn: ' + cachedOneSignal.User.PushSubscription.optedIn); }catch(e){}
+  }
+  alert(lines.join('\n'));
+});
 $('#notifClearAllBtn').addEventListener('click', ()=>{
   State.notifications = [];
   saveNotifications();
