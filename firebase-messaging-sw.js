@@ -1,56 +1,97 @@
-// firebase-messaging-sw.js
-// ВАЖНО: этот файл должен лежать в КОРНЕ сайта (рядом с index.html),
-// по адресу https://ваш-домен/firebase-messaging-sw.js — иначе браузер его не найдёт.
-//
-// Он отвечает за показ системного push-уведомления, когда сайт/приложение
-// полностью закрыты (нет открытой вкладки и браузер тоже закрыт — на телефоне
-// уведомление всё равно придёт, пока есть интернет, т.к. его показывает ОС,
-// а не страница).
+/* HORIZON MARKET — Service Worker
+   1) Офлайн-кэш: сама страница (app shell) + шрифты/иконки/Firebase SDK,
+      чтобы приложение открывалось и грид не был пустым без интернета.
+   2) Заготовка под FCM push-уведомления (будет дополнено отдельно —
+      см. self.addEventListener('push', ...) ниже, сейчас не активно).
 
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
+   Данные каталога (товары, заказы и т.д.) кэшируются НЕ здесь, а через
+   Firestore offline persistence (IndexedDB) — это надёжнее для "живых" данных.
+   Service worker отвечает только за саму страницу и статику. */
 
-// Эти значения должны СОВПАДАТЬ с конфигом Firebase, который вписан в index.html
-// (window.HZ_EMBEDDED_CONFIG или сохранённый через админ-форму настройки).
-// Если меняете проект Firebase — обновите значения и здесь.
-firebase.initializeApp({
-  apiKey: "AIzaSyBS4crsvCIRwYIvUQWSItcG5geNdU1NLq4",
-  authDomain: "horizon-bdbf0.firebaseapp.com",
-  projectId: "horizon-bdbf0",
-  storageBucket: "horizon-bdbf0.firebasestorage.app",
-  messagingSenderId: "983614809094",
-  appId: "1:983614809094:web:531322b11099d85fd94f87"
-});
+const CACHE_VERSION = 'v1';
+const SHELL_CACHE = 'hz-shell-' + CACHE_VERSION;
 
-const messaging = firebase.messaging();
+// Хосты, статику с которых можно безопасно кэшировать и отдавать офлайн
+const CACHEABLE_HOSTS = [
+  self.location.hostname,       // сама страница, PNG-иконки и т.д.
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+  'cdnjs.cloudflare.com',       // Font Awesome
+  'www.gstatic.com'             // Firebase SDK
+];
 
-// Показ уведомления, когда сайт закрыт / вкладка не активна
-messaging.onBackgroundMessage((payload) => {
-  const data = payload.notification || {};
-  const title = data.title || 'HORIZON MARKET';
-  const options = {
-    body: data.body || '',
-    icon: data.icon || 'https://raw.githubusercontent.com/gauravghongde/logos/main/logo192.png',
-    badge: data.icon || undefined,
-    data: payload.data || {},
-    tag: (payload.data && payload.data.tag) || undefined
-  };
-  self.registration.showNotification(title, options);
-});
+// Хосты/пути, которые НИКОГДА нельзя кэшировать (живые данные, авторизация)
+function isNeverCache(url){
+  return url.hostname.includes('firestore.googleapis.com')
+      || url.hostname.includes('googleapis.com') && url.pathname.includes('/google.firestore')
+      || url.hostname.includes('firebaseinstallations.googleapis.com')
+      || url.hostname.includes('fcmregistrations.googleapis.com')
+      || url.hostname.includes('identitytoolkit.googleapis.com')
+      || url.hostname.includes('securetoken.googleapis.com');
+}
 
-// Клик по уведомлению — открыть/сфокусировать сайт (при необходимости на нужной странице)
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  const url = (event.notification.data && event.notification.data.click_action) || '/';
+self.addEventListener('install', (event)=>{
+  self.skipWaiting();
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(url);
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) return clients.openWindow(url);
+    caches.open(SHELL_CACHE).then(cache=>{
+      // Кэшируем саму страницу сразу при установке, чтобы офлайн-открытие работало
+      // даже если человек ни разу не заходил после установки SW.
+      return cache.addAll(['./', './index.html']).catch(()=>{ /* один из путей может не существовать — не критично */ });
     })
   );
 });
+
+self.addEventListener('activate', (event)=>{
+  event.waitUntil(
+    Promise.all([
+      // Удаляем кэши от старых версий SW
+      caches.keys().then(keys=>Promise.all(
+        keys.filter(k=>k.startsWith('hz-shell-') && k!==SHELL_CACHE).map(k=>caches.delete(k))
+      )),
+      self.clients.claim()
+    ])
+  );
+});
+
+self.addEventListener('fetch', (event)=>{
+  const req = event.request;
+  if(req.method !== 'GET') return; // не трогаем POST/PUT и т.п.
+
+  const url = new URL(req.url);
+  if(isNeverCache(url)) return; // живые данные/авторизация — всегда напрямую в сеть
+
+  // Навигация (открытие/обновление страницы) — сеть в приоритете, кэш как офлайн-фоллбек
+  if(req.mode === 'navigate'){
+    event.respondWith(
+      fetch(req).then(res=>{
+        const copy = res.clone();
+        caches.open(SHELL_CACHE).then(cache=>cache.put('./index.html', copy));
+        return res;
+      }).catch(()=>caches.match('./index.html').then(r=>r || caches.match('./')))
+    );
+    return;
+  }
+
+  if(!CACHEABLE_HOSTS.includes(url.hostname)) return; // прочие сторонние хосты не трогаем
+
+  // Статика (шрифты, иконки, Firebase SDK и т.д.) — кэш в приоритете + фоновое обновление
+  event.respondWith(
+    caches.open(SHELL_CACHE).then(cache=>
+      cache.match(req).then(cached=>{
+        const network = fetch(req).then(res=>{
+          if(res && (res.status === 200 || res.type === 'opaque')) cache.put(req, res.clone());
+          return res;
+        }).catch(()=>cached);
+        return cached || network;
+      })
+    )
+  );
+});
+
+/* ============ FCM PUSH (заготовка, пока не активна) ============
+   Когда push-уведомления будут доделаны, здесь появится:
+   importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+   importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
+   firebase.initializeApp({...});
+   firebase.messaging().onBackgroundMessage(payload=>{ ... self.registration.showNotification(...) ... });
+*/
