@@ -816,13 +816,13 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <i class="fa-solid fa-bell" style="color:#fff;font-size:18px;"></i>
     </div>
     <div style="flex:1;min-width:0;">
-      <div style="font-weight:700;font-size:13.5px;margin-bottom:2px;">Не пропустите новинки и скидки 🔥</div>
-      <div style="font-size:12px;color:var(--text-dim);line-height:1.4;">Включите push-уведомления — сразу узнаете о новых товарах, снижении цен и статусе заказа</div>
+      <div style="font-weight:700;font-size:13.5px;margin-bottom:2px;" id="globalPushPromptTitle">Не пропустите новинки и скидки 🔥</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.4;" id="globalPushPromptDesc">Включите push-уведомления — сразу узнаете о новых товарах, снижении цен и статусе заказа</div>
     </div>
     <button class="close-x" id="globalPushPromptClose" style="flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <div style="max-width:420px;margin:8px auto 0;display:flex;gap:8px;">
-    <button class="btn btn-primary" id="globalPushPromptEnableBtn" style="flex:1;padding:11px;font-size:13px;"><i class="fa-solid fa-bell"></i> Включить уведомления</button>
+    <button class="btn btn-primary" id="globalPushPromptEnableBtn" style="flex:1;padding:11px;font-size:13px;"><i class="fa-solid fa-bell"></i> <span id="globalPushPromptEnableBtnText">Включить уведомления</span></button>
     <button class="btn btn-outline" id="globalPushPromptLaterBtn" style="padding:11px 16px;font-size:13px;">Позже</button>
   </div>
 </div>
@@ -1201,7 +1201,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     </div>
     <div id="pushEnableBanner" style="display:none; align-items:center; gap:10px; padding:12px 14px; border-radius:14px; background:var(--surface-2); margin-bottom:12px;">
       <i class="fa-solid fa-bell" style="font-size:18px;color:var(--accent);"></i>
-      <div style="flex:1;font-size:12.5px;color:var(--text-dim);">Включите push-уведомления — узнаете о статусе заказа и снижении цены, даже когда приложение закрыто</div>
+      <div style="flex:1;font-size:12.5px;color:var(--text-dim);" id="pushEnableBannerText">Включите push-уведомления — узнаете о статусе заказа и снижении цены, даже когда приложение закрыто</div>
       <button class="btn btn-primary" id="pushEnableBtn" style="padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
     </div>
     <button class="btn btn-outline notif-clear-btn" id="notifClearAllBtn" style="display:none;margin-bottom:12px;">
@@ -1904,25 +1904,48 @@ function openNotifications(){
   updatePushEnableBanner();
   openOv('ovNotifications');
 }
-// Показываем баннер только если push настроен админом, поддерживается браузером и ещё не разрешён
+// Показываем баннер, если push настроен админом и ещё не разрешён.
+// На iOS Safari (не как установленное на "Домой" приложение) браузер вообще не даёт
+// API уведомлений — раньше баннер из-за этого просто не показывался. Теперь в этом
+// случае показываем баннер с подсказкой сначала установить приложение.
 function updatePushEnableBanner(){
   const banner = $('#pushEnableBanner');
   if(!banner) return;
+  const txt = $('#pushEnableBannerText');
+  const btn = $('#pushEnableBtn');
   const appId = State.settings.push && State.settings.push.appId;
+  if(!appId){ banner.style.display = 'none'; return; }
+
+  const iosNeedsInstall = isIOS() && !isStandalone();
   const supported = 'Notification' in window;
+
+  if(iosNeedsInstall){
+    banner.style.display = 'flex';
+    if(txt) txt.textContent = 'На iPhone push-уведомления работают только после установки приложения на экран «Домой»';
+    if(btn) btn.textContent = 'Установить';
+    return;
+  }
   const alreadyGranted = supported && Notification.permission === 'granted';
   const blocked = supported && Notification.permission === 'denied';
-  banner.style.display = (appId && supported && !alreadyGranted && !blocked) ? 'flex' : 'none';
+  if(txt) txt.textContent = 'Включите push-уведомления — узнаете о статусе заказа и снижении цены, даже когда приложение закрыто';
+  if(btn) btn.textContent = 'Включить';
+  banner.style.display = (supported && !alreadyGranted && !blocked) ? 'flex' : 'none';
 }
 $('#pushEnableBtn').addEventListener('click', async ()=>{
-  if(!window.OneSignalDeferred){ toast('Не удалось подключиться к сервису push','','fa-circle-exclamation'); return; }
-  window.OneSignalDeferred.push(async function(OneSignal){
-    try{
-      await OneSignal.Notifications.requestPermission();
-      updatePushEnableBanner();
-      if(Notification.permission==='granted') toast('Push-уведомления включены','','fa-circle-check');
-    }catch(e){ console.warn('requestPermission failed', e); toast('Не удалось включить уведомления','','fa-circle-exclamation'); }
-  });
+  const btn = $('#pushEnableBtn');
+  if(isIOS() && !isStandalone()){ doInstall(); return; }
+  btn.disabled = true;
+  try{
+    const OneSignal = await ensureOneSignalInit();
+    await OneSignal.Notifications.requestPermission();
+    updatePushEnableBanner();
+    if(Notification.permission==='granted') toast('Push-уведомления включены','','fa-circle-check');
+    else toast('Уведомления не включены','Разрешите их во всплывающем окне браузера','fa-circle-exclamation');
+  }catch(e){
+    console.warn('requestPermission failed', e);
+    if(e && e.message==='no-app-id') toast('Push пока не настроен','Обратитесь к администратору','fa-circle-exclamation');
+    else toast('Не удалось включить уведомления','Попробуйте ещё раз','fa-circle-exclamation');
+  }finally{ btn.disabled = false; }
 });
 $('#notifBellBtn').addEventListener('click', openNotifications);
 $('#notifClearAllBtn').addEventListener('click', ()=>{
@@ -5823,13 +5846,23 @@ function notifyPriceDrop(p, oldPrice){
    только с устройства администратора/продавца, отправляющего уведомление — отдельный сервер не нужен. */
 let oneSignalReady = false;
 let oneSignalSubscriptionId = null;
+let oneSignalChangeListenerAdded = false;
+let oneSignalInitPromise = null;
 
-async function initPushNotifications(){
-  try{
-    const appId = State.settings.push && State.settings.push.appId;
-    if(!appId) return; // OneSignal ещё не настроен в админке
-    if(!window.OneSignalDeferred) return; // SDK-скрипт не подключился (нет сети/CDN заблокирован)
+/* Гарантированная инициализация OneSignal перед любым вызовом его методов (requestPermission и т.п.).
+   Раньше init() запускался только один раз через 4 секунды после старта страницы, и если в этот
+   момент настройки (appId) из Firestore ещё не успели подгрузиться (медленный интернет), OneSignal
+   так и оставался не инициализирован до конца сессии — из-за этого кнопка "Включить уведомления"
+   переставала работать. Теперь ensureOneSignalInit() можно безопасно звать перед каждым запросом
+   разрешения — она сама инициализирует SDK при первом успешном вызове и переиспользует результат. */
+function ensureOneSignalInit(){
+  if(oneSignalReady && oneSignalInitPromise) return oneSignalInitPromise;
+  const appId = State.settings.push && State.settings.push.appId;
+  if(!appId) return Promise.reject(new Error('no-app-id')); // OneSignal ещё не настроен в админке
+  if(!window.OneSignalDeferred) return Promise.reject(new Error('sdk-missing')); // SDK-скрипт не подключился
 
+  if(oneSignalInitPromise) return oneSignalInitPromise;
+  oneSignalInitPromise = new Promise((resolve, reject)=>{
     window.OneSignalDeferred.push(async function(OneSignal){
       try{
         if(!oneSignalReady){
@@ -5842,13 +5875,26 @@ async function initPushNotifications(){
         oneSignalSubscriptionId = OneSignal.User.PushSubscription.id || null;
         if(oneSignalSubscriptionId) await savePushToken(oneSignalSubscriptionId);
 
-        OneSignal.User.PushSubscription.addEventListener('change', (e)=>{
-          oneSignalSubscriptionId = (e && e.current && e.current.id) || null;
-          if(oneSignalSubscriptionId) savePushToken(oneSignalSubscriptionId);
-        });
-      }catch(e){ console.warn('OneSignal init failed', e); }
+        if(!oneSignalChangeListenerAdded){
+          OneSignal.User.PushSubscription.addEventListener('change', (e)=>{
+            oneSignalSubscriptionId = (e && e.current && e.current.id) || null;
+            if(oneSignalSubscriptionId) savePushToken(oneSignalSubscriptionId);
+          });
+          oneSignalChangeListenerAdded = true;
+        }
+        resolve(OneSignal);
+      }catch(e){
+        console.warn('OneSignal init failed', e);
+        oneSignalInitPromise = null; // разрешаем повторную попытку при следующем клике
+        reject(e);
+      }
     });
-  }catch(e){ console.warn('Push init failed', e); }
+  });
+  return oneSignalInitPromise;
+}
+
+async function initPushNotifications(){
+  try{ await ensureOneSignalInit(); }catch(e){ /* тихо: настроим позже, когда появится appId */ }
 }
 
 async function savePushToken(subscriptionId){
@@ -5944,14 +5990,17 @@ async function pushWatchersNotification(field, productId, title, body){
 /* ============ ГЛОБАЛЬНЫЙ БАННЕР "ВКЛЮЧИТЕ УВЕДОМЛЕНИЯ" (показывается при каждом входе,
    пока пользователь не разрешил push или явно не отклонил их насовсем) ============ */
 const HZ_PUSH_DISMISS_KEY = 'hz_push_prompt_dismissed_at';
-const HZ_PUSH_DISMISS_TTL = 24*60*60*1000; // повторно предложим не раньше, чем через сутки
+const HZ_PUSH_DISMISS_TTL = 3*24*60*60*1000; // повторно предложим не раньше, чем через 3 суток
 let pushPromptShown = false;
 
 function shouldShowGlobalPushPrompt(){
   const appId = State.settings.push && State.settings.push.appId;
   if(!appId) return false; // push ещё не настроен админом
-  if(!('Notification' in window)) return false; // браузер не поддерживает push
-  if(Notification.permission === 'granted' || Notification.permission === 'denied') return false;
+  const iosNeedsInstall = isIOS() && !isStandalone();
+  if(!iosNeedsInstall){
+    if(!('Notification' in window)) return false; // браузер не поддерживает push
+    if(Notification.permission === 'granted' || Notification.permission === 'denied') return false;
+  }
   const dismissedAt = Number(localStorage.getItem(HZ_PUSH_DISMISS_KEY) || 0);
   if(dismissedAt && (Date.now() - dismissedAt) < HZ_PUSH_DISMISS_TTL) return false;
   return true;
@@ -5963,6 +6012,23 @@ function showGlobalPushPrompt(){
   if(!el) return;
   pushPromptShown = true;
   el.style.display = 'block';
+  // На iOS Safari (не установлено на "Домой") API уведомлений браузер не даёт вообще —
+  // показываем подсказку установить приложение вместо запроса разрешения.
+  const iosNeedsInstall = isIOS() && !isStandalone();
+  const titleEl = $('#globalPushPromptTitle'), descEl = $('#globalPushPromptDesc'), btnTextEl = $('#globalPushPromptEnableBtnText');
+  if(iosNeedsInstall){
+    if(titleEl) titleEl.textContent = 'Установите приложение 📲';
+    if(descEl) descEl.textContent = 'На iPhone push-уведомления работают только после установки на экран «Домой»';
+    if(btnTextEl) btnTextEl.textContent = 'Установить';
+  } else {
+    if(titleEl) titleEl.textContent = 'Не пропустите новинки и скидки 🔥';
+    if(descEl) descEl.textContent = 'Включите push-уведомления — сразу узнаете о новых товарах, снижении цен и статусе заказа';
+    if(btnTextEl) btnTextEl.textContent = 'Включить уведомления';
+  }
+  // Важно: запоминаем сам факт показа сразу, а не только явное "закрыть"/"позже".
+  // Раньше, если пользователь просто закрывал вкладку/приложение не нажав ни одной кнопки,
+  // dismissedAt не сохранялся — и баннер выскакивал заново при каждом следующем входе.
+  localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
 }
 function hideGlobalPushPrompt(){
   const el = $('#globalPushPrompt');
@@ -5981,33 +6047,34 @@ if(_gppLater) _gppLater.addEventListener('click', ()=>{
 });
 const _gppEnable = $('#globalPushPromptEnableBtn');
 if(_gppEnable) _gppEnable.addEventListener('click', async ()=>{
-  if(!window.OneSignalDeferred){ toast('Не удалось подключиться к сервису push','','fa-circle-exclamation'); return; }
-  window.OneSignalDeferred.push(async function(OneSignal){
-    try{
-      await OneSignal.Notifications.requestPermission();
-      if(Notification.permission === 'granted'){
-        try{
-          // Подписываем на все виды уведомлений: новинки, акции, снижение цены, статус заказа
-          await OneSignal.User.addTags({
-            notify_new_products: 'true',
-            notify_promos: 'true',
-            notify_price_drop: 'true',
-            notify_order_status: 'true'
-          });
-        }catch(e){ console.warn('addTags failed', e); }
-        toast('Уведомления включены 🎉','Теперь вы не пропустите новинки и скидки','fa-circle-check');
-        hideGlobalPushPrompt();
-        updatePushEnableBanner();
-      } else {
-        toast('Уведомления не включены','Включить можно позже в настройках браузера','fa-circle-exclamation');
-        localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
-        hideGlobalPushPrompt();
-      }
-    }catch(e){
-      console.warn('requestPermission failed', e);
-      toast('Не удалось включить уведомления','','fa-circle-exclamation');
+  if(isIOS() && !isStandalone()){ hideGlobalPushPrompt(); doInstall(); return; }
+  _gppEnable.disabled = true;
+  try{
+    const OneSignal = await ensureOneSignalInit();
+    await OneSignal.Notifications.requestPermission();
+    if(Notification.permission === 'granted'){
+      try{
+        // Подписываем на все виды уведомлений: новинки, акции, снижение цены, статус заказа
+        await OneSignal.User.addTags({
+          notify_new_products: 'true',
+          notify_promos: 'true',
+          notify_price_drop: 'true',
+          notify_order_status: 'true'
+        });
+      }catch(e){ console.warn('addTags failed', e); }
+      toast('Уведомления включены 🎉','Теперь вы не пропустите новинки и скидки','fa-circle-check');
+      hideGlobalPushPrompt();
+      updatePushEnableBanner();
+    } else {
+      toast('Уведомления не включены','Включить можно позже в настройках браузера','fa-circle-exclamation');
+      localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
+      hideGlobalPushPrompt();
     }
-  });
+  }catch(e){
+    console.warn('requestPermission failed', e);
+    if(e && e.message==='no-app-id') toast('Push пока не настроен','','fa-circle-exclamation');
+    else toast('Не удалось включить уведомления','Попробуйте ещё раз','fa-circle-exclamation');
+  }finally{ _gppEnable.disabled = false; }
 });
 
 /* ============ ЕЖЕЧАСНЫЕ ПРИВЛЕКАТЕЛЬНЫЕ PUSH-УВЕДОМЛЕНИЯ ============
@@ -6145,6 +6212,7 @@ db.collection('settings').doc('main').onSnapshot(doc=>{
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='flashsale') renderAdminTab();
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='popupad') renderAdminPopupAdImage();
   maybeShowAdPopup();
+  initPushNotifications(); // безопасно вызывать многократно — инициализирует OneSignal, как только появится appId
   if(!pushPromptShown) setTimeout(showGlobalPushPrompt, 1200);
 });
 db.collection('users').where('role','==','seller').onSnapshot(snap=>{
