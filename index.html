@@ -809,6 +809,27 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 <!-- TOASTS -->
 <div class="toast-wrap" id="toastWrap"></div>
 
+<!-- GLOBAL PUSH PROMPT (показывается при каждом входе, если push ещё не включён) -->
+<div id="globalPushPrompt" style="display:none;position:fixed;left:12px;right:12px;bottom:14px;z-index:9998;">
+  <div style="max-width:420px;margin:0 auto;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-soft);border-radius:18px;padding:14px 14px 14px 16px;display:flex;align-items:center;gap:12px;animation:pushPromptIn .35s ease;">
+    <div style="width:42px;height:42px;flex-shrink:0;border-radius:12px;background:linear-gradient(135deg,#7B2FF7,#E31C79);display:flex;align-items:center;justify-content:center;">
+      <i class="fa-solid fa-bell" style="color:#fff;font-size:18px;"></i>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-weight:700;font-size:13.5px;margin-bottom:2px;">Не пропустите новинки и скидки 🔥</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.4;">Включите push-уведомления — сразу узнаете о новых товарах, снижении цен и статусе заказа</div>
+    </div>
+    <button class="close-x" id="globalPushPromptClose" style="flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div style="max-width:420px;margin:8px auto 0;display:flex;gap:8px;">
+    <button class="btn btn-primary" id="globalPushPromptEnableBtn" style="flex:1;padding:11px;font-size:13px;"><i class="fa-solid fa-bell"></i> Включить уведомления</button>
+    <button class="btn btn-outline" id="globalPushPromptLaterBtn" style="padding:11px 16px;font-size:13px;">Позже</button>
+  </div>
+</div>
+<style>
+@keyframes pushPromptIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+</style>
+
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-row1" style="justify-content:center;">
@@ -5920,6 +5941,131 @@ async function pushWatchersNotification(field, productId, title, body){
   }catch(e){ console.warn('pushWatchersNotification failed', e); }
 }
 
+/* ============ ГЛОБАЛЬНЫЙ БАННЕР "ВКЛЮЧИТЕ УВЕДОМЛЕНИЯ" (показывается при каждом входе,
+   пока пользователь не разрешил push или явно не отклонил их насовсем) ============ */
+const HZ_PUSH_DISMISS_KEY = 'hz_push_prompt_dismissed_at';
+const HZ_PUSH_DISMISS_TTL = 24*60*60*1000; // повторно предложим не раньше, чем через сутки
+let pushPromptShown = false;
+
+function shouldShowGlobalPushPrompt(){
+  const appId = State.settings.push && State.settings.push.appId;
+  if(!appId) return false; // push ещё не настроен админом
+  if(!('Notification' in window)) return false; // браузер не поддерживает push
+  if(Notification.permission === 'granted' || Notification.permission === 'denied') return false;
+  const dismissedAt = Number(localStorage.getItem(HZ_PUSH_DISMISS_KEY) || 0);
+  if(dismissedAt && (Date.now() - dismissedAt) < HZ_PUSH_DISMISS_TTL) return false;
+  return true;
+}
+function showGlobalPushPrompt(){
+  if(pushPromptShown) return;
+  if(!shouldShowGlobalPushPrompt()) return;
+  const el = $('#globalPushPrompt');
+  if(!el) return;
+  pushPromptShown = true;
+  el.style.display = 'block';
+}
+function hideGlobalPushPrompt(){
+  const el = $('#globalPushPrompt');
+  if(el) el.style.display = 'none';
+  pushPromptShown = false;
+}
+const _gppClose = $('#globalPushPromptClose');
+if(_gppClose) _gppClose.addEventListener('click', ()=>{
+  localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
+  hideGlobalPushPrompt();
+});
+const _gppLater = $('#globalPushPromptLaterBtn');
+if(_gppLater) _gppLater.addEventListener('click', ()=>{
+  localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
+  hideGlobalPushPrompt();
+});
+const _gppEnable = $('#globalPushPromptEnableBtn');
+if(_gppEnable) _gppEnable.addEventListener('click', async ()=>{
+  if(!window.OneSignalDeferred){ toast('Не удалось подключиться к сервису push','','fa-circle-exclamation'); return; }
+  window.OneSignalDeferred.push(async function(OneSignal){
+    try{
+      await OneSignal.Notifications.requestPermission();
+      if(Notification.permission === 'granted'){
+        try{
+          // Подписываем на все виды уведомлений: новинки, акции, снижение цены, статус заказа
+          await OneSignal.User.addTags({
+            notify_new_products: 'true',
+            notify_promos: 'true',
+            notify_price_drop: 'true',
+            notify_order_status: 'true'
+          });
+        }catch(e){ console.warn('addTags failed', e); }
+        toast('Уведомления включены 🎉','Теперь вы не пропустите новинки и скидки','fa-circle-check');
+        hideGlobalPushPrompt();
+        updatePushEnableBanner();
+      } else {
+        toast('Уведомления не включены','Включить можно позже в настройках браузера','fa-circle-exclamation');
+        localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
+        hideGlobalPushPrompt();
+      }
+    }catch(e){
+      console.warn('requestPermission failed', e);
+      toast('Не удалось включить уведомления','','fa-circle-exclamation');
+    }
+  });
+});
+
+/* ============ ЕЖЕЧАСНЫЕ ПРИВЛЕКАТЕЛЬНЫЕ PUSH-УВЕДОМЛЕНИЯ ============
+   Раз в час всем подписчикам push отправляется одно яркое уведомление о новинках/скидках.
+   Реальный сервер здесь не задействован (см. общую архитектуру push в этом файле выше) —
+   отправляет тот из открытых сейчас браузеров (любой посетитель или админ), кто первым
+   заметил, что с прошлой отправки прошёл час; время последней отправки хранится в Firestore
+   (settings/pushSchedule), поэтому дублей не будет, даже если открыто много вкладок одновременно. */
+const HOURLY_PUSH_TEXTS = [
+  { title:'🔥 Новинки уже здесь!', body:'Свежие товары в каталоге HORIZON MARKET — успейте посмотреть первыми' },
+  { title:'🎁 Горячие скидки ждут', body:'Обновили цены на десятки товаров — загляните, пока выгодно' },
+  { title:'✨ Только для вас', body:'В HORIZON MARKET появилось то, что вы искали — загляните в каталог' },
+  { title:'⏰ Не пропустите', body:'Лучшие предложения часа — количество товаров ограничено' },
+  { title:'🛍️ Каталог обновился', body:'Новые поступления и приятные цены уже ждут вас' },
+  { title:'💥 Успейте забрать выгоду', body:'Скидки тают быстро — проверьте актуальные цены прямо сейчас' },
+  { title:'🌟 Эксклюзив для подписчиков', body:'Специальные предложения доступны только сейчас' },
+  { title:'🚀 Загляните на минутку', body:'Что-то новое и интересное появилось в HORIZON MARKET' }
+];
+const HOURLY_PUSH_INTERVAL_MS = 60*60*1000;
+async function maybeSendHourlyAttractivePush(){
+  try{
+    const cfg = State.settings.push || {};
+    if(!cfg.appId || !cfg.restApiKey) return; // push ещё не настроен админом
+    const ref = db.collection('settings').doc('pushSchedule');
+    const snap = await ref.get();
+    const data = snap.exists ? snap.data() : {};
+    const lastSentAt = data.lastSentAt ? data.lastSentAt.toMillis() : 0;
+    if(Date.now() - lastSentAt < HOURLY_PUSH_INTERVAL_MS) return; // час ещё не прошёл
+
+    // "Замок" через транзакцию — чтобы при нескольких одновременно открытых вкладках
+    // уведомление ушло только один раз
+    const claimedIdx = await db.runTransaction(async (tx)=>{
+      const doc = await tx.get(ref);
+      const d = doc.exists ? doc.data() : {};
+      const last = d.lastSentAt ? d.lastSentAt.toMillis() : 0;
+      if(Date.now() - last < HOURLY_PUSH_INTERVAL_MS) return -1;
+      const idx = (typeof d.textIndex === 'number' ? d.textIndex + 1 : 0) % HOURLY_PUSH_TEXTS.length;
+      tx.set(ref, { lastSentAt: firebase.firestore.FieldValue.serverTimestamp(), textIndex: idx }, {merge:true});
+      return idx;
+    });
+    if(claimedIdx < 0) return;
+
+    const msg = HOURLY_PUSH_TEXTS[claimedIdx] || HOURLY_PUSH_TEXTS[0];
+    await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization':'Key ' + cfg.restApiKey},
+      body: JSON.stringify({
+        app_id: cfg.appId,
+        headings: {en: msg.title, ru: msg.title},
+        contents: {en: msg.body, ru: msg.body},
+        included_segments: ['Subscribed Users']
+      })
+    });
+  }catch(e){ console.warn('maybeSendHourlyAttractivePush failed', e); }
+}
+setTimeout(maybeSendHourlyAttractivePush, 15*1000);
+setInterval(maybeSendHourlyAttractivePush, 5*60*1000);
+
 setTimeout(initPushNotifications, 4000);
 
 /* ============ FIRESTORE LIVE LISTENERS ============ */
@@ -5999,6 +6145,7 @@ db.collection('settings').doc('main').onSnapshot(doc=>{
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='flashsale') renderAdminTab();
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='popupad') renderAdminPopupAdImage();
   maybeShowAdPopup();
+  if(!pushPromptShown) setTimeout(showGlobalPushPrompt, 1200);
 });
 db.collection('users').where('role','==','seller').onSnapshot(snap=>{
   State.sellersCache = {};
