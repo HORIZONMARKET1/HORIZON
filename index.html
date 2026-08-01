@@ -1935,17 +1935,18 @@ $('#pushEnableBtn').addEventListener('click', async ()=>{
   const btn = $('#pushEnableBtn');
   if(isIOS() && !isStandalone()){ doInstall(); return; }
   btn.disabled = true;
+  btn.textContent = 'Включаем...';
   try{
-    const OneSignal = await ensureOneSignalInit();
-    await OneSignal.Notifications.requestPermission();
+    const res = await enablePushSubscription();
     updatePushEnableBanner();
-    if(Notification.permission==='granted') toast('Push-уведомления включены','','fa-circle-check');
-    else toast('Уведомления не включены','Разрешите их во всплывающем окне браузера','fa-circle-exclamation');
+    if(res.ok) toast('Push-уведомления включены','','fa-circle-check');
+    else if(res.reason==='denied') toast('Уведомления не включены','Разрешите их во всплывающем окне браузера','fa-circle-exclamation');
+    else toast('Разрешение получено, но подписка не завершилась','Проверьте интернет и попробуйте ещё раз','fa-circle-exclamation');
   }catch(e){
-    console.warn('requestPermission failed', e);
+    console.warn('enablePushSubscription failed', e);
     if(e && e.message==='no-app-id') toast('Push пока не настроен','Обратитесь к администратору','fa-circle-exclamation');
     else toast('Не удалось включить уведомления','Попробуйте ещё раз','fa-circle-exclamation');
-  }finally{ btn.disabled = false; }
+  }finally{ btn.disabled = false; updatePushEnableBanner(); }
 });
 $('#notifBellBtn').addEventListener('click', openNotifications);
 $('#notifClearAllBtn').addEventListener('click', ()=>{
@@ -5848,6 +5849,7 @@ let oneSignalReady = false;
 let oneSignalSubscriptionId = null;
 let oneSignalChangeListenerAdded = false;
 let oneSignalInitPromise = null;
+let cachedOneSignal = null; // синхронный кэш готового объекта OneSignal — см. enablePushSubscription()
 
 /* Гарантированная инициализация OneSignal перед любым вызовом его методов (requestPermission и т.п.).
    Раньше init() запускался только один раз через 4 секунды после старта страницы, и если в этот
@@ -5893,6 +5895,7 @@ function ensureOneSignalInit(){
         });
         oneSignalChangeListenerAdded = true;
       }
+      cachedOneSignal = OneSignal;
       resolve(OneSignal);
     });
   });
@@ -5901,6 +5904,54 @@ function ensureOneSignalInit(){
 
 async function initPushNotifications(){
   try{ await ensureOneSignalInit(); }catch(e){ /* тихо: настроим позже, когда появится appId */ }
+}
+
+/* Запрашивает разрешение браузера И гарантирует, что подписка OneSignal реально создалась.
+   ВАЖНО: OneSignal.Notifications.requestPermission() обязан вызываться синхронно в ответ на клик,
+   без await перед ним — иначе Safari/iOS считает, что запрос уже не связан напрямую с действием
+   пользователя, и просто молча не показывает системное окно (без ошибки). Поэтому если OneSignal
+   уже был инициализирован заранее (обычный случай — он готовится ещё при загрузке страницы),
+   requestPermission() вызывается первым же действием. Если ещё не готов — используем запасной
+   путь через ensureOneSignalInit(), но тогда диалог может не показаться из-за задержки. */
+async function enablePushSubscription(){
+  let OneSignal = cachedOneSignal;
+  let permissionResult;
+  if(OneSignal){
+    permissionResult = await OneSignal.Notifications.requestPermission();
+  } else {
+    OneSignal = await ensureOneSignalInit();
+    permissionResult = await OneSignal.Notifications.requestPermission();
+  }
+  if(Notification.permission !== 'granted'){
+    return {ok:false, reason:'denied'};
+  }
+  try{ await OneSignal.User.PushSubscription.optIn(); }catch(e){ console.warn('optIn failed', e); }
+
+  // id подписки создаётся асинхронно на стороне OneSignal — ждём его появления до 6 секунд
+  let subId = OneSignal.User.PushSubscription.id || null;
+  if(!subId){
+    subId = await new Promise((resolve)=>{
+      const timer = setTimeout(()=>{ OneSignal.User.PushSubscription.removeEventListener('change', onChange); resolve(null); }, 6000);
+      function onChange(e){
+        const id = (e && e.current && e.current.id) || OneSignal.User.PushSubscription.id;
+        if(id){ clearTimeout(timer); OneSignal.User.PushSubscription.removeEventListener('change', onChange); resolve(id); }
+      }
+      OneSignal.User.PushSubscription.addEventListener('change', onChange);
+    });
+  }
+
+  if(subId){
+    oneSignalSubscriptionId = subId;
+    try{ await savePushToken(subId); }catch(e){ console.warn('savePushToken failed', e); }
+    try{
+      await OneSignal.User.addTags({
+        notify_new_products: 'true', notify_promos: 'true',
+        notify_price_drop: 'true', notify_order_status: 'true'
+      });
+    }catch(e){ console.warn('addTags failed', e); }
+    return {ok:true};
+  }
+  return {ok:false, reason:'no-subscription'};
 }
 
 async function savePushToken(subscriptionId){
@@ -6056,28 +6107,20 @@ if(_gppEnable) _gppEnable.addEventListener('click', async ()=>{
   if(isIOS() && !isStandalone()){ hideGlobalPushPrompt(); doInstall(); return; }
   _gppEnable.disabled = true;
   try{
-    const OneSignal = await ensureOneSignalInit();
-    await OneSignal.Notifications.requestPermission();
-    if(Notification.permission === 'granted'){
-      try{
-        // Подписываем на все виды уведомлений: новинки, акции, снижение цены, статус заказа
-        await OneSignal.User.addTags({
-          notify_new_products: 'true',
-          notify_promos: 'true',
-          notify_price_drop: 'true',
-          notify_order_status: 'true'
-        });
-      }catch(e){ console.warn('addTags failed', e); }
+    const res = await enablePushSubscription();
+    if(res.ok){
       toast('Уведомления включены 🎉','Теперь вы не пропустите новинки и скидки','fa-circle-check');
       hideGlobalPushPrompt();
       updatePushEnableBanner();
-    } else {
+    } else if(res.reason==='denied') {
       toast('Уведомления не включены','Включить можно позже в настройках браузера','fa-circle-exclamation');
       localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
       hideGlobalPushPrompt();
+    } else {
+      toast('Разрешение получено, но подписка не завершилась','Проверьте интернет и попробуйте ещё раз','fa-circle-exclamation');
     }
   }catch(e){
-    console.warn('requestPermission failed', e);
+    console.warn('enablePushSubscription failed', e);
     if(e && e.message==='no-app-id') toast('Push пока не настроен','','fa-circle-exclamation');
     else toast('Не удалось включить уведомления','Попробуйте ещё раз','fa-circle-exclamation');
   }finally{ _gppEnable.disabled = false; }
