@@ -822,8 +822,8 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <button class="close-x" id="globalPushPromptClose" style="flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <div style="max-width:420px;margin:8px auto 0;display:flex;gap:8px;">
-    <button class="btn btn-primary" id="globalPushPromptEnableBtn" style="flex:1;padding:11px;font-size:13px;"><i class="fa-solid fa-bell"></i> <span id="globalPushPromptEnableBtnText">Включить уведомления</span></button>
-    <button class="btn btn-outline" id="globalPushPromptLaterBtn" style="padding:11px 16px;font-size:13px;">Позже</button>
+    <button class="btn btn-primary" id="globalPushPromptEnableBtn" style="width:auto;flex:1;padding:11px;font-size:13px;"><i class="fa-solid fa-bell"></i> <span id="globalPushPromptEnableBtnText">Включить уведомления</span></button>
+    <button class="btn btn-outline" id="globalPushPromptLaterBtn" style="width:auto;padding:11px 16px;font-size:13px;">Позже</button>
   </div>
 </div>
 <style>
@@ -1202,7 +1202,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div id="pushEnableBanner" style="display:none; align-items:center; gap:10px; padding:12px 14px; border-radius:14px; background:var(--surface-2); margin-bottom:12px;">
       <i class="fa-solid fa-bell" style="font-size:18px;color:var(--accent);"></i>
       <div style="flex:1;font-size:12.5px;color:var(--text-dim);" id="pushEnableBannerText">Включите push-уведомления — узнаете о статусе заказа и снижении цены, даже когда приложение закрыто</div>
-      <button class="btn btn-primary" id="pushEnableBtn" style="padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
+      <button class="btn btn-primary" id="pushEnableBtn" style="width:auto;padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
     </div>
     <button class="btn btn-outline notif-clear-btn" id="notifClearAllBtn" style="display:none;margin-bottom:12px;">
       <i class="fa-solid fa-trash-can"></i> Очистить все уведомления
@@ -5869,25 +5869,31 @@ function ensureOneSignalInit(){
           await OneSignal.init({ appId, safariWebId: "web.onesignal.auto.2e77cfdc-f6e8-4572-82d4-363b6713f2bc", allowLocalhostAsSecureOrigin:true });
           oneSignalReady = true;
         }
-        // Привязываем подписку к аккаунту, чтобы позже слать push конкретному пользователю
-        if(State.user && State.user.docId) await OneSignal.login(State.user.docId);
-
-        oneSignalSubscriptionId = OneSignal.User.PushSubscription.id || null;
-        if(oneSignalSubscriptionId) await savePushToken(oneSignalSubscriptionId);
-
-        if(!oneSignalChangeListenerAdded){
-          OneSignal.User.PushSubscription.addEventListener('change', (e)=>{
-            oneSignalSubscriptionId = (e && e.current && e.current.id) || null;
-            if(oneSignalSubscriptionId) savePushToken(oneSignalSubscriptionId);
-          });
-          oneSignalChangeListenerAdded = true;
-        }
-        resolve(OneSignal);
       }catch(e){
         console.warn('OneSignal init failed', e);
         oneSignalInitPromise = null; // разрешаем повторную попытку при следующем клике
         reject(e);
+        return;
       }
+      // Всё, что ниже — второстепенное (привязка к аккаунту, сохранение токена в Firestore).
+      // Раньше ошибка здесь (например, из-за истёкших правил безопасности Firestore) откатывала
+      // весь промис и показывала "не удалось включить уведомления", даже если разрешение браузера
+      // уже было успешно выдано. Теперь это не блокирует основной результат.
+      try{
+        if(State.user && State.user.docId) await OneSignal.login(State.user.docId);
+      }catch(e){ console.warn('OneSignal.login failed (не критично)', e); }
+      try{
+        oneSignalSubscriptionId = OneSignal.User.PushSubscription.id || null;
+        if(oneSignalSubscriptionId) await savePushToken(oneSignalSubscriptionId);
+      }catch(e){ console.warn('savePushToken failed (не критично, проверь правила Firestore)', e); }
+      if(!oneSignalChangeListenerAdded){
+        OneSignal.User.PushSubscription.addEventListener('change', (e)=>{
+          oneSignalSubscriptionId = (e && e.current && e.current.id) || null;
+          if(oneSignalSubscriptionId) savePushToken(oneSignalSubscriptionId).catch(err=>console.warn('savePushToken failed', err));
+        });
+        oneSignalChangeListenerAdded = true;
+      }
+      resolve(OneSignal);
     });
   });
   return oneSignalInitPromise;
