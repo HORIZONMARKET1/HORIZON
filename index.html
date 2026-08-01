@@ -5786,7 +5786,7 @@ async function initPushNotifications(){
     window.OneSignalDeferred.push(async function(OneSignal){
       try{
         if(!oneSignalReady){
-          await OneSignal.init({ appId, allowLocalhostAsSecureOrigin:true });
+          await OneSignal.init({ appId, safariWebId: "web.onesignal.auto.2e77cfdc-f6e8-4572-82d4-363b6713f2bc", allowLocalhostAsSecureOrigin:true });
           oneSignalReady = true;
         }
         // Привязываем подписку к аккаунту, чтобы позже слать push конкретному пользователю
