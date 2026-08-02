@@ -9,6 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" id="appleTouchIcon" href="icon-180.png">
 <link rel="icon" id="favicon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -2401,29 +2402,12 @@ document.addEventListener('click', (e)=>{
   }
 });
 
-/* ============ PWA MANIFEST + INSTALL ============ */
-(function setupManifest(){
-  const icon192 = new URL("icon-192.png", document.baseURI).href;
-  const icon512 = new URL("icon-512.png", document.baseURI).href;
-  const manifest = {
-    name: "HORIZON MARKET",
-    short_name: "HORIZON",
-    start_url: ".",
-    display: "standalone",
-    background_color: "#6E2E38",
-    theme_color: "#6C2BD9",
-    icons: [
-      {src:icon192, sizes:"192x192", type:"image/png", purpose:"any"},
-      {src:icon512, sizes:"512x512", type:"image/png", purpose:"any"},
-      {src:icon512, sizes:"512x512", type:"image/png", purpose:"maskable"}
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = 'manifest'; link.href = url;
-  document.head.appendChild(link);
-})();
+/* ============ PWA MANIFEST ============
+   Раньше манифест генерировался на лету через Blob URL и внедрялся в <head> через JS.
+   Для iOS Web Push это не подходит — Apple требует настоящий, статически лежащий на сервере
+   файл manifest.json (см. документацию OneSignal: "For iOS web push, this file is mandatory"),
+   подключённый обычным <link rel="manifest" href="manifest.json"> ещё до какого-либо JS.
+   Теперь такой файл лежит в корне сайта и подключён напрямую в <head> — см. начало документа. */
 
 /* ============ SERVICE WORKER ============
    firebase-messaging-sw.js — офлайн-кэш приложения (app shell). Внутри него подключён
@@ -5907,7 +5891,10 @@ function ensureOneSignalInit(){
           const swDirFromRoot = new URL('.', document.baseURI).pathname.replace(/^\//, ''); // напр. "HORIZON/"
           await OneSignal.init({
             appId,
-            safariWebId: "web.onesignal.auto.2e77cfdc-f6e8-4572-82d4-363b6713f2bc",
+            // safariWebId убран: он нужен только для устаревшего push в Safari до iOS 16.4/macOS,
+            // современный Web Push (в т.ч. iOS 16.4+ standalone) его не требует. Это значение было
+            // скопировано из примера в документации и не подтверждено как принадлежащее именно
+            // этому OneSignal-приложению — могло мешать созданию токена подписки.
             allowLocalhostAsSecureOrigin: true,
             // OneSignal резолвит serviceWorkerPath от КОРНЯ ДОМЕНА, а не от текущей папки страницы —
             // поэтому для сайта в подпапке (GitHub Pages проекта, напр. /HORIZON/) нужно явно
