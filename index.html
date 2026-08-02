@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
+<html lang="ru"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>HORIZON MARKET</title>
@@ -12,7 +10,7 @@
 <link rel="apple-touch-icon" id="appleTouchIcon" href="icon-180.png">
 <link rel="icon" id="favicon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -20,7 +18,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <!-- OneSignal Web Push SDK v16 (важно: именно версия v16, у неё другой API — Notifications.requestPermission, User.PushSubscription и т.п., которым пользуется код ниже). Service worker подключён через importScripts прямо в firebase-messaging-sw.js. -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer=""></script>
 <script>window.OneSignalDeferred = window.OneSignalDeferred || [];</script>
 
 <style>
@@ -1047,7 +1045,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet" style="border-radius:24px;">
     <div class="sheet-title">Таблица размеров <button class="close-x" data-close="ovSizeChart"><i class="fa-solid fa-xmark"></i></button></div>
     <table class="char-table" id="pdSizeChartTable">
-      <tr><td style="font-weight:700;">RU</td><td style="font-weight:700;">EU</td><td style="font-weight:700;">Стелька, см</td></tr>
+      <tbody><tr><td style="font-weight:700;">RU</td><td style="font-weight:700;">EU</td><td style="font-weight:700;">Стелька, см</td></tr>
       <tr><td>39</td><td>40</td><td>25.0</td></tr>
       <tr><td>40</td><td>41</td><td>25.5</td></tr>
       <tr><td>41</td><td>42</td><td>26.5</td></tr>
@@ -1056,7 +1054,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <tr><td>44</td><td>45</td><td>28.5</td></tr>
       <tr><td>45</td><td>46</td><td>29.0</td></tr>
       <tr><td>46</td><td>47</td><td>30.0</td></tr>
-    </table>
+    </tbody></table>
     <div style="color:var(--text-dim);font-size:11.5px;margin-top:8px;">Значения ориентировочные и могут немного отличаться в зависимости от модели.</div>
   </div>
 </div>
@@ -1157,7 +1155,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="field">
       <label>Способ оплаты</label>
       <label class="pay-option active" id="coPayCardOption">
-        <input type="radio" name="coPayMethod" value="card" checked>
+        <input type="radio" name="coPayMethod" value="card" checked="">
         <div><div class="pay-option-title"><i class="fa-solid fa-credit-card"></i> На карту</div><div class="pay-option-sub">Переводом на карту продавца</div></div>
       </label>
     </div>
@@ -1336,7 +1334,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div class="field"><label>Старая цена (акция)</label><input id="pfOldPrice" type="number" placeholder="необязательно"></div>
     </div>
     <div class="field" style="display:flex;align-items:center;gap:8px;">
-      <input type="checkbox" id="pfInStock" style="width:auto;" checked>
+      <input type="checkbox" id="pfInStock" style="width:auto;" checked="">
       <label style="margin:0;">Товар в наличии</label>
     </div>
     <div class="field"><label>Количество на складе <span style="color:var(--text-dim);font-weight:400;">(необязательно — если не указано, остаток не отслеживается)</span></label><input id="pfStockQty" type="number" min="0" placeholder="Например: 12"></div>
@@ -1380,7 +1378,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="field">
       <label>Фото (до 10 шт.)</label>
       <div class="img-upload-row" id="pfImagesRow">
-        <label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*" multiple class="hidden" id="pfImagesInput"></label>
+        <label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*" multiple="" class="hidden" id="pfImagesInput"></label>
       </div>
     </div>
     <div class="field" style="display:flex;align-items:center;gap:8px;">
@@ -6336,5 +6334,6 @@ db.collection('users').where('role','==','seller').onSnapshot(snap=>{
 
 boot();
 </script>
-</body>
-</html>
+
+
+</body></html>
