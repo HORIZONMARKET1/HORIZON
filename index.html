@@ -128,6 +128,7 @@ a{color:inherit; text-decoration:none;}
   background:var(--grad-main); transition:left .2s ease; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px;
 }
 [data-theme="dark"] .theme-switch .knob{left:20px;}
+.theme-switch.on .knob{left:20px;}
 .topbar-row2{display:flex; gap:8px; margin-top:9px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
 .topbar-row2::-webkit-scrollbar{display:none;}
 .pillbtn{
@@ -1205,7 +1206,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div style="flex:1;font-size:12.5px;color:var(--text-dim);" id="pushEnableBannerText">Включите push-уведомления — узнаете о статусе заказа и снижении цены, даже когда приложение закрыто</div>
       <button class="btn btn-primary" id="pushEnableBtn" style="width:auto;padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
     </div>
-    <button id="pushDiagBtn" style="display:flex;align-items:center;gap:6px;justify-content:center;width:100%;padding:8px;margin-bottom:12px;border-radius:10px;background:none;border:1.5px dashed var(--border);color:var(--text-dim);font-size:11.5px;"><i class="fa-solid fa-stethoscope"></i> Диагностика push</button>
+    <button id="pushDiagBtn" style="display:none;align-items:center;gap:6px;justify-content:center;width:100%;padding:8px;margin-bottom:12px;border-radius:10px;background:none;border:1.5px dashed var(--border);color:var(--text-dim);font-size:11.5px;"><i class="fa-solid fa-stethoscope"></i> Диагностика push</button>
     <button class="btn btn-outline notif-clear-btn" id="notifClearAllBtn" style="display:none;margin-bottom:12px;">
       <i class="fa-solid fa-trash-can"></i> Очистить все уведомления
     </button>
@@ -1904,6 +1905,8 @@ function handleNotifClick(id){
 function openNotifications(){
   renderNotifications();
   updatePushEnableBanner();
+  const diagBtn = $('#pushDiagBtn');
+  if(diagBtn) diagBtn.style.display = (State.user && State.user.role==='admin') ? 'flex' : 'none';
   openOv('ovNotifications');
 }
 // Показываем баннер, если push настроен админом и ещё не разрешён.
@@ -1952,6 +1955,33 @@ $('#pushEnableBtn').addEventListener('click', async ()=>{
   }finally{ btn.disabled = false; updatePushEnableBanner(); }
 });
 $('#notifBellBtn').addEventListener('click', openNotifications);
+document.addEventListener('click', async (e)=>{
+  const toggleBtn = e.target.closest('#pushToggleBtn');
+  if(!toggleBtn) return;
+  const isOn = toggleBtn.classList.contains('on');
+  if(!isOn){
+    // Включаем — тот же путь, что и кнопка в баннере уведомлений
+    if(isIOS() && !isStandalone()){ doInstall(); return; }
+    toggleBtn.style.opacity = '.5';
+    try{
+      const res = await enablePushSubscription();
+      if(res.ok){ toggleBtn.classList.add('on'); toast('Push-уведомления включены','','fa-circle-check'); }
+      else if(res.reason==='denied') toast('Уведомления не включены','Разрешите их в настройках браузера','fa-circle-exclamation');
+      else toast('Разрешение получено, но подписка не завершилась','Попробуйте ещё раз','fa-circle-exclamation');
+    }catch(err){
+      toast('Не удалось включить уведомления','Попробуйте ещё раз','fa-circle-exclamation');
+    }finally{ toggleBtn.style.opacity = ''; }
+  } else {
+    // Выключаем — браузер не даёт программно отозвать разрешение, но можно отписать
+    // от рассылки на стороне OneSignal (soft opt-out), плюс подсказать про настройки браузера
+    toggleBtn.classList.remove('on');
+    try{
+      if(cachedOneSignal) await cachedOneSignal.User.PushSubscription.optOut();
+    }catch(err){ console.warn('optOut failed', err); }
+    toast('Push-уведомления выключены','Полностью отозвать разрешение можно в настройках браузера','fa-circle-check');
+  }
+  updatePushEnableBanner();
+});
 $('#pushDiagBtn').addEventListener('click', async ()=>{
   const lines = [];
   lines.push('appId настроен: ' + (!!(State.settings.push && State.settings.push.appId) ? 'да' : 'НЕТ'));
@@ -4226,6 +4256,8 @@ function renderProfile(){
   const roleLabel = u.role==='admin' ? 'Администратор' : u.role==='seller' ? 'Продавец' : 'Покупатель';
   let menu = `<div class="menu-item" id="openAboutMenuBtn"><i class="fa-solid fa-circle-info"></i> О нас <i class="fa-solid fa-chevron-right"></i></div>`;
   menu += `<div class="menu-item"><i class="fa-solid fa-circle-half-stroke"></i> Тёмная тема <button class="theme-switch" id="themeSwitch" style="margin-left:auto;"><span class="knob"><i class="fa-solid fa-moon"></i></span></button></div>`;
+  const pushOn = ('Notification' in window) && Notification.permission === 'granted';
+  menu += `<div class="menu-item"><i class="fa-solid fa-bell"></i> Push-уведомления <button class="theme-switch${pushOn?' on':''}" id="pushToggleBtn" style="margin-left:auto;"><span class="knob"><i class="fa-solid fa-bell"></i></span></button></div>`;
   menu += `<div class="menu-item" id="fullscreenBtn"><i class="fa-solid fa-expand"></i> Во весь экран <i class="fa-solid fa-chevron-right"></i></div>`;
   menu += `<div class="menu-item" data-open="ovEditProfile"><i class="fa-solid fa-pen"></i> Редактировать профиль <i class="fa-solid fa-chevron-right"></i></div>`;
   if(u.role==='client' || u.role==='seller'){
@@ -6086,8 +6118,6 @@ async function pushWatchersNotification(field, productId, title, body){
 
 /* ============ ГЛОБАЛЬНЫЙ БАННЕР "ВКЛЮЧИТЕ УВЕДОМЛЕНИЯ" (показывается при каждом входе,
    пока пользователь не разрешил push или явно не отклонил их насовсем) ============ */
-const HZ_PUSH_DISMISS_KEY = 'hz_push_prompt_dismissed_at';
-const HZ_PUSH_DISMISS_TTL = 3*24*60*60*1000; // повторно предложим не раньше, чем через 3 суток
 let pushPromptShown = false;
 
 function shouldShowGlobalPushPrompt(){
@@ -6098,8 +6128,9 @@ function shouldShowGlobalPushPrompt(){
     if(!('Notification' in window)) return false; // браузер не поддерживает push
     if(Notification.permission === 'granted' || Notification.permission === 'denied') return false;
   }
-  const dismissedAt = Number(localStorage.getItem(HZ_PUSH_DISMISS_KEY) || 0);
-  if(dismissedAt && (Date.now() - dismissedAt) < HZ_PUSH_DISMISS_TTL) return false;
+  // По просьбе владельца: пока уведомления не включены, попап предлагает включить их
+  // при КАЖДОМ новом заходе в приложение (без многодневного подавления). В рамках одной уже
+  // открытой сессии он всё равно показывается только один раз — см. pushPromptShown ниже.
   return true;
 }
 function showGlobalPushPrompt(){
@@ -6122,10 +6153,6 @@ function showGlobalPushPrompt(){
     if(descEl) descEl.textContent = 'Включите push-уведомления — сразу узнаете о новых товарах, снижении цен и статусе заказа';
     if(btnTextEl) btnTextEl.textContent = 'Включить уведомления';
   }
-  // Важно: запоминаем сам факт показа сразу, а не только явное "закрыть"/"позже".
-  // Раньше, если пользователь просто закрывал вкладку/приложение не нажав ни одной кнопки,
-  // dismissedAt не сохранялся — и баннер выскакивал заново при каждом следующем входе.
-  localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
 }
 function hideGlobalPushPrompt(){
   const el = $('#globalPushPrompt');
@@ -6134,12 +6161,10 @@ function hideGlobalPushPrompt(){
 }
 const _gppClose = $('#globalPushPromptClose');
 if(_gppClose) _gppClose.addEventListener('click', ()=>{
-  localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
   hideGlobalPushPrompt();
 });
 const _gppLater = $('#globalPushPromptLaterBtn');
 if(_gppLater) _gppLater.addEventListener('click', ()=>{
-  localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
   hideGlobalPushPrompt();
 });
 const _gppEnable = $('#globalPushPromptEnableBtn');
@@ -6154,7 +6179,6 @@ if(_gppEnable) _gppEnable.addEventListener('click', async ()=>{
       updatePushEnableBanner();
     } else if(res.reason==='denied') {
       toast('Уведомления не включены','Включить можно позже в настройках браузера','fa-circle-exclamation');
-      localStorage.setItem(HZ_PUSH_DISMISS_KEY, String(Date.now()));
       hideGlobalPushPrompt();
     } else {
       toast('Разрешение получено, но подписка не завершилась','Проверьте интернет и попробуйте ещё раз','fa-circle-exclamation');
