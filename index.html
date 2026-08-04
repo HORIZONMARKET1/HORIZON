@@ -863,6 +863,11 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <button class="flash-banner-btn" id="flashSaleViewBtn">Смотреть все товары <i class="fa-solid fa-arrow-right"></i></button>
 </div>
 
+<div id="recentlyViewedBlock" style="display:none;">
+  <div class="section-title">Вы недавно смотрели</div>
+  <div class="related-scroll" id="recentlyViewedScroll"></div>
+</div>
+
 <div class="section-title" id="gridTitle">Все товары</div>
 <div class="filterbar" id="filterBar">
   <select class="sort-select" id="sortSelect">
@@ -1098,7 +1103,9 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     </div>
     <div id="pdPromoLabel" style="margin:-4px 0 8px;"></div>
     <div id="pdLowStock" style="font-size:12px;font-weight:700;color:#FF7A00;margin:-4px 0 8px;"></div>
+    <div id="pdSocialProof" style="font-size:12px;font-weight:600;color:var(--text-dim);margin:-4px 0 8px;"></div>
     <div id="pdCartControls"></div>
+    <div id="pdQuickBuyWrap" style="margin:-2px 0 10px;"></div>
     <div id="pdVariantInfo" style="margin-bottom:10px;"></div>
     <table class="char-table" id="pdCharTable"></table>
     <div class="section-title" style="padding:14px 0 6px;display:flex;justify-content:space-between;align-items:center;">
@@ -1120,6 +1127,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Корзина <button class="close-x" data-close="ovCart"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="cartFreeDeliveryProgress"></div>
     <div id="cartItems"></div>
     <div class="cart-total-row"><span>Итого</span><span id="cartTotal">0 ₽</span></div>
     <button class="btn btn-primary" id="checkoutOpenBtn"><i class="fa-solid fa-bag-shopping"></i> Оформить заказ</button>
@@ -1161,6 +1169,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
         <div><div class="pay-option-title"><i class="fa-solid fa-credit-card"></i> На карту</div><div class="pay-option-sub">Переводом на карту продавца</div></div>
       </label>
     </div>
+    <div id="coFirstOrderBanner" style="display:none;padding:10px 12px;border-radius:12px;background:var(--grad-main);color:#fff;font-size:12.5px;font-weight:700;margin-bottom:14px;"><i class="fa-solid fa-gift"></i> <span id="coFirstOrderBannerText"></span></div>
     <div class="field"><label>Промокод</label>
       <div class="field-row" style="gap:8px;">
         <input id="coPromoInput" placeholder="Введите промокод" style="flex:1;text-transform:uppercase;">
@@ -1178,6 +1187,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     </div>
     <div class="cart-total-row" style="padding:14px 0 4px;"><span>Сумма заказа</span><span id="coSubtotal">0 ₽</span></div>
     <div class="cart-total-row" id="coPromoRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Скидка по промокоду</span><span id="coPromoDiscount">0 ₽</span></div>
+    <div class="cart-total-row" id="coFirstOrderRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Скидка на первый заказ</span><span id="coFirstOrderDiscount">0 ₽</span></div>
     <div class="cart-total-row" id="coBonusRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Списание бонусов</span><span id="coBonusApplied">0 ₽</span></div>
     <div class="cart-total-row" style="padding:0 0 10px;font-size:13px;font-weight:600;color:var(--text-dim);"><span>Доставка (оплачивает клиент)</span><span id="coDeliveryFee">Бесплатно</span></div>
     <div class="cart-total-row" style="border-top:1.5px solid var(--border);padding-top:12px;"><span>Итого к оплате</span><span id="coTotal">0 ₽</span></div>
@@ -2764,6 +2774,7 @@ function filterAndRenderGrid(f){
   const cat = State.catalogs.find(c=>c.id===currentFilter.catalogId);
   $('#gridTitle').textContent = currentFilter.flashOnly ? '⚡ Товары акции' : (currentFilter.search ? `Результаты поиска: "${currentFilter.search}"` : (cat ? cat.name : 'Все товары'));
   renderGrid(list, '#productGrid');
+  renderRecentlyViewed(isDefaultView && !currentFilter.search);
 }
 $('#sortSelect').addEventListener('change', (e)=>{ filterAndRenderGrid({sort: e.target.value}); });
 $('#stockOnlyChip').addEventListener('click', ()=>{
@@ -2865,6 +2876,28 @@ function cardHtml(p){
 }
 function skeletonCardsHtml(n){
   return Array.from({length:n}).map(()=>'<div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>').join('');
+}
+/* ============ RECENTLY VIEWED ============ */
+const HZ_RECENTLY_VIEWED_KEY = 'hz_recently_viewed';
+function rememberRecentlyViewed(pid){
+  try{
+    let ids = JSON.parse(localStorage.getItem(HZ_RECENTLY_VIEWED_KEY) || '[]');
+    ids = ids.filter(id=>id!==pid);
+    ids.unshift(pid);
+    ids = ids.slice(0, 12);
+    localStorage.setItem(HZ_RECENTLY_VIEWED_KEY, JSON.stringify(ids));
+  }catch(e){}
+}
+function renderRecentlyViewed(allowShow){
+  const block = $('#recentlyViewedBlock');
+  if(!block) return;
+  if(!allowShow){ block.style.display = 'none'; return; }
+  let ids = [];
+  try{ ids = JSON.parse(localStorage.getItem(HZ_RECENTLY_VIEWED_KEY) || '[]'); }catch(e){}
+  const items = ids.map(id=>State.products.find(p=>p.id===id)).filter(Boolean).slice(0,10);
+  if(items.length===0){ block.style.display = 'none'; return; }
+  block.style.display = 'block';
+  $('#recentlyViewedScroll').innerHTML = items.map(cardHtml).join('');
 }
 function renderGrid(list, sel){
   const grid = $(sel);
@@ -2990,6 +3023,16 @@ document.addEventListener('click', (e)=>{
   if(openVariantBtn){ e.stopPropagation(); openVariantSheet(openVariantBtn.getAttribute('data-openvariant')); return; }
   const addBtn = e.target.closest('[data-addcart]');
   if(addBtn){ e.stopPropagation(); addToCart(addBtn.getAttribute('data-addcart'), addBtn.getAttribute('data-size')||null, addBtn.getAttribute('data-color')||null); return; }
+  const quickBuyBtn = e.target.closest('[data-quickbuy]');
+  if(quickBuyBtn){
+    e.stopPropagation();
+    const qbPid = quickBuyBtn.getAttribute('data-quickbuy');
+    const alreadyInCart = State.cart.some(c=>c.productId===qbPid);
+    if(!alreadyInCart) addToCart(qbPid, variantState.pid===qbPid?variantState.size:null, variantState.pid===qbPid?variantState.color:null);
+    closeOv('ovProduct');
+    $('#checkoutOpenBtn').click();
+    return;
+  }
   const cardQtyBtn = e.target.closest('.card [data-qty]');
   if(cardQtyBtn){ e.stopPropagation(); changeCartQty(cardQtyBtn.getAttribute('data-id'), parseInt(cardQtyBtn.getAttribute('data-qty')), cardQtyBtn.getAttribute('data-wholesale')==='1', cardQtyBtn.getAttribute('data-size')||null, cardQtyBtn.getAttribute('data-color')||null); return; }
   const openBtn = e.target.closest('[data-openpd]');
@@ -3192,7 +3235,33 @@ function changeCartQty(pid, delta, wholesale, size, color){
   persistCart(); updateCartBadge(); filterAndRenderGrid({}); renderCart();
   if($('#ovProduct').classList.contains('open') && State.activeProductId===pid && p){ refreshPdCartControls(p); }
 }
-function persistCart(){ localStorage.setItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'), JSON.stringify(State.cart)); markCartActivity(); }
+function persistCart(){ localStorage.setItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'), JSON.stringify(State.cart)); markCartActivity(); syncCartToServer(); }
+let cartSyncTimer = null;
+function syncCartToServer(){
+  // Только для авторизованных: серверная функция шлёт push через OneSignal по external_user_id
+  // (см. OneSignal.login в enablePushSubscription), у гостей нет стабильного id для этого.
+  if(!State.user || !State.user.docId) return;
+  clearTimeout(cartSyncTimer);
+  cartSyncTimer = setTimeout(async ()=>{
+    try{
+      const ref = db.collection('abandonedCarts').doc(State.user.docId);
+      if(!State.cart || State.cart.length===0){
+        await ref.delete().catch(()=>{});
+      } else {
+        const itemsSummary = State.cart.map(c=>{
+          const p = State.products.find(pp=>pp.id===c.productId);
+          return {productId:c.productId, name:p?p.name:'', qty:c.qty};
+        });
+        await ref.set(stripUndefinedDeep({
+          userId: State.user.docId,
+          items: itemsSummary,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          reminderSent: false
+        }), {merge:false}); // merge:false — каждое изменение корзины сбрасывает reminderSent
+      }
+    }catch(e){ console.warn('syncCartToServer failed', e); }
+  }, 1500); // небольшой дебаунс, чтобы не писать в базу на каждый клик +/-
+}
 function markCartActivity(){
   const key = 'hz_cart_ts_'+(State.user?State.user.docId||'guest':'guest');
   if(!State.cart || State.cart.length===0){ localStorage.removeItem(key); }
@@ -3223,6 +3292,8 @@ function cartTotal(){
 $('#openCartBtn').addEventListener('click', ()=>{ if(!State.user){ openOv('ovAuthChoice'); return; } renderCart(); openOv('ovCart'); });
 function renderCart(){
   const wrap = $('#cartItems');
+  const progWrap = $('#cartFreeDeliveryProgress');
+  if(progWrap) progWrap.innerHTML = freeDeliveryProgressHtml();
   if(State.cart.length===0){ wrap.innerHTML = '<div class="empty-state"><i class="fa-solid fa-cart-shopping"></i><div>Корзина пуста</div></div>'; }
   else{
     wrap.innerHTML = State.cart.map(c=>{
@@ -3253,7 +3324,23 @@ function renderCart(){
   $('#cartTotal').textContent = fmt(cartTotal());
 }
 function currentDeliveryFee(){
+  const threshold = Number(State.settings.freeDeliveryThreshold) || 0;
+  if(threshold > 0 && cartTotal() >= threshold) return 0;
   return Number(State.settings.deliveryFee) || 0;
+}
+function freeDeliveryProgressHtml(){
+  const threshold = Number(State.settings.freeDeliveryThreshold) || 0;
+  if(threshold <= 0 || State.cart.length===0) return '';
+  const total = cartTotal();
+  if(total >= threshold){
+    return `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--surface-2);margin-bottom:12px;font-size:12.5px;font-weight:700;color:var(--accent);"><i class="fa-solid fa-truck-fast"></i> Бесплатная доставка уже ваша! 🎉</div>`;
+  }
+  const remain = threshold - total;
+  const pct = Math.min(100, Math.round((total/threshold)*100));
+  return `<div style="padding:10px 12px;border-radius:12px;background:var(--surface-2);margin-bottom:12px;">
+    <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:6px;">Добавьте ещё <b style="color:var(--text);">${fmt(remain)}</b> — и доставка бесплатно</div>
+    <div style="height:6px;border-radius:4px;background:var(--surface);overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--grad-main);border-radius:4px;"></div></div>
+  </div>`;
 }
 /* ============ DELIVERY METHOD (by country) ============ */
 function getDeliveryMethodsMap(){
@@ -3308,6 +3395,25 @@ document.querySelectorAll('input[name="coPayMethod"]').forEach(inp=>{
 });
 /* ============ PROMO CODE & BONUS POINTS ============ */
 let appliedPromo = null; // {id, code, type, value, discount}
+let firstOrderDiscountAmount = 0;
+let isFirstOrderEligible = false;
+async function checkFirstOrderEligibility(){
+  firstOrderDiscountAmount = 0; isFirstOrderEligible = false;
+  const pct = Number(State.settings.firstOrderDiscountPercent) || 0;
+  if(pct<=0 || !State.user || !State.user.docId || State.user.role!=='client'){ $('#coFirstOrderBanner').style.display='none'; return; }
+  try{
+    const snap = await db.collection('orders').where('clientId','==',State.user.docId).limit(1).get();
+    isFirstOrderEligible = snap.empty;
+  }catch(e){ console.warn('checkFirstOrderEligibility failed', e); }
+  const banner = $('#coFirstOrderBanner');
+  if(isFirstOrderEligible){
+    banner.style.display='block';
+    $('#coFirstOrderBannerText').textContent = `Скидка ${pct}% на первый заказ уже применена!`;
+  } else {
+    banner.style.display='none';
+  }
+  recalcCheckoutTotals();
+}
 function maxRedeemableBonus(subtotalAfterPromo){
   const balance = Number(State.user && State.user.bonusBalance) || 0;
   return Math.max(0, Math.min(balance, subtotalAfterPromo));
@@ -3319,7 +3425,9 @@ function getBonusToRedeem(subtotalAfterPromo){
 function recalcCheckoutTotals(){
   const subtotal = cartTotal(), fee = currentDeliveryFee();
   const promoDiscount = appliedPromo ? appliedPromo.discount : 0;
-  const afterPromo = Math.max(0, subtotal - promoDiscount);
+  const pct = Number(State.settings.firstOrderDiscountPercent) || 0;
+  firstOrderDiscountAmount = (isFirstOrderEligible && pct>0) ? Math.round(Math.max(0, subtotal-promoDiscount) * pct/100) : 0;
+  const afterPromo = Math.max(0, subtotal - promoDiscount - firstOrderDiscountAmount);
   const bonusUsed = getBonusToRedeem(afterPromo);
   $('#coSubtotal').textContent = fmt(subtotal);
   $('#coDeliveryFee').textContent = fee>0 ? fmt(fee) : 'Бесплатно';
@@ -3328,6 +3436,12 @@ function recalcCheckoutTotals(){
     $('#coPromoDiscount').textContent = '-'+fmt(promoDiscount);
   } else {
     $('#coPromoRow').style.display = 'none';
+  }
+  if(firstOrderDiscountAmount > 0){
+    $('#coFirstOrderRow').style.display = 'flex';
+    $('#coFirstOrderDiscount').textContent = '-'+fmt(firstOrderDiscountAmount);
+  } else {
+    $('#coFirstOrderRow').style.display = 'none';
   }
   const balance = Number(State.user && State.user.bonusBalance) || 0;
   if(balance > 0){
@@ -3386,6 +3500,7 @@ $('#checkoutOpenBtn').addEventListener('click', ()=>{
   renderDeliveryMethodOptions();
   updateCoPayOptionsVisibility();
   resetPromoUI();
+  checkFirstOrderEligibility();
   recalcCheckoutTotals();
   closeOv('ovCart'); openOv('ovCheckout');
 });
@@ -3429,12 +3544,13 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const subtotal = cartTotal();
   const deliveryFee = currentDeliveryFee();
   const promoDiscount = appliedPromo ? appliedPromo.discount : 0;
-  const afterPromo = Math.max(0, subtotal - promoDiscount);
+  const firstOrderDiscount = firstOrderDiscountAmount;
+  const afterPromo = Math.max(0, subtotal - promoDiscount - firstOrderDiscount);
   const bonusUsed = getBonusToRedeem(afterPromo);
   const total = Math.max(0, afterPromo - bonusUsed) + deliveryFee;
   const paymentMethod = 'card';
   const initialStatus = 'Ожидает оплаты';
-  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, deliveryMethod, deliveryMethodLabel, address, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, bonusUsed, total, paymentMethod, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, deliveryMethod, deliveryMethodLabel, address, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
   const orderRef = db.collection('orders').doc();
   try{
     // Reserve stock atomically: aggregate quantity per product (a product can appear in
@@ -3460,7 +3576,9 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
         const pdata = snap.data();
         if(pdata.stockQty!=null){
           const newQty = pdata.stockQty - qtyByProduct[productIds[i]];
-          tx.update(refs[i], {stockQty:newQty, inStock: newQty>0});
+          tx.update(refs[i], {stockQty:newQty, inStock: newQty>0, totalSold: firebase.firestore.FieldValue.increment(qtyByProduct[productIds[i]])});
+        } else {
+          tx.update(refs[i], {totalSold: firebase.firestore.FieldValue.increment(qtyByProduct[productIds[i]])});
         }
       });
       tx.set(orderRef, order);
@@ -3509,6 +3627,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     }
   }
   State.cart = []; persistCart(); updateCartBadge();
+  if(State.user && State.user.docId) db.collection('abandonedCarts').doc(State.user.docId).delete().catch(()=>{});
   resetPromoUI();
   closeOv('ovCheckout');
   toast('Заказ оформлен!', 'Продавец скоро с вами свяжется', 'fa-circle-check');
@@ -3992,6 +4111,9 @@ function openProductDetail(pid){
   renderPriceWatchBtn(pid);
   $('#pdLowStock').innerHTML = (p.inStock!==false && p.stockQty!=null && p.stockQty<=5)
     ? `<i class="fa-solid fa-triangle-exclamation"></i> Осталось всего ${p.stockQty} шт.` : '';
+  $('#pdSocialProof').innerHTML = (p.totalSold>=5) ? `<i class="fa-solid fa-fire" style="color:#FF7A00;"></i> Уже куплено ${p.totalSold} раз` : '';
+  $('#pdQuickBuyWrap').innerHTML = (p.inStock!==false) ? `<button class="btn btn-outline" id="pdQuickBuyBtn" data-quickbuy="${pid}" style="border-color:var(--accent);color:var(--accent);"><i class="fa-solid fa-bolt"></i> Купить в 1 клик</button>` : '';
+  rememberRecentlyViewed(pid);
   $('#pdOldPrice').textContent = p.oldPrice ? fmt(p.oldPrice) : '';
   $('#pdPromoLabel').innerHTML = p.promoLabel ? `<div class="promo-label"><i class="fa-solid fa-tag"></i> ${p.promoLabel}</div>` : '';
   $('#pdRating').innerHTML = `<i class="fa-solid fa-star" style="color:#FFA800"></i> ${(p.rating||5).toFixed(1)} · ${p.ratingCount||0} отзывов`;
@@ -5570,6 +5692,10 @@ function renderAdminTab(){
       <div class="field"><label>Пароль администратора</label><input id="secPass" value="${State.settings.adminPassword||'12345'}"></div>
       <div class="field"><label>Стоимость доставки (₽)</label><input id="secDeliveryFee" type="number" min="0" placeholder="0 — доставка бесплатная" value="${State.settings.deliveryFee||''}"></div>
       <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">Эта сумма добавляется к заказу клиента при оформлении и оплачивается им отдельно от стоимости товаров.</p>
+      <div class="field"><label>Бесплатная доставка от суммы заказа (₽)</label><input id="secFreeDeliveryThreshold" type="number" min="0" placeholder="0 — не применять" value="${State.settings.freeDeliveryThreshold||''}"></div>
+      <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">Если сумма товаров в корзине достигает этого значения — доставка станет бесплатной. Клиент увидит прогресс-полоску в корзине.</p>
+      <div class="field"><label>Скидка на первый заказ, %</label><input id="secFirstOrderDiscount" type="number" min="0" max="100" placeholder="0 — выключено" value="${State.settings.firstOrderDiscountPercent||''}"></div>
+      <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">Автоматическая скидка для клиентов, у которых ещё нет ни одного заказа. Применяется к сумме товаров, не к доставке.</p>
       <div class="field-row">
         <div class="field"><label>Авиа, $ за 1 кг</label><input id="secAviaPrice" type="number" min="0" step="0.1" placeholder="6" value="${State.settings.aviaPricePerKg||''}"></div>
         <div class="field"><label>Грузовик, $ за 1 кг</label><input id="secTruckPrice" type="number" min="0" step="0.1" placeholder="1.5" value="${State.settings.truckPricePerKg||''}"></div>
@@ -5600,6 +5726,8 @@ function renderAdminTab(){
     $('#saveSecBtn').addEventListener('click', async ()=>{
       const adminLogin = $('#secLogin').value.trim(), adminPassword = $('#secPass').value.trim();
       const deliveryFee = Number($('#secDeliveryFee').value) || 0;
+      const freeDeliveryThreshold = Number($('#secFreeDeliveryThreshold').value) || 0;
+      const firstOrderDiscountPercent = Number($('#secFirstOrderDiscount').value) || 0;
       const aviaPricePerKg = Number($('#secAviaPrice').value) || 6;
       const truckPricePerKg = Number($('#secTruckPrice').value) || 1.5;
       const smsApiId = $('#secSmsApiId').value.trim();
@@ -5607,8 +5735,8 @@ function renderAdminTab(){
       const rateUZS = Number($('#secRateUZS').value) || 158.40;
       const loyaltyEarnRate = Number($('#secLoyaltyRate').value) || 0;
       const referralBonusPoints = Number($('#secReferralBonus').value) || 0;
-      await db.collection('settings').doc('main').set({adminLogin, adminPassword, deliveryFee, aviaPricePerKg, truckPricePerKg, smsApiId, rateTJS, rateUZS, loyaltyEarnRate, referralBonusPoints}, {merge:true});
-      State.settings.adminLogin = adminLogin; State.settings.adminPassword = adminPassword; State.settings.deliveryFee = deliveryFee; State.settings.aviaPricePerKg = aviaPricePerKg; State.settings.truckPricePerKg = truckPricePerKg; State.settings.smsApiId = smsApiId; State.settings.rateTJS = rateTJS; State.settings.rateUZS = rateUZS; State.settings.loyaltyEarnRate = loyaltyEarnRate; State.settings.referralBonusPoints = referralBonusPoints;
+      await db.collection('settings').doc('main').set({adminLogin, adminPassword, deliveryFee, freeDeliveryThreshold, firstOrderDiscountPercent, aviaPricePerKg, truckPricePerKg, smsApiId, rateTJS, rateUZS, loyaltyEarnRate, referralBonusPoints}, {merge:true});
+      State.settings.adminLogin = adminLogin; State.settings.adminPassword = adminPassword; State.settings.deliveryFee = deliveryFee; State.settings.freeDeliveryThreshold = freeDeliveryThreshold; State.settings.firstOrderDiscountPercent = firstOrderDiscountPercent; State.settings.aviaPricePerKg = aviaPricePerKg; State.settings.truckPricePerKg = truckPricePerKg; State.settings.smsApiId = smsApiId; State.settings.rateTJS = rateTJS; State.settings.rateUZS = rateUZS; State.settings.loyaltyEarnRate = loyaltyEarnRate; State.settings.referralBonusPoints = referralBonusPoints;
       toast('Данные для входа обновлены','','fa-circle-check');
     });
     $('#changeFirebaseBtn').addEventListener('click', ()=>{
