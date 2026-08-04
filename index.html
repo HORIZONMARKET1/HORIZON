@@ -143,7 +143,8 @@ a{color:inherit; text-decoration:none;}
   box-shadow:var(--shadow-soft); background:var(--surface-2);
 }
 .banner-track{display:flex; height:100%; transition:transform .5s cubic-bezier(.65,0,.35,1);}
-.banner-slide{min-width:100%; height:100%;}
+.banner-slide{min-width:100%; height:100%; position:relative;}
+.banner-goto-btn{position:absolute; right:12px; bottom:12px; padding:8px 14px; border-radius:10px; background:rgba(255,255,255,.92); color:#1a1330; font-size:12px; font-weight:800; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(0,0,0,.25);}
 .banner-slide img{width:100%; height:100%; object-fit:cover;}
 .banner-dots{position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:6px;}
 .banner-dots span{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.5);}
@@ -301,7 +302,7 @@ a{color:inherit; text-decoration:none;}
 @keyframes skelShimmer{100%{transform:translateX(100%);}}
 
 /* ===== AD POPUP (реклама по центру при входе) ===== */
-.ad-popup-box{position:relative; width:84%; max-width:340px; border-radius:20px; overflow:hidden; background:var(--surface); box-shadow:0 24px 60px rgba(0,0,0,.4); animation:slideUp .28s ease;}
+.ad-popup-box{position:relative; width:92%; max-width:420px; border-radius:20px; overflow:hidden; background:var(--surface); box-shadow:0 24px 60px rgba(0,0,0,.4); animation:slideUp .28s ease;}
 .ad-popup-box img{width:100%; display:block; cursor:pointer; background:var(--surface-2);}
 .ad-popup-close{position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; z-index:2; border:none;}
 
@@ -894,6 +895,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <div class="ad-popup-box">
     <button class="ad-popup-close" data-close="ovAdPopup"><i class="fa-solid fa-xmark"></i></button>
     <img id="adPopupImg" src="" alt="Реклама">
+    <button class="btn btn-primary" id="adPopupGoBtn" style="margin:12px;width:calc(100% - 24px);"><i class="fa-solid fa-arrow-right"></i> Перейти</button>
   </div>
 </div>
 
@@ -1068,7 +1070,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 
 <!-- PRODUCT DETAIL -->
 <div class="overlay page-overlay" id="ovProduct">
-  <div class="sheet" style="padding-top:0; max-height:calc(92vh - env(safe-area-inset-top));">
+  <div class="sheet" id="pdSheet" style="padding-top:0; max-height:calc(92vh - env(safe-area-inset-top));">
     <div class="pd-gallery-viewer" id="pdGalleryViewer">
       <div class="pd-gallery-track" id="pdGalleryTrack"></div>
       <div class="pd-gallery-header">
@@ -1119,6 +1121,13 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div id="pdReviewsList" class="pd-reviews-collapse"></div>
     <div class="section-title" style="padding:14px 0 6px;">Похожие товары</div>
     <div class="related-scroll" id="pdRelated"></div>
+  </div>
+  <div id="pdStickyBar" style="display:none;position:absolute;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);align-items:center;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.08);">
+    <div style="flex:1;min-width:0;">
+      <div id="pdStickyName" style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+      <div id="pdStickyPrice" style="font-size:15px;font-weight:800;color:var(--accent);"></div>
+    </div>
+    <button class="btn btn-primary" id="pdStickyAddBtn" style="width:auto;padding:11px 18px;font-size:13px;flex-shrink:0;"><i class="fa-solid fa-cart-plus"></i> В корзину</button>
   </div>
 </div>
 
@@ -1191,6 +1200,11 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="cart-total-row" id="coBonusRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Списание бонусов</span><span id="coBonusApplied">0 ₽</span></div>
     <div class="cart-total-row" style="padding:0 0 10px;font-size:13px;font-weight:600;color:var(--text-dim);"><span>Доставка (оплачивает клиент)</span><span id="coDeliveryFee">Бесплатно</span></div>
     <div class="cart-total-row" style="border-top:1.5px solid var(--border);padding-top:12px;"><span>Итого к оплате</span><span id="coTotal">0 ₽</span></div>
+    <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;">
+      <div style="flex:1;min-width:100px;text-align:center;padding:8px 6px;border-radius:10px;background:var(--surface-2);font-size:10.5px;color:var(--text-dim);font-weight:600;"><i class="fa-solid fa-shield-halved" style="display:block;font-size:16px;margin-bottom:4px;color:var(--accent);"></i>Оплата защищена</div>
+      <div style="flex:1;min-width:100px;text-align:center;padding:8px 6px;border-radius:10px;background:var(--surface-2);font-size:10.5px;color:var(--text-dim);font-weight:600;"><i class="fa-solid fa-rotate-left" style="display:block;font-size:16px;margin-bottom:4px;color:var(--accent);"></i>Возврат 14 дней</div>
+      <div style="flex:1;min-width:100px;text-align:center;padding:8px 6px;border-radius:10px;background:var(--surface-2);font-size:10.5px;color:var(--text-dim);font-weight:600;"><i class="fa-solid fa-user-check" style="display:block;font-size:16px;margin-bottom:4px;color:var(--accent);"></i>Проверенные продавцы</div>
+    </div>
     <button class="btn btn-primary" id="coSubmitBtn"><i class="fa-solid fa-check"></i> Заказ</button>
   </div>
 </div>
@@ -2642,16 +2656,47 @@ $('#catalogSearchClear').addEventListener('click', ()=>{
   $('#catalogSearchInput').value=''; catView.search=''; $('#catalogSearchClear').style.display='none'; renderCatalogTree();
 });
 
+/* ============ ВНУТРЕННЯЯ НАВИГАЦИЯ ПО ПУТИ (для рекламных баннеров/попапа) ============
+   Понимает несколько форматов, чтобы админу было легко указать путь:
+   - Полная ссылка "Поделиться" на товар: https://.../?product=ID
+   - Короткий формат: product:ID  или  catalog:ID  или  flash
+   Возвращает true, если смогли перейти внутри приложения (тогда наружу открывать не нужно). */
+function navigateInApp(raw){
+  if(!raw) return false;
+  const val = String(raw).trim();
+  let productId = null, catalogId = null, isFlash = false;
+  if(/^product:/i.test(val)) productId = val.split(':').slice(1).join(':').trim();
+  else if(/^catalog:/i.test(val)) catalogId = val.split(':').slice(1).join(':').trim();
+  else if(/^flash$/i.test(val)) isFlash = true;
+  else if(/\?|https?:\/\//i.test(val)){
+    try{
+      const u = new URL(val, window.location.href);
+      if(u.searchParams.get('product')) productId = u.searchParams.get('product');
+      else if(u.searchParams.get('catalog')) catalogId = u.searchParams.get('catalog');
+      else if(u.searchParams.get('flash')) isFlash = true;
+    }catch(e){ return false; }
+  } else {
+    return false; // не похоже ни на один известный формат — пусть откроется как внешняя ссылка
+  }
+  if(productId){ openProductDetail(productId); return true; }
+  if(catalogId){ filterAndRenderGrid({catalogId}); closeAllOverlays(); scrollToTop(); return true; }
+  if(isFlash){ filterAndRenderGrid({flashOnly:true}); closeAllOverlays(); scrollToTop(); return true; }
+  return false;
+}
+function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }
+
 /* ============ AD POPUP (реклама по центру при входе) ============ */
-$('#adPopupImg').addEventListener('click', ()=>{
+function handleAdPopupGo(){
   const pa = State.settings.popupAd;
   const link = pa && pa.link;
-  if(link){
-    const url = /^https?:\/\//i.test(link) ? link : ('https://' + link);
-    window.open(url, '_blank', 'noopener');
-  }
+  if(!link){ closeOv('ovAdPopup'); return; }
   closeOv('ovAdPopup');
-});
+  if(navigateInApp(link)) return;
+  const url = /^https?:\/\//i.test(link) ? link : ('https://' + link);
+  window.open(url, '_blank', 'noopener');
+}
+$('#adPopupImg').addEventListener('click', handleAdPopupGo);
+$('#adPopupGoBtn').addEventListener('click', handleAdPopupGo);
 function maybeShowAdPopup(){
   if(State.adPopupChecked) return;
   State.adPopupChecked = true;
@@ -2660,6 +2705,7 @@ function maybeShowAdPopup(){
   if(sessionStorage.getItem('hzAdPopupShown')) return;
   sessionStorage.setItem('hzAdPopupShown', '1');
   $('#adPopupImg').src = pa.image;
+  $('#adPopupGoBtn').style.display = pa.link ? 'flex' : 'none';
   setTimeout(()=>{ openOv('ovAdPopup'); }, 900);
 }
 
@@ -2667,12 +2713,15 @@ function maybeShowAdPopup(){
 let bannerIdx = 0, bannerTimer = null;
 function renderBanner(){
   const track = $('#bannerTrack'), dots = $('#bannerDots');
-  const banners = (State.settings.banners||[]).slice(0,4);
+  const banners = (State.settings.banners||[]).slice(0,4).map(b=>typeof b==='string' ? {image:b, link:''} : b);
   if(banners.length===0){
     $('#bannerBox').style.display='none'; return;
   }
   $('#bannerBox').style.display='block';
-  track.innerHTML = banners.map(b=>`<div class="banner-slide"><img src="${b}"></div>`).join('');
+  track.innerHTML = banners.map(b=>`<div class="banner-slide">
+      <img src="${b.image}">
+      ${b.link ? `<button class="banner-goto-btn" data-bannergoto="${encodeURIComponent(b.link)}"><i class="fa-solid fa-arrow-right"></i> Перейти</button>` : ''}
+    </div>`).join('');
   dots.innerHTML = banners.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');
   bannerIdx = 0;
   clearInterval(bannerTimer);
@@ -2684,6 +2733,14 @@ function renderBanner(){
     }, 4000);
   }
 }
+document.addEventListener('click', (e)=>{
+  const gotoBtn = e.target.closest('[data-bannergoto]');
+  if(!gotoBtn) return;
+  const link = decodeURIComponent(gotoBtn.getAttribute('data-bannergoto'));
+  if(navigateInApp(link)) return;
+  const url = /^https?:\/\//i.test(link) ? link : ('https://' + link);
+  window.open(url, '_blank', 'noopener');
+});
 
 /* ============ FLASH SALE ============ */
 let flashSaleTimerInterval = null;
@@ -2899,6 +2956,27 @@ function renderRecentlyViewed(allowShow){
   block.style.display = 'block';
   $('#recentlyViewedScroll').innerHTML = items.map(cardHtml).join('');
 }
+/* ============ ЛИПУЧАЯ ПАНЕЛЬ "В КОРЗИНУ" НА СТРАНИЦЕ ТОВАРА ============ */
+(function setupPdStickyBar(){
+  const sheetEl = document.getElementById('pdSheet');
+  const barEl = document.getElementById('pdStickyBar');
+  if(!sheetEl || !barEl) return;
+  sheetEl.addEventListener('scroll', ()=>{
+    // Показываем после того, как основной блок цены/кнопки уже проскроллен наверх
+    const cartControls = document.getElementById('pdCartControls');
+    if(!cartControls) return;
+    const threshold = cartControls.offsetTop + cartControls.offsetHeight;
+    barEl.style.display = sheetEl.scrollTop > threshold ? 'flex' : 'none';
+  });
+  barEl.addEventListener('click', (e)=>{
+    if(!e.target.closest('#pdStickyAddBtn')) return;
+    // Триггерим тот же клик, что и настоящая кнопка "В корзину" внутри pdCartControls
+    const realBtn = document.querySelector('#pdCartControls [data-addcart]');
+    if(realBtn){ realBtn.click(); }
+    else { document.getElementById('pdQuickBuyBtn')?.click(); }
+  });
+})();
+
 function renderGrid(list, sel){
   const grid = $(sel);
   if(!list || list.length===0){
@@ -3168,10 +3246,19 @@ $('#pdPriceWatchBtn').addEventListener('click', ()=>{ if(State.activeProductId) 
 function toggleFavorite(pid){
   if(!State.user){ openOv('ovAuthChoice'); return; }
   const favs = new Set(State.user.favorites||[]);
+  const adding = !favs.has(pid);
   favs.has(pid) ? favs.delete(pid) : favs.add(pid);
   State.user.favorites = Array.from(favs);
+  const priceSnap = State.user.favoritePriceSnapshot || {};
+  if(adding){
+    const prod = State.products.find(pp=>pp.id===pid);
+    if(prod) priceSnap[pid] = prod.price;
+  } else {
+    delete priceSnap[pid];
+  }
+  State.user.favoritePriceSnapshot = priceSnap;
   saveLocalUser(State.user);
-  if(State.user.role==='client' && State.user.docId){ db.collection('users').doc(State.user.docId).update({favorites: State.user.favorites}).catch(()=>{}); }
+  if(State.user.role==='client' && State.user.docId){ db.collection('users').doc(State.user.docId).update({favorites: State.user.favorites, favoritePriceSnapshot: priceSnap}).catch(()=>{}); }
   filterAndRenderGrid({});
   renderFavorites();
 }
@@ -3192,6 +3279,21 @@ function renderFavorites(){
   const favIds = new Set((State.user && State.user.favorites) || []);
   const list = State.products.filter(p=>favIds.has(p.id));
   renderGrid(list, '#favGrid');
+  const snap = (State.user && State.user.favoritePriceSnapshot) || {};
+  list.forEach(p=>{
+    const oldPrice = snap[p.id];
+    if(oldPrice && Number(p.price) < Number(oldPrice)){
+      const cardEl = document.querySelector(`#favGrid .card[data-id="${p.id}"] .card-img-clip`);
+      if(cardEl && !cardEl.querySelector('.fav-price-drop-badge')){
+        const badge = document.createElement('div');
+        badge.className = 'fav-price-drop-badge';
+        badge.style.cssText = 'position:absolute;left:6px;bottom:6px;z-index:2;background:var(--success);color:#fff;font-size:10.5px;font-weight:800;padding:4px 8px;border-radius:8px;';
+        badge.innerHTML = `<i class="fa-solid fa-arrow-trend-down"></i> Дешевле на ${fmt(oldPrice - p.price)}`;
+        cardEl.style.position = 'relative';
+        cardEl.appendChild(badge);
+      }
+    }
+  });
 }
 
 /* ============ CART ============ */
@@ -4105,6 +4207,10 @@ function openProductDetail(pid){
   $('#pdReviewsToggleLabel').textContent = 'Посмотреть отзывы';
   loadAndRenderReviews(pid); // kick off reviews fetch first so it's not delayed by the rest of the render
   $('#pdName').textContent = p.name;
+  $('#pdStickyName').textContent = p.name;
+  $('#pdStickyPrice').textContent = fmt(p.price);
+  $('#pdStickyBar').style.display = 'none';
+  const _pdSheetEl = $('#pdSheet'); if(_pdSheetEl) _pdSheetEl.scrollTop = 0;
   pdGalleryState = {images: p.images||[], idx:0};
   renderPdGalleryViewer();
   $('#pdPrice').textContent = fmt(p.price);
@@ -5542,13 +5648,13 @@ function renderAdminTab(){
       }));
     });
   } else if(adminActiveTab==='banners'){
-    body.innerHTML = `<p style="font-size:12px;color:var(--text-dim);">До 4 изображений, слайд-шоу каждые 4 секунды.</p>
+    body.innerHTML = `<p style="font-size:12px;color:var(--text-dim);">До 4 изображений, слайд-шоу каждые 4 секунды. В поле под картинкой можно указать путь (ссылку из «Поделиться» на товар или обычный https://) — на баннере появится кнопка «Перейти».</p>
       <div class="img-upload-row" id="adminBannerRow"></div>`;
     renderAdminBanners();
   } else if(adminActiveTab==='popupad'){
     const pa = State.settings.popupAd || {};
     body.innerHTML = `
-      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Всплывающее окно с рекламой появится по центру экрана один раз за сеанс, когда клиент откроет приложение. При нажатии на картинку клиент перейдёт по указанной ссылке.</p>
+      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Всплывающее окно с рекламой появится по центру экрана один раз за сеанс, когда клиент откроет приложение. Кнопка «Перейти» ведёт по указанному пути.</p>
       <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">
         <input type="checkbox" id="paActive" ${pa.enabled?'checked':''} style="width:18px;height:18px;">
         <label style="margin:0;">Реклама включена</label>
@@ -5556,7 +5662,8 @@ function renderAdminTab(){
       <div class="field"><label>Изображение баннера</label>
         <div class="img-upload-row" id="adminPopupAdRow"></div>
       </div>
-      <div class="field"><label>Ссылка при нажатии (URL)</label><input id="paLink" placeholder="https://example.com" value="${pa.link||''}"></div>
+      <div class="field"><label>Путь при нажатии «Перейти»</label><input id="paLink" placeholder="Ссылка товара из «Поделиться» или https://..." value="${pa.link||''}"></div>
+      <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">Чтобы вести на товар/категорию ВНУТРИ приложения — вставьте сюда ссылку, которую получаете через кнопку «Поделиться» на нужном товаре. Обычную внешнюю ссылку (https://...) тоже можно — откроется в браузере.</p>
       <button class="btn btn-primary" id="savePopupAdBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>`;
     renderAdminPopupAdImage();
     $('#savePopupAdBtn').addEventListener('click', async ()=>{
@@ -5862,8 +5969,12 @@ async function processBannerFile(file){
 
 function renderAdminBanners(){
   const row = $('#adminBannerRow');
-  const banners = State.settings.banners||[];
-  row.innerHTML = banners.map((b,i)=>`<div class="img-thumb"><img src="${b}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-bannerrm="${i}">✕</span></div>`).join('');
+  const rawBanners = State.settings.banners||[];
+  const banners = rawBanners.map(b=>typeof b==='string' ? {image:b, link:''} : b);
+  row.innerHTML = banners.map((b,i)=>`<div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="img-thumb"><img src="${b.image}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-bannerrm="${i}">✕</span></div>
+      <input data-bannerlink="${i}" placeholder="Путь при нажатии (необязательно)" value="${b.link||''}" style="font-size:11px;padding:6px 8px;">
+    </div>`).join('');
   if(banners.length<4){
     row.innerHTML += `<label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*,.gif" multiple class="hidden" id="bannerInput"></label>`;
     $('#bannerInput').addEventListener('change', async (e)=>{
@@ -5872,7 +5983,7 @@ function renderAdminBanners(){
       for(const f of files){
         try{
           const d = await processBannerFile(f);
-          if(d) banners.push(d);
+          if(d) banners.push({image:d, link:''});
         }catch(err){
           toast('Ошибка загрузки', 'Не удалось загрузить файл', 'fa-triangle-exclamation');
         }
@@ -5886,6 +5997,15 @@ function renderAdminBanners(){
     await db.collection('settings').doc('main').set({banners}, {merge:true});
     State.settings.banners = banners; renderAdminBanners(); renderBanner();
   }));
+  row.querySelectorAll('[data-bannerlink]').forEach(inp=>{
+    inp.addEventListener('change', async ()=>{
+      const idx = parseInt(inp.getAttribute('data-bannerlink'));
+      banners[idx].link = inp.value.trim();
+      await db.collection('settings').doc('main').set({banners}, {merge:true});
+      State.settings.banners = banners; renderBanner();
+      toast('Путь сохранён','','fa-circle-check');
+    });
+  });
 }
 
 function renderAdminPopupAdImage(){
