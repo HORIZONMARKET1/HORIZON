@@ -311,8 +311,16 @@ a{color:inherit; text-decoration:none;}
 @keyframes skelShimmer{100%{transform:translateX(100%);}}  
   
 /* ===== AD POPUP (реклама по центру при входе) ===== */  
-.ad-popup-box{position:relative; width:92%; max-width:420px; border-radius:20px; overflow:hidden; background:var(--surface); box-shadow:0 24px 60px rgba(0,0,0,.4); animation:slideUp .28s ease;}  
-.ad-popup-box img{width:100%; display:block; cursor:pointer; background:var(--surface-2);}  
+.ad-popup-box{position:relative; width:94%; max-width:460px; border-radius:22px; overflow:hidden; background:var(--surface); box-shadow:0 24px 60px rgba(0,0,0,.4); animation:slideUp .28s ease;}  
+.ad-popup-imgwrap{position:relative; width:100%; min-height:360px; max-height:480px; aspect-ratio:1/1.1; background:var(--surface-2); cursor:pointer;}  
+.ad-popup-imgwrap img{width:100%; height:100%; object-fit:cover; display:block;}  
+.ad-popup-overlay{position:absolute; left:0; right:0; bottom:0; padding:18px 16px 14px; background:linear-gradient(0deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.4) 62%, rgba(0,0,0,0) 100%); color:#fff; pointer-events:none;}  
+.ad-popup-tag{display:inline-flex; align-items:center; gap:4px; background:var(--grad-main); font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; margin-bottom:8px;}  
+.ad-popup-name{font-size:16px; font-weight:800; line-height:1.3; margin-bottom:6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}  
+.ad-popup-prices{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}  
+.ad-popup-price{font-size:19px; font-weight:800;}  
+.ad-popup-oldprice{font-size:13px; text-decoration:line-through; opacity:.65;}  
+.ad-popup-sale{font-size:12px; font-weight:800; background:var(--magenta); padding:3px 8px; border-radius:7px;}  
 .ad-popup-close{position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; z-index:2; border:none;}  
   
 /* ===== BOTTOM NAV ===== */  
@@ -908,7 +916,14 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 <div class="overlay center" id="ovAdPopup">  
   <div class="ad-popup-box">  
     <button class="ad-popup-close" data-close="ovAdPopup"><i class="fa-solid fa-xmark"></i></button>  
-    <img id="adPopupImg" src="" alt="Реклама">  
+    <div class="ad-popup-imgwrap" id="adPopupImgWrap">  
+      <img id="adPopupImg" src="" alt="Товар">  
+      <div class="ad-popup-overlay">  
+        <div class="ad-popup-tag" id="adPopupTag">🔥 Рекомендуем</div>  
+        <div class="ad-popup-name" id="adPopupName"></div>  
+        <div class="ad-popup-prices" id="adPopupPrices"></div>  
+      </div>  
+    </div>  
     <button class="btn btn-primary" id="adPopupGoBtn" style="margin:12px;width:calc(100% - 24px);"><i class="fa-solid fa-arrow-right"></i> Перейти</button>  
   </div>  
 </div>  
@@ -2829,83 +2844,88 @@ function navigateInApp(raw){
 }  
 function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }  
   
-/* ============ AD POPUP (реклама по центру при входе) ============ */  
+/* ============ AD POPUP (реклама по центру при входе) — теперь автоматическая, товар подбирается сам ============ */  
+let adPopupProductId = null;  
+function pickPopupProduct(){  
+  const products = (State.products||[]).filter(p=>p.inStock!==false);  
+  if(products.length===0) return null;  
+  let recentIds = [];  
+  try{ recentIds = JSON.parse(localStorage.getItem(HZ_RECENTLY_VIEWED_KEY) || '[]'); }catch(e){}  
+  if(recentIds.length>0){  
+    // Смотрим, какую категорию человек чаще всего просматривает — и предлагаем похожий популярный товар из неё  
+    const catalogCount = {};  
+    recentIds.forEach(id=>{  
+      const p = products.find(pp=>pp.id===id);  
+      if(p && p.catalogId) catalogCount[p.catalogId] = (catalogCount[p.catalogId]||0) + 1;  
+    });  
+    const topCatalogId = Object.keys(catalogCount).sort((a,b)=>catalogCount[b]-catalogCount[a])[0];  
+    if(topCatalogId){  
+      const inCatalog = products.filter(p=>p.catalogId===topCatalogId).sort((a,b)=>(Number(b.viewCount)||0)-(Number(a.viewCount)||0));  
+      const notYetSeen = inCatalog.filter(p=>!recentIds.includes(p.id));  
+      if(notYetSeen.length>0) return notYetSeen[0];  
+      if(inCatalog.length>0) return inCatalog[0];  
+    }  
+  }  
+  // Нет истории просмотров (новый гость) — показываем недавно добавленный товар  
+  const newest = products.slice().sort((a,b)=>{  
+    const ma = (a.createdAt && typeof a.createdAt.toMillis==='function') ? a.createdAt.toMillis() : 0;  
+    const mb = (b.createdAt && typeof b.createdAt.toMillis==='function') ? b.createdAt.toMillis() : 0;  
+    return mb - ma;  
+  });  
+  return newest[0] || null;  
+}  
+function renderAdPopupProduct(p){  
+  const img = (p.images && p.images[0]) || '';  
+  const sale = p.oldPrice && Number(p.oldPrice) > Number(p.price) ? Math.round(100 - (p.price/p.oldPrice*100)) : 0;  
+  const isPersonalized = (()=>{ try{ return JSON.parse(localStorage.getItem(HZ_RECENTLY_VIEWED_KEY)||'[]').length>0; }catch(e){ return false; } })();  
+  $('#adPopupImg').src = img;  
+  $('#adPopupTag').innerHTML = isPersonalized ? '<i class="fa-solid fa-heart"></i> Похоже на то, что вам нравится' : '<i class="fa-solid fa-sparkles"></i> Новинка';  
+  $('#adPopupName').textContent = p.name || '';  
+  $('#adPopupPrices').innerHTML = `<span class="ad-popup-price">${fmt(p.price)}</span>` +  
+    (p.oldPrice ? `<span class="ad-popup-oldprice">${fmt(p.oldPrice)}</span>` : '') +  
+    (sale>0 ? `<span class="ad-popup-sale">-${sale}%</span>` : '');  
+}  
 function handleAdPopupGo(){  
-  const pa = State.settings.popupAd;  
-  const link = pa && pa.link;  
-  if(!link){ closeOv('ovAdPopup'); return; }  
+  const pid = adPopupProductId;  
   closeOv('ovAdPopup');  
-  if(navigateInApp(link)) return;  
-  const url = /^https?:\/\//i.test(link) ? link : ('https://' + link);  
-  window.open(url, '_blank', 'noopener');  
+  if(pid) openProductDetail(pid);  
 }  
 $('#adPopupImg').addEventListener('click', handleAdPopupGo);  
 $('#adPopupGoBtn').addEventListener('click', handleAdPopupGo);  
 function maybeShowAdPopup(){  
-  if(State.adPopupChecked) return;  
-  State.adPopupChecked = true;  
+  if(State.adPopupChecked) return; // уже показывали в этой сессии  
   const pa = State.settings.popupAd;  
-  if(!pa || !pa.enabled || !pa.image) return;  
-  if(sessionStorage.getItem('hzAdPopupShown')) return;  
+  if(!pa || pa.enabled===false) return; // отключено в админке  
+  if(sessionStorage.getItem('hzAdPopupShown')){ State.adPopupChecked = true; return; }  
+  if(!State.products || State.products.length===0) return; // товары ещё не загрузились — попробуем ещё раз, когда загрузятся  
+  const product = pickPopupProduct();  
+  if(!product) return;  
+  State.adPopupChecked = true;  
   sessionStorage.setItem('hzAdPopupShown', '1');  
-  $('#adPopupImg').src = pa.image;  
-  $('#adPopupGoBtn').style.display = pa.link ? 'flex' : 'none';  
+  adPopupProductId = product.id;  
+  renderAdPopupProduct(product);  
   setTimeout(()=>{ openOv('ovAdPopup'); }, 900);  
 }  
   
 /* ============ BANNER ============ */  
-let bannerIdx = 0, bannerTimer = null, bannerLastNewestIds = null;  
-const BANNER_NEW_PRODUCTS_COUNT = 5; // сколько последних добавленных товаров показывать в баннере  
-function bannerProductSlideHtml(p){  
-  const images = (p.images && p.images.length) ? p.images : [];  
-  const img = images[0] || '';  
-  const sale = p.oldPrice && Number(p.oldPrice) > Number(p.price) ? Math.round(100 - (p.price/p.oldPrice*100)) : 0;  
-  return `<div class="banner-slide banner-slide-product" data-openpd="${p.id}">  
-      ${img ? `<img src="${img}">` : '<div class="banner-slide-noimg"><i class="fa-solid fa-image"></i></div>'}  
-      <div class="banner-product-overlay">  
-        <div class="banner-product-tag"><i class="fa-solid fa-sparkles"></i> Новинка</div>  
-        <div class="banner-product-name">${p.name||''}</div>  
-        <div class="banner-product-prices">  
-          <span class="banner-product-price">${fmt(p.price)}</span>  
-          ${p.oldPrice ? `<span class="banner-product-oldprice">${fmt(p.oldPrice)}</span>` : ''}  
-          ${sale>0 ? `<span class="banner-product-sale">-${sale}%</span>` : ''}  
-        </div>  
-      </div>  
-      <button class="banner-goto-btn" data-openpd="${p.id}"><i class="fa-solid fa-arrow-right"></i> Перейти</button>  
-    </div>`;  
-}  
+let bannerIdx = 0, bannerTimer = null;  
 function renderBanner(){  
   const track = $('#bannerTrack'), dots = $('#bannerDots');  
-  const promoBanners = (State.settings.banners||[]).slice(0,4).map(b=>typeof b==='string' ? {image:b, link:''} : b);  
-  const newestProducts = (State.products||[])  
-    .slice()  
-    .sort((a,b)=>{  
-      const ma = (a.createdAt && typeof a.createdAt.toMillis==='function') ? a.createdAt.toMillis() : 0;  
-      const mb = (b.createdAt && typeof b.createdAt.toMillis==='function') ? b.createdAt.toMillis() : 0;  
-      return mb - ma;  
-    })  
-    .slice(0, BANNER_NEW_PRODUCTS_COUNT);  
-  bannerLastNewestIds = newestProducts.map(p=>p.id).join(',');  
-  const slidesHtml = [  
-    ...newestProducts.map(bannerProductSlideHtml),  
-    ...promoBanners.map(b=>`<div class="banner-slide">  
-      <img src="${b.image}">  
-      ${b.link ? `<button class="banner-goto-btn" data-bannergoto="${encodeURIComponent(b.link)}"><i class="fa-solid fa-arrow-right"></i> Перейти</button>` : ''}  
-    </div>`)  
-  ];  
-  const slideCount = slidesHtml.length;  
-  if(slideCount===0){  
+  const banners = (State.settings.banners||[]).slice(0,4).map(b=>typeof b==='string' ? {image:b, link:''} : b);  
+  if(banners.length===0){  
     $('#bannerBox').style.display='none'; return;  
   }  
   $('#bannerBox').style.display='block';  
-  track.innerHTML = slidesHtml.join('');  
-  track.style.transform = 'translateX(0%)';  
-  dots.innerHTML = slidesHtml.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');  
+  track.innerHTML = banners.map(b=>`<div class="banner-slide">  
+      <img src="${b.image}">  
+      ${b.link ? `<button class="banner-goto-btn" data-bannergoto="${encodeURIComponent(b.link)}"><i class="fa-solid fa-arrow-right"></i> Перейти</button>` : ''}  
+    </div>`).join('');  
+  dots.innerHTML = banners.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('');  
   bannerIdx = 0;  
   clearInterval(bannerTimer);  
-  if(slideCount>1){  
+  if(banners.length>1){  
     bannerTimer = setInterval(()=>{  
-      bannerIdx = (bannerIdx+1)%slideCount;  
+      bannerIdx = (bannerIdx+1)%banners.length;  
       track.style.transform = `translateX(-${bannerIdx*100}%)`;  
       dots.querySelectorAll('span').forEach((d,i)=>d.classList.toggle('active', i===bannerIdx));  
     }, 4000);  
@@ -5873,24 +5893,15 @@ function renderAdminTab(){
   } else if(adminActiveTab==='popupad'){  
     const pa = State.settings.popupAd || {};  
     body.innerHTML = `  
-      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Всплывающее окно с рекламой появится по центру экрана один раз за сеанс, когда клиент откроет приложение. Кнопка «Перейти» ведёт по указанному пути.</p>  
+      <p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Всплывающее окно появится по центру экрана один раз за сеанс, когда клиент откроет приложение. Товар для показа подбирается автоматически: постоянным клиентам показывается похожий популярный товар из категории, которую они чаще всего смотрят, а новым посетителям — недавно добавленный товар. Загружать картинку вручную не нужно.</p>  
       <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">  
         <input type="checkbox" id="paActive" ${pa.enabled?'checked':''} style="width:18px;height:18px;">  
-        <label style="margin:0;">Реклама включена</label>  
+        <label style="margin:0;">Показывать всплывающую рекламу</label>  
       </div>  
-      <div class="field"><label>Изображение баннера</label>  
-        <div class="img-upload-row" id="adminPopupAdRow"></div>  
-      </div>  
-      <div class="field"><label>Путь при нажатии «Перейти»</label><input id="paLink" placeholder="Ссылка товара из «Поделиться» или https://..." value="${pa.link||''}"></div>  
-      <p style="color:var(--text-dim);font-size:12px;margin:-6px 0 12px;">Чтобы вести на товар/категорию ВНУТРИ приложения — вставьте сюда ссылку, которую получаете через кнопку «Поделиться» на нужном товаре. Обычную внешнюю ссылку (https://...) тоже можно — откроется в браузере.</p>  
       <button class="btn btn-primary" id="savePopupAdBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>`;  
-    renderAdminPopupAdImage();  
     $('#savePopupAdBtn').addEventListener('click', async ()=>{  
       const enabled = $('#paActive').checked;  
-      const link = $('#paLink').value.trim();  
-      const image = (State.settings.popupAd && State.settings.popupAd.image) || '';  
-      if(enabled && !image){ toast('Добавьте изображение','','fa-circle-exclamation'); return; }  
-      const popupAd = { enabled, link, image };  
+      const popupAd = { enabled };  
       await db.collection('settings').doc('main').set({popupAd}, {merge:true});  
       State.settings.popupAd = popupAd;  
       toast('Настройки рекламы сохранены','','fa-circle-check');  
@@ -6225,38 +6236,6 @@ function renderAdminBanners(){
       toast('Путь сохранён','','fa-circle-check');  
     });  
   });  
-}  
-  
-function renderAdminPopupAdImage(){  
-  const row = $('#adminPopupAdRow');  
-  if(!row) return;  
-  const img = (State.settings.popupAd && State.settings.popupAd.image) || '';  
-  row.innerHTML = img  
-    ? `<div class="img-thumb"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-popupadrm="1">✕</span></div>`  
-    : `<label class="img-thumb-add"><i class="fa-solid fa-plus"></i><input type="file" accept="image/*,.gif" class="hidden" id="popupAdInput"></label>`;  
-  const input = $('#popupAdInput');  
-  if(input){  
-    input.addEventListener('change', async (e)=>{  
-      const f = e.target.files[0];  
-      if(!f) return;  
-      try{  
-        const d = await processBannerFile(f);  
-        if(d){  
-          State.settings.popupAd = Object.assign({}, State.settings.popupAd, {image: d});  
-          renderAdminPopupAdImage();  
-        }  
-      }catch(err){  
-        toast('Ошибка загрузки', 'Не удалось загрузить файл', 'fa-triangle-exclamation');  
-      }  
-    });  
-  }  
-  const rm = $('[data-popupadrm]');  
-  if(rm){  
-    rm.addEventListener('click', ()=>{  
-      State.settings.popupAd = Object.assign({}, State.settings.popupAd, {image: ''});  
-      renderAdminPopupAdImage();  
-    });  
-  }  
 }  
   
 /* ============ IMAGE SEARCH ("search by photo") ============ */  
@@ -6774,14 +6753,7 @@ db.collection('products').orderBy('createdAt','desc').onSnapshot(snap=>{
   if(State.user){ renderFavorites(); }  
   checkSharedProductInUrl();  
   checkPageInUrl();  
-  // Перестраиваем баннер только если поменялся именно набор последних добавленных товаров  
-  // (а не просто цена/остатки), чтобы карусель не дёргалась и не сбрасывалась на первый слайд  
-  const _bannerNewestIds = newList.slice().sort((a,b)=>{  
-    const ma = (a.createdAt && typeof a.createdAt.toMillis==='function') ? a.createdAt.toMillis() : 0;  
-    const mb = (b.createdAt && typeof b.createdAt.toMillis==='function') ? b.createdAt.toMillis() : 0;  
-    return mb - ma;  
-  }).slice(0, BANNER_NEW_PRODUCTS_COUNT).map(p=>p.id).join(',');  
-  if(_bannerNewestIds !== bannerLastNewestIds) renderBanner();  
+  maybeShowAdPopup(); // товары уже загружены — теперь можно подобрать товар для всплывающей рекламы  
 }, ()=>{  
   db.collection('products').onSnapshot(snap=>{  
     State.products = snap.docs.map(d=>({id:d.id, ...d.data()}));  
@@ -6798,7 +6770,6 @@ db.collection('settings').doc('main').onSnapshot(doc=>{
   if(State.products && State.products.length) filterAndRenderGrid({});  
   if($('#ovAbout').classList.contains('open')) renderAbout();  
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='flashsale') renderAdminTab();  
-  if($('#ovAdmin').classList.contains('open') && adminActiveTab==='popupad') renderAdminPopupAdImage();  
   maybeShowAdPopup();  
   initPushNotifications(); // безопасно вызывать многократно — инициализирует OneSignal, как только появится appId  
   if(!pushPromptShown) setTimeout(showGlobalPushPrompt, 1200);  
