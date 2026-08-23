@@ -1352,6 +1352,15 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Заказы будут приходить в этот бот. Создайте бота через @BotFather и укажите токен и Chat ID.</p>  
     <div class="field"><label>Bot Token</label><input id="botTokenInput"></div>  
     <div class="field"><label>Chat ID</label><input id="botChatIdInput"></div>  
+    <div class="field" id="botChannelField" style="display:none;">  
+      <label>ID Telegram-канала для публикации товаров <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label>  
+      <input id="botChannelIdInput" placeholder="@mychannel или -1001234567890">  
+    </div>  
+    <div class="field" id="botAlsoToBotField" style="display:none;flex-direction:row;align-items:center;gap:10px;">  
+      <input type="checkbox" id="botAlsoToBotInput" style="width:18px;height:18px;">  
+      <label style="margin:0;">Также присылать карточку товара в этот бот (Chat ID выше)</label>  
+    </div>  
+    <p id="botChannelHint" style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;display:none;">Каждый новый товар автоматически публикуется в канал и/или бот с фото, ценой и характеристиками. Бота нужно добавить в канал администратором с правом публикации сообщений.</p>  
     <div class="field"><label>Автоответ в чате <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label>  
       <textarea id="chatAutoReplyInput" rows="2" placeholder="Например: Спасибо за сообщение! Обычно отвечаю в течение часа."></textarea>  
     </div>  
@@ -1811,10 +1820,13 @@ function currencyForCountryCode(cc){
   return {code:'RUB', symbol:'₽', rate:1};  
 }  
 function getUserCurrency(){  
-  if(State.user && State.user.role==='client'){  
-    if(State.user.countryCode==='+992') return currencyForCountryCode('TJ');  
-    if(State.user.countryCode==='+998') return currencyForCountryCode('UZ');  
-    return {code:'RUB', symbol:'₽', rate:1};  
+  if(State.user){  
+    if(State.user.role==='client'){  
+      if(State.user.countryCode==='+992') return currencyForCountryCode('TJ');  
+      if(State.user.countryCode==='+998') return currencyForCountryCode('UZ');  
+      return {code:'RUB', symbol:'₽', rate:1};  
+    }  
+    return {code:'RUB', symbol:'₽', rate:1}; // админ/продавец всегда работают в базовой валюте (₽)  
   }  
   // Гость — валюта по региону, определённому через IP-геолокацию при заходе на сайт  
   return currencyForCountryCode(State.geoCountryCode);  
@@ -2483,6 +2495,72 @@ async function sendTelegram(token, chatId, text){
       body: JSON.stringify({chat_id: chatId, text, parse_mode:'HTML'})  
     });  
   }catch(e){ console.warn('Telegram error', e); }  
+}  
+  
+/* ============ АВТОПУБЛИКАЦИЯ НОВЫХ ТОВАРОВ В TELEGRAM (канал + бот) ============ */  
+function escapeHtmlTg(s){  
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');  
+}  
+function dataUrlToBlob(dataUrl){  
+  const parts = dataUrl.split(',');  
+  const mimeMatch = /data:(.*?);base64/.exec(parts[0]);  
+  const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';  
+  const binary = atob(parts[1]);  
+  const bytes = new Uint8Array(binary.length);  
+  for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);  
+  return new Blob([bytes], {type: mime});  
+}  
+async function sendTelegramPhoto(token, chatId, imageDataUrl, caption){  
+  if(!token || !chatId) return;  
+  try{  
+    if(imageDataUrl){  
+      const form = new FormData();  
+      form.append('chat_id', chatId);  
+      form.append('caption', caption.slice(0,1024));  
+      form.append('parse_mode', 'HTML');  
+      if(imageDataUrl.startsWith('data:')){  
+        form.append('photo', dataUrlToBlob(imageDataUrl), 'product.jpg');  
+      } else {  
+        form.append('photo', imageDataUrl); // уже готовая https-ссылка  
+      }  
+      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {method:'POST', body: form});  
+    } else {  
+      await sendTelegram(token, chatId, caption.slice(0,4096));  
+    }  
+  }catch(e){ console.warn('Telegram photo error', e); }  
+}  
+function buildProductTelegramCaption(p){  
+  const catalog = State.catalogs.find(c=>c.id===p.catalogId);  
+  const priceLine = (p.oldPrice && Number(p.oldPrice) > Number(p.price))  
+    ? `💰 <b>${fmt(p.price)}</b>   <s>${fmt(p.oldPrice)}</s>`  
+    : `💰 <b>${fmt(p.price)}</b>`;  
+  const chars = (p.characteristics||[]).filter(c=>c.key).map(c=>`•  ${escapeHtmlTg(c.key)}: ${escapeHtmlTg(c.value)}`).join('\n');  
+  const lines = [  
+    `🆕 <b>${escapeHtmlTg(p.name)}</b>`,  
+    '',  
+    priceLine,  
+    p.articul ? `Артикул: ${escapeHtmlTg(p.articul)}` : '',  
+    catalog ? `📂 ${escapeHtmlTg(catalog.name)}` : ''  
+  ];  
+  if(p.desc) lines.push('', escapeHtmlTg(p.desc));  
+  if(chars) lines.push('', chars);  
+  lines.push('', '🛍 HORIZON MARKET');  
+  return lines.join('\n');  
+}  
+async function publishProductToTelegram(p){  
+  const token = State.settings.adminBotToken;  
+  const channelId = (State.settings.productsChannelId||'').trim();  
+  const botChatId = State.settings.adminBotChatId;  
+  if(!token) return; // бот ещё не настроен (Профиль → Telegram-бот, вход как админ)  
+  const targets = [];  
+  if(channelId) targets.push(channelId);  
+  if(botChatId && State.settings.productsAlsoToBot!==false) targets.push(botChatId);  
+  if(targets.length===0) return; // некуда публиковать — ни канал, ни бот не указаны  
+  const caption = buildProductTelegramCaption(p);  
+  const photo = (p.images && p.images[0]) || null;  
+  for(const chatId of targets){  
+    await sendTelegramPhoto(token, chatId, photo, caption);  
+  }  
 }  
   
 async function sendSms(phone, text){  
@@ -4660,6 +4738,13 @@ function renderProfile(){
     else { $('#botTokenInput').value = u.botToken||''; $('#botChatIdInput').value = u.botChatId||''; }  
     $('#chatAutoReplyInput').value = u.chatAutoReply||'';  
     $('#chatAutoReplyInput').closest('.field').style.display = u.role==='admin' ? 'none' : 'block';  
+    $('#botChannelField').style.display = u.role==='admin' ? 'block' : 'none';  
+    $('#botAlsoToBotField').style.display = u.role==='admin' ? 'flex' : 'none';  
+    $('#botChannelHint').style.display = u.role==='admin' ? 'block' : 'none';  
+    if(u.role==='admin'){  
+      $('#botChannelIdInput').value = State.settings.productsChannelId||'';  
+      $('#botAlsoToBotInput').checked = State.settings.productsAlsoToBot!==false;  
+    }  
     openOv('ovBotSettings');  
   });  
   $('#mySellerProductsBtn')?.addEventListener('click', renderSellerProducts);  
@@ -4670,8 +4755,10 @@ function renderProfile(){
 $('#botSettingsSaveBtn').addEventListener('click', async ()=>{  
   const token = $('#botTokenInput').value.trim(), chatId = $('#botChatIdInput').value.trim();  
   if(State.user.role==='admin'){  
-    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId}, {merge:true});  
-    State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId;  
+    const productsChannelId = $('#botChannelIdInput').value.trim();  
+    const productsAlsoToBot = $('#botAlsoToBotInput').checked;  
+    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsChannelId, productsAlsoToBot}, {merge:true});  
+    State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId; State.settings.productsChannelId = productsChannelId; State.settings.productsAlsoToBot = productsAlsoToBot;  
   } else {  
     const chatAutoReply = $('#chatAutoReplyInput').value.trim();  
     await db.collection('users').doc(State.user.docId).update({botToken:token, botChatId:chatId, chatAutoReply});  
@@ -5685,8 +5772,9 @@ $('#pfSaveBtn').addEventListener('click', async ()=>{
     }  
   } else {  
     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();  
-    await db.collection('products').add(stripUndefinedDeep(data)).catch(e=>{ console.warn(e); toast('Не удалось добавить товар','','fa-circle-exclamation'); throw e; });  
+    const newProdRef = await db.collection('products').add(stripUndefinedDeep(data)).catch(e=>{ console.warn(e); toast('Не удалось добавить товар','','fa-circle-exclamation'); throw e; });  
     toast('Товар добавлен','','fa-circle-check');  
+    publishProductToTelegram(Object.assign({id:newProdRef.id}, data)); // публикуем в Telegram-канал и бот (см. настройки в Профиль → Telegram-бот)  
   }  
   closeOv('ovProductForm');  
 });  
