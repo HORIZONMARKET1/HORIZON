@@ -1367,20 +1367,39 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Заказы будут приходить в этот бот. Создайте бота через @BotFather и укажите токен и Chat ID.</p>  
     <div class="field"><label>Bot Token</label><input id="botTokenInput"></div>  
     <div class="field"><label>Chat ID</label><input id="botChatIdInput"></div>  
-    <div class="field" id="botChannelField" style="display:none;">  
-      <label>ID Telegram-канала для публикации товаров <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label>  
-      <input id="botChannelIdInput" placeholder="@mychannel или -1001234567890">  
-    </div>  
-    <div class="field" id="botAlsoToBotField" style="display:none;flex-direction:row;align-items:center;gap:10px;">  
-      <input type="checkbox" id="botAlsoToBotInput" style="width:18px;height:18px;">  
-      <label style="margin:0;">Также присылать карточку товара в этот бот (Chat ID выше)</label>  
-    </div>  
-    <p id="botChannelHint" style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;display:none;">Каждый новый товар автоматически публикуется в канал и/или бот с фото, ценой и характеристиками. Бота нужно добавить в канал администратором с правом публикации сообщений.</p>  
     <div class="field"><label>Автоответ в чате <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label>  
       <textarea id="chatAutoReplyInput" rows="2" placeholder="Например: Спасибо за сообщение! Обычно отвечаю в течение часа."></textarea>  
     </div>  
     <p style="color:var(--text-dim);font-size:11.5px;margin-top:-8px;">Это сообщение автоматически придёт покупателю сразу после того, как он напишет вам в первый раз по товару.</p>  
+    <div id="botProductsSection" style="display:none;">  
+      <div style="height:1px;background:var(--border);margin:16px 0;"></div>  
+      <div style="font-weight:800;font-size:15px;margin-bottom:2px;">Бот для публикации товаров</div>  
+      <p style="color:var(--text-dim);font-size:11.5px;margin:2px 0 10px;">Отдельный бот — для заказов используйте другой, указанный выше. Этого бота нужно добавить администратором в канал с правом «Публикация сообщений», иначе публикация в канал работать не будет.</p>  
+      <div class="field"><label>Bot Token (второй бот)</label><input id="productsBotTokenInput" placeholder="Токен от @BotFather"></div>  
+      <div class="field"><label>ID канала <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label>  
+        <input id="botChannelIdInput" placeholder="@mychannel или -1001234567890">  
+      </div>  
+      <div class="field"><label>Chat ID бота <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label>  
+        <input id="productsBotChatIdInput" placeholder="Личный/групповой чат этого бота">  
+      </div>  
+      <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Заполните хотя бы одно из полей выше (канал и/или чат бота). Каждый новый товар автоматически публикуется туда с фото, ценой, характеристиками и ссылкой на товар. Уже добавленные товары можно опубликовать вручную: Админка → Товары → «Публикация товаров».</p>  
+    </div>  
     <button class="btn btn-primary" id="botSettingsSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>  
+  </div>  
+</div>  
+  
+<!-- PUBLISH PRODUCTS TO TELEGRAM -->  
+<div class="overlay center" id="ovPublishProducts">  
+  <div class="sheet" style="border-radius:24px;max-height:88vh;">  
+    <div class="sheet-title">Публикация товаров <button class="close-x" data-close="ovPublishProducts"><i class="fa-solid fa-xmark"></i></button></div>  
+    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Отметьте товары и нажмите «Опубликовать» — карточки с фото, ценой, характеристиками и ссылкой на товар уйдут в канал и/или бот, настроенные в Профиль → Telegram-бот → «Бот для публикации товаров».</p>  
+    <div class="field" style="display:flex;align-items:center;gap:10px;flex-direction:row;">  
+      <input type="checkbox" id="ppSelectAll" style="width:18px;height:18px;">  
+      <label style="margin:0;">Выбрать все</label>  
+    </div>  
+    <div id="ppProductList" style="max-height:42vh;overflow-y:auto;margin:8px 0;"></div>  
+    <div id="ppProgress" style="display:none;color:var(--text-dim);font-size:12.5px;margin-bottom:8px;"></div>  
+    <button class="btn btn-primary" id="ppPublishBtn"><i class="fa-brands fa-telegram"></i> Опубликовать выбранные</button>  
   </div>  
 </div>  
   
@@ -2503,16 +2522,18 @@ function hammingDist(a,b){
 }  
   
 async function sendTelegram(token, chatId, text){  
-  if(!token || !chatId) return;  
+  if(!token || !chatId) return false;  
   try{  
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{  
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{  
       method:'POST', headers:{'Content-Type':'application/json'},  
       body: JSON.stringify({chat_id: chatId, text, parse_mode:'HTML'})  
     });  
-  }catch(e){ console.warn('Telegram error', e); }  
+    if(!res.ok){ console.warn('Telegram sendMessage failed', await res.text().catch(()=>'')); }  
+    return res.ok;  
+  }catch(e){ console.warn('Telegram error', e); return false; }  
 }  
   
-/* ============ АВТОПУБЛИКАЦИЯ НОВЫХ ТОВАРОВ В TELEGRAM (канал + бот) ============ */  
+/* ============ АВТОПУБЛИКАЦИЯ ТОВАРОВ В TELEGRAM (отдельный бот: канал + чат) ============ */  
 function escapeHtmlTg(s){  
   return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');  
 }  
@@ -2525,8 +2546,14 @@ function dataUrlToBlob(dataUrl){
   for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);  
   return new Blob([bytes], {type: mime});  
 }  
+function getProductUrl(pid){  
+  const url = new URL(window.location.href);  
+  url.search = ''; url.hash = '';  
+  url.searchParams.set('product', pid);  
+  return url.toString();  
+}  
 async function sendTelegramPhoto(token, chatId, imageDataUrl, caption){  
-  if(!token || !chatId) return;  
+  if(!token || !chatId) return false;  
   try{  
     if(imageDataUrl){  
       const form = new FormData();  
@@ -2538,11 +2565,13 @@ async function sendTelegramPhoto(token, chatId, imageDataUrl, caption){
       } else {  
         form.append('photo', imageDataUrl); // уже готовая https-ссылка  
       }  
-      await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {method:'POST', body: form});  
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {method:'POST', body: form});  
+      if(!res.ok){ console.warn('Telegram sendPhoto failed for', chatId, await res.text().catch(()=>'')); }  
+      return res.ok;  
     } else {  
-      await sendTelegram(token, chatId, caption.slice(0,4096));  
+      return await sendTelegram(token, chatId, caption.slice(0,4096));  
     }  
-  }catch(e){ console.warn('Telegram photo error', e); }  
+  }catch(e){ console.warn('Telegram photo error', e); return false; }  
 }  
 function buildProductTelegramCaption(p){  
   const catalog = State.catalogs.find(c=>c.id===p.catalogId);  
@@ -2559,24 +2588,72 @@ function buildProductTelegramCaption(p){
   ];  
   if(p.desc) lines.push('', escapeHtmlTg(p.desc));  
   if(chars) lines.push('', chars);  
+  lines.push('', `🔗 <a href="${getProductUrl(p.id)}">Смотреть на сайте</a>`);  
   lines.push('', '🛍 HORIZON MARKET');  
   return lines.join('\n');  
 }  
+/* Публикует товар в Telegram-канал и/или в чат бота, настроенных отдельно для публикации товаров  
+   (Профиль → Telegram-бот → «Бот для публикации товаров»). Возвращает диагностику успеха по каждой цели,  
+   чтобы можно было понять, ПОЧЕМУ публикация в канал не прошла (например, бот не добавлен админом канала). */  
 async function publishProductToTelegram(p){  
-  const token = State.settings.adminBotToken;  
+  const token = State.settings.productsBotToken;  
   const channelId = (State.settings.productsChannelId||'').trim();  
-  const botChatId = State.settings.adminBotChatId;  
-  if(!token) return; // бот ещё не настроен (Профиль → Telegram-бот, вход как админ)  
+  const botChatId = (State.settings.productsBotChatId||'').trim();  
+  if(!token) return {ok:false, reason:'no-token'}; // бот публикации товаров ещё не настроен  
   const targets = [];  
-  if(channelId) targets.push(channelId);  
-  if(botChatId && State.settings.productsAlsoToBot!==false) targets.push(botChatId);  
-  if(targets.length===0) return; // некуда публиковать — ни канал, ни бот не указаны  
+  if(channelId) targets.push({label:'Канал', chatId: channelId});  
+  if(botChatId) targets.push({label:'Бот', chatId: botChatId});  
+  if(targets.length===0) return {ok:false, reason:'no-targets'}; // ни канал, ни чат бота не указаны  
   const caption = buildProductTelegramCaption(p);  
   const photo = (p.images && p.images[0]) || null;  
-  for(const chatId of targets){  
-    await sendTelegramPhoto(token, chatId, photo, caption);  
+  const failedTargets = [];  
+  let anyOk = false;  
+  for(const t of targets){  
+    const ok = await sendTelegramPhoto(token, t.chatId, photo, caption);  
+    if(ok) anyOk = true; else failedTargets.push(t.label);  
   }  
+  return {ok:anyOk, anyOk, failedTargets};  
 }  
+/* ============ РУЧНАЯ МАССОВАЯ ПУБЛИКАЦИЯ ТОВАРОВ (Админка → Товары → «Публикация товаров») ============ */  
+function openPublishProducts(){  
+  const list = State.products||[];  
+  $('#ppProductList').innerHTML = list.map(p=>`<div class="list-row"><label style="display:flex;align-items:center;gap:10px;width:100%;cursor:pointer;">  
+      <input type="checkbox" class="pp-check" value="${p.id}" style="width:18px;height:18px;flex-shrink:0;">  
+      <img src="${(p.images&&p.images[0])||''}" style="width:38px;height:38px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--surface-2);">  
+      <span style="flex:1;min-width:0;overflow:hidden;">  
+        <div class="list-row-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>  
+        <div class="list-row-sub">${fmt(p.price)}</div>  
+      </span>  
+    </label></div>`).join('') || '<div class="empty-state"><i class="fa-solid fa-box-open"></i></div>';  
+  $('#ppSelectAll').checked = false;  
+  $('#ppProgress').style.display = 'none'; $('#ppProgress').textContent = '';  
+  openOv('ovPublishProducts');  
+}  
+$('#ppSelectAll').addEventListener('change', (e)=>{  
+  document.querySelectorAll('.pp-check').forEach(c=>{ c.checked = e.target.checked; });  
+});  
+$('#ppPublishBtn').addEventListener('click', async ()=>{  
+  const ids = Array.from(document.querySelectorAll('.pp-check:checked')).map(c=>c.value);  
+  if(ids.length===0){ toast('Выберите хотя бы один товар','','fa-circle-exclamation'); return; }  
+  if(!State.settings.productsBotToken){ toast('Бот для публикации не настроен', 'Профиль → Telegram-бот → «Бот для публикации товаров»', 'fa-circle-exclamation'); return; }  
+  const btn = $('#ppPublishBtn'); btn.disabled = true;  
+  const progress = $('#ppProgress'); progress.style.display = 'block';  
+  let okCount = 0; const failParts = new Set();  
+  for(let i=0;i<ids.length;i++){  
+    const p = State.products.find(pp=>pp.id===ids[i]);  
+    if(!p) continue;  
+    progress.textContent = `Публикация ${i+1} из ${ids.length}: ${p.name}`;  
+    const r = await publishProductToTelegram(p);  
+    if(r && r.anyOk) okCount++;  
+    if(r && r.failedTargets) r.failedTargets.forEach(t=>failParts.add(t));  
+  }  
+  btn.disabled = false; progress.style.display = 'none'; progress.textContent = '';  
+  if(failParts.size>0){  
+    toast('Публикация завершена с ошибками', `Успешно: ${okCount} из ${ids.length}. Не удалось: ${[...failParts].join(', ')}`, 'fa-triangle-exclamation');  
+  } else {  
+    toast('Готово', `Опубликовано товаров: ${okCount} из ${ids.length}`, 'fa-circle-check');  
+  }  
+});  
   
 async function sendSms(phone, text){  
   const apiId = State.settings.smsApiId;  
@@ -4758,12 +4835,11 @@ function renderProfile(){
     else { $('#botTokenInput').value = u.botToken||''; $('#botChatIdInput').value = u.botChatId||''; }  
     $('#chatAutoReplyInput').value = u.chatAutoReply||'';  
     $('#chatAutoReplyInput').closest('.field').style.display = u.role==='admin' ? 'none' : 'block';  
-    $('#botChannelField').style.display = u.role==='admin' ? 'block' : 'none';  
-    $('#botAlsoToBotField').style.display = u.role==='admin' ? 'flex' : 'none';  
-    $('#botChannelHint').style.display = u.role==='admin' ? 'block' : 'none';  
+    $('#botProductsSection').style.display = u.role==='admin' ? 'block' : 'none';  
     if(u.role==='admin'){  
+      $('#productsBotTokenInput').value = State.settings.productsBotToken||'';  
       $('#botChannelIdInput').value = State.settings.productsChannelId||'';  
-      $('#botAlsoToBotInput').checked = State.settings.productsAlsoToBot!==false;  
+      $('#productsBotChatIdInput').value = State.settings.productsBotChatId||'';  
     }  
     openOv('ovBotSettings');  
   });  
@@ -4775,10 +4851,12 @@ function renderProfile(){
 $('#botSettingsSaveBtn').addEventListener('click', async ()=>{  
   const token = $('#botTokenInput').value.trim(), chatId = $('#botChatIdInput').value.trim();  
   if(State.user.role==='admin'){  
+    const productsBotToken = $('#productsBotTokenInput').value.trim();  
     const productsChannelId = $('#botChannelIdInput').value.trim();  
-    const productsAlsoToBot = $('#botAlsoToBotInput').checked;  
-    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsChannelId, productsAlsoToBot}, {merge:true});  
-    State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId; State.settings.productsChannelId = productsChannelId; State.settings.productsAlsoToBot = productsAlsoToBot;  
+    const productsBotChatId = $('#productsBotChatIdInput').value.trim();  
+    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsBotToken, productsChannelId, productsBotChatId}, {merge:true});  
+    State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId;  
+    State.settings.productsBotToken = productsBotToken; State.settings.productsChannelId = productsChannelId; State.settings.productsBotChatId = productsBotChatId;  
   } else {  
     const chatAutoReply = $('#chatAutoReplyInput').value.trim();  
     await db.collection('users').doc(State.user.docId).update({botToken:token, botChatId:chatId, chatAutoReply});  
@@ -5794,7 +5872,11 @@ $('#pfSaveBtn').addEventListener('click', async ()=>{
     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();  
     const newProdRef = await db.collection('products').add(stripUndefinedDeep(data)).catch(e=>{ console.warn(e); toast('Не удалось добавить товар','','fa-circle-exclamation'); throw e; });  
     toast('Товар добавлен','','fa-circle-check');  
-    publishProductToTelegram(Object.assign({id:newProdRef.id}, data)); // публикуем в Telegram-канал и бот (см. настройки в Профиль → Telegram-бот)  
+    publishProductToTelegram(Object.assign({id:newProdRef.id}, data)).then(r=>{  
+      if(r && r.failedTargets && r.failedTargets.length){  
+        toast('Товар опубликован не везде', `Не удалось отправить: ${r.failedTargets.join(', ')}. Проверьте настройки бота (Профиль → Telegram-бот).`, 'fa-triangle-exclamation');  
+      }  
+    }); // публикуем в Telegram-канал и бот (см. настройки в Профиль → Telegram-бот → «Бот для публикации товаров»)  
   }  
   closeOv('ovProductForm');  
 });  
@@ -5847,11 +5929,13 @@ function renderAdminTab(){
         <button class="btn btn-primary" style="width:auto;flex:1;min-width:140px;" id="adminAddProductBtn"><i class="fa-solid fa-plus"></i> Новый товар</button>  
         <label class="btn btn-outline" style="width:auto;flex:1;min-width:140px;margin:0;"><i class="fa-solid fa-file-csv"></i> Импорт CSV<input type="file" accept=".csv" class="hidden" id="adminCsvInput"></label>  
         <button class="btn btn-outline" style="width:auto;flex:1;min-width:140px;" id="adminBulkPriceBtn"><i class="fa-solid fa-percent"></i> Изменить цены</button>  
+        <button class="btn btn-outline" style="width:auto;flex:1;min-width:140px;" id="adminPublishProductsBtn"><i class="fa-brands fa-telegram"></i> Публикация товаров</button>  
       </div>  
       <a href="#" id="adminCsvTemplateLink" style="display:block;font-size:12px;color:var(--violet);margin:0 0 10px;">Скачать шаблон CSV</a>  
       <div id="adminProductList"></div>`;  
     $('#adminAddProductBtn').addEventListener('click', ()=>openProductForm(null));  
     $('#adminBulkPriceBtn').addEventListener('click', ()=>openBulkPrice(null));  
+    $('#adminPublishProductsBtn').addEventListener('click', openPublishProducts);  
     $('#adminCsvTemplateLink').addEventListener('click', (e)=>{ e.preventDefault(); downloadCsvTemplate(); });  
     $('#adminCsvInput').addEventListener('change', (e)=>{ if(e.target.files[0]) importProductsFromCSV(e.target.files[0], 'admin'); e.target.value=''; });  
     $('#adminProductList').innerHTML = State.products.map(p=>`<div class="list-row">  
