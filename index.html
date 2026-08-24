@@ -2573,24 +2573,53 @@ async function sendTelegramPhoto(token, chatId, imageDataUrl, caption){
     }  
   }catch(e){ console.warn('Telegram photo error', e); return false; }  
 }  
-function buildProductTelegramCaption(p){  
+function buildProductTelegramCaption(p, limit){  
+  limit = limit || 1024;  
   const catalog = State.catalogs.find(c=>c.id===p.catalogId);  
   const priceLine = (p.oldPrice && Number(p.oldPrice) > Number(p.price))  
     ? `💰 <b>${fmt(p.price)}</b>   <s>${fmt(p.oldPrice)}</s>`  
     : `💰 <b>${fmt(p.price)}</b>`;  
-  const chars = (p.characteristics||[]).filter(c=>c.key).map(c=>`•  ${escapeHtmlTg(c.key)}: ${escapeHtmlTg(c.value)}`).join('\n');  
-  const lines = [  
-    `🆕 <b>${escapeHtmlTg(p.name)}</b>`,  
+  let rawName = String(p.name||'');  
+  if(rawName.length > 200) rawName = rawName.slice(0,197) + '…';  
+  // Голова (название/цена/артикул/категория) и подвал (ссылка+название магазина) — присутствуют ВСЕГДА,  
+  // не обрезаются никогда, чтобы цена, артикул и ссылка на сайт точно доходили до получателя.  
+  const headLines = [  
+    `🆕 <b>${escapeHtmlTg(rawName)}</b>`,  
     '',  
     priceLine,  
     p.articul ? `Артикул: ${escapeHtmlTg(p.articul)}` : '',  
     catalog ? `📂 ${escapeHtmlTg(catalog.name)}` : ''  
+  ].filter((l,i)=>i===1 || l!=='');  
+  const footLines = [  
+    '',  
+    `🔗 <a href="${getProductUrl(p.id)}">Подробно на нашем сайте</a>`,  
+    '',  
+    '🛍 HORIZON MARKET'  
   ];  
-  if(p.desc) lines.push('', escapeHtmlTg(p.desc));  
-  if(chars) lines.push('', chars);  
-  lines.push('', `🔗 <a href="${getProductUrl(p.id)}">Смотреть на сайте</a>`);  
-  lines.push('', '🛍 HORIZON MARKET');  
-  return lines.join('\n');  
+  const head = headLines.join('\n');  
+  const foot = footLines.join('\n');  
+  // Характеристики и описание добавляем, только пока укладываемся в лимит Telegram —  
+  // режем по ЦЕЛЫМ строкам/символам, а не посередине HTML-тега, иначе Telegram отклонит всё сообщение целиком  
+  const charLines = (p.characteristics||[]).filter(c=>c.key).map(c=>`•  ${escapeHtmlTg(c.key)}: ${escapeHtmlTg(c.value)}`);  
+  let budget = limit - head.length - foot.length - 30; // запас на переносы строк и возможное расширение при экранировании  
+  const middleParts = [];  
+  if(p.desc){  
+    let raw = String(p.desc);  
+    if(raw.length <= budget){ middleParts.push(escapeHtmlTg(raw)); budget -= raw.length; }  
+    else if(budget > 20){ middleParts.push(escapeHtmlTg(raw.slice(0, budget-1)) + '…'); budget = 0; }  
+  }  
+  if(charLines.length && budget > 10){  
+    const fitted = [];  
+    for(const line of charLines){  
+      if(line.length + 1 > budget) break;  
+      fitted.push(line); budget -= (line.length+1);  
+    }  
+    if(fitted.length) middleParts.push(fitted.join('\n'));  
+  }  
+  const parts = [head];  
+  if(middleParts.length) parts.push('', middleParts.join('\n'));  
+  parts.push(foot);  
+  return parts.join('\n');  
 }  
 /* Публикует товар в Telegram-канал и/или в чат бота, настроенных отдельно для публикации товаров  
    (Профиль → Telegram-бот → «Бот для публикации товаров»). Возвращает диагностику успеха по каждой цели,  
@@ -2604,8 +2633,8 @@ async function publishProductToTelegram(p){
   if(channelId) targets.push({label:'Канал', chatId: channelId});  
   if(botChatId) targets.push({label:'Бот', chatId: botChatId});  
   if(targets.length===0) return {ok:false, reason:'no-targets'}; // ни канал, ни чат бота не указаны  
-  const caption = buildProductTelegramCaption(p);  
   const photo = (p.images && p.images[0]) || null;  
+  const caption = buildProductTelegramCaption(p, photo ? 1024 : 4096); // лимит Telegram разный для фото-подписи и обычного текста  
   const failedTargets = [];  
   let anyOk = false;  
   for(const t of targets){  
