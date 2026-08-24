@@ -1867,12 +1867,15 @@ function getUserCurrency(){
 }  
 const fmt = (n) => {  
   const cur = getUserCurrency();  
+  return fmtInCurrency(n, cur);  
+};  
+function fmtInCurrency(n, cur){  
   const val = (Number(n)||0) * cur.rate;  
   const formatted = cur.code==='TJS'  
     ? val.toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2})  
     : Math.round(val).toLocaleString('ru-RU');  
   return formatted + ' ' + cur.symbol;  
-};  
+}  
 /* ============ ОПРЕДЕЛЕНИЕ РЕГИОНА ГОСТЯ ПО IP (для показа цен в местной валюте) ============ */  
 const HZ_GEO_CACHE_KEY = 'hz_geo_country_v1';  
 const HZ_GEO_CACHE_TTL_MS = 24*60*60*1000; // сутки — потом переспросим на случай VPN/переезда  
@@ -2576,9 +2579,13 @@ async function sendTelegramPhoto(token, chatId, imageDataUrl, caption){
 function buildProductTelegramCaption(p, limit){  
   limit = limit || 1024;  
   const catalog = State.catalogs.find(c=>c.id===p.catalogId);  
-  const priceLine = (p.oldPrice && Number(p.oldPrice) > Number(p.price))  
-    ? `💰 <b>${fmt(p.price)}</b>   <s>${fmt(p.oldPrice)}</s>`  
-    : `💰 <b>${fmt(p.price)}</b>`;  
+  const hasDiscount = p.oldPrice && Number(p.oldPrice) > Number(p.price);  
+  const rubCur = {code:'RUB', symbol:'₽', rate:1};  
+  const tjsCur = currencyForCountryCode('TJ');  
+  const priceLine = [  
+    `💰 <b>${fmtInCurrency(p.price, rubCur)}</b>` + (hasDiscount ? `   <s>${fmtInCurrency(p.oldPrice, rubCur)}</s>` : ''),  
+    `🇹🇯 ${fmtInCurrency(p.price, tjsCur)}` + (hasDiscount ? `   <s>${fmtInCurrency(p.oldPrice, tjsCur)}</s>` : '')  
+  ].join('\n');  
   let rawName = String(p.name||'');  
   if(rawName.length > 200) rawName = rawName.slice(0,197) + '…';  
   // Голова (название/цена/артикул/категория) и подвал (ссылка+название магазина) — присутствуют ВСЕГДА,  
