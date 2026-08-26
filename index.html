@@ -1068,6 +1068,17 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   </div>    
 </div>    
     
+<!-- TELEGRAM NOTIFY OPT-IN -->    
+<div class="overlay center" id="ovTelegramNotify">    
+  <div class="sheet" style="border-radius:24px;text-align:center;">    
+    <div class="sheet-title" style="justify-content:center;">Включить уведомления в Telegram <button class="close-x" data-close="ovTelegramNotify"><i class="fa-solid fa-xmark"></i></button></div>    
+    <i class="fa-brands fa-telegram" style="font-size:44px;color:#229ED9;margin:4px 0 12px;"></i>    
+    <p style="color:var(--text-dim);font-size:13.5px;margin:-4px 0 16px;font-weight:600;">Не пропусти новые товары и акции — включи уведомления в Telegram!</p>    
+    <button class="btn btn-primary" id="notifyEnableBtn"><i class="fa-brands fa-telegram"></i> Включить уведомления</button>    
+    <p id="notifyStatus" style="color:var(--text-dim);font-size:12px;margin:10px 0 0;"></p>    
+  </div>    
+</div>    
+    
 <!-- LOGIN -->    
 <div class="overlay" id="ovLogin">    
   <div class="sheet">    
@@ -1407,10 +1418,12 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       </div>    
       <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Заполните хотя бы одно из полей выше (канал и/или чат бота). Каждый новый товар автоматически публикуется туда с фото, названием, артикулом, ценой и ссылкой на товар. Уже добавленные товары можно опубликовать вручную: Админка → Товары → «Публикация товаров».</p>    
       <div style="height:1px;background:var(--border);margin:16px 0;"></div>    
-      <div style="font-weight:800;font-size:15px;margin-bottom:2px;">Бот для подтверждения регистрации</div>    
-      <p style="color:var(--text-dim);font-size:11.5px;margin:2px 0 10px;">Отдельный бот, куда попадают новые клиенты для подтверждения номера кодом из 6 цифр. Создайте бота через @BotFather, укажите токен и его юзернейм (без @, например HorizonVerifyBot). Если не заполнено — регистрация проходит без подтверждения по Telegram.</p>    
-      <div class="field"><label>Bot Token (бот верификации)</label><input id="regBotTokenInput" placeholder="Токен от @BotFather"></div>    
+      <div style="font-weight:800;font-size:15px;margin-bottom:2px;">Бот сайта (подтверждение регистрации и уведомления)</div>    
+      <p style="color:var(--text-dim);font-size:11.5px;margin:2px 0 10px;">Один бот для двух задач: подтверждение номера при регистрации и подписка клиента на уведомления о новых товарах и акциях. Создайте бота через @BotFather, укажите токен и его юзернейм (без @, например HorizonVerifyBot). Если не заполнено — регистрация проходит без подтверждения, а окно с уведомлениями не показывается.</p>    
+      <div class="field"><label>Bot Token</label><input id="regBotTokenInput" placeholder="Токен от @BotFather"></div>    
       <div class="field"><label>Юзернейм бота</label><input id="regBotUsernameInput" placeholder="Например: HorizonVerifyBot"></div>    
+      <div class="field"><label>Ссылка на Telegram-канал <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label><input id="telegramChannelLinkInput" placeholder="https://t.me/mychannel"></div>    
+      <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Эту ссылку с кнопкой «Подписаться» бот присылает клиенту сразу после включения уведомлений.</p>    
     </div>    
     <button class="btn btn-primary" id="botSettingsSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>    
   </div>    
@@ -2562,6 +2575,17 @@ async function sendTelegram(token, chatId, text){
       body: JSON.stringify({chat_id: chatId, text, parse_mode:'HTML'})    
     });    
     if(!res.ok){ console.warn('Telegram sendMessage failed', await res.text().catch(()=>'')); }    
+    return res.ok;    
+  }catch(e){ console.warn('Telegram error', e); return false; }    
+}    
+async function sendTelegramWithButton(token, chatId, text, buttonText, buttonUrl){    
+  if(!token || !chatId || !buttonUrl) return false;    
+  try{    
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{    
+      method:'POST', headers:{'Content-Type':'application/json'},    
+      body: JSON.stringify({chat_id: chatId, text, parse_mode:'HTML', reply_markup:{inline_keyboard:[[{text:buttonText, url:buttonUrl}]]}})    
+    });    
+    if(!res.ok){ console.warn('Telegram sendMessage (button) failed', await res.text().catch(()=>'')); }    
     return res.ok;    
   }catch(e){ console.warn('Telegram error', e); return false; }    
 }    
@@ -4839,15 +4863,19 @@ async function finalizeRegistration(payload, verifiedTelegramChatId){
     fio, gender, countryCode:code, phone, fullPhone, password: pass, photo: regPhotoData||'',    
     role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, referredBy,    
     telegramChatId: verifiedTelegramChatId || null,    
+    telegramNotifyEnabled: !!verifiedTelegramChatId,    
     botToken:'', botChatId:'', createdAt: firebase.firestore.FieldValue.serverTimestamp()    
   }));    
   if(referredBy && referralBonus>0){    
     db.collection('users').doc(referredBy).update({bonusBalance: firebase.firestore.FieldValue.increment(referralBonus)}).catch(()=>{});    
   }    
-  const userObj = {docId:docRef.id, fio, gender, countryCode:code, phone, fullPhone, role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, photo:regPhotoData||''};    
+  const userObj = {docId:docRef.id, fio, gender, countryCode:code, phone, fullPhone, role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, photo:regPhotoData||'', telegramChatId: verifiedTelegramChatId||null, telegramNotifyEnabled: !!verifiedTelegramChatId};    
   State.user = userObj; saveLocalUser(userObj);    
   closeOv('ovRegister'); loadCart(); refreshUserUI(); refreshPricesForGeo();    
   toast('Добро пожаловать!', welcomeBonus>0 ? `Начислено ${welcomeBonus} бонусов за приглашение` : fio, 'fa-circle-check');    
+  // Клиент уже подтвердил номер через Telegram-бота — раз чат с ним уже есть, сразу подключаем    
+  // уведомления о товарах и акциях, отдельное окно с просьбой включить их больше не понадобится.    
+  if(verifiedTelegramChatId) sendTelegramNotifyEnabledMessages(verifiedTelegramChatId);    
 }    
 $('#regSubmitBtn').addEventListener('click', async ()=>{    
   const fio = $('#regFio').value.trim();    
@@ -4871,6 +4899,74 @@ $('#regSubmitBtn').addEventListener('click', async ()=>{
   RegVerify.pendingPayload = payload;    
   startRegVerifyFlow();    
 });    
+/* ============ ВКЛЮЧИТЬ УВЕДОМЛЕНИЯ В TELEGRAM (новые товары и акции) ============ */    
+const NotifyOptIn = { token: null, pollTimer: null };    
+const genNotifyToken = () => 'n' + Math.random().toString(36).slice(2) + Date.now().toString(36);    
+async function sendTelegramNotifyEnabledMessages(chatId){    
+  await sendTelegram(State.settings.regBotToken, chatId, '✅ Уведомления включены! Теперь вы не пропустите новые товары и акции HORIZON MARKET.');    
+  if(State.settings.telegramChannelLink){    
+    await sendTelegramWithButton(State.settings.regBotToken, chatId, '📢 Подпишитесь на наш канал — там все новинки и акции первыми:', 'Подписаться', State.settings.telegramChannelLink);    
+  }    
+}    
+function shouldShowNotifyPrompt(){    
+  if(!State.user || State.user.role!=='client') return false;    
+  if(State.user.telegramNotifyEnabled) return false;    
+  if(!regBotConfigured()) return false;    
+  if($('#ovTelegramNotify').classList.contains('open')) return false;    
+  const key = 'hz_tg_notify_last_asked_' + State.user.docId;    
+  const last = Number(localStorage.getItem(key)||0);    
+  return (Date.now() - last) > 60*60*1000; // не чаще раза в час, пока клиент не включит уведомления    
+}    
+function markNotifyPromptAsked(){    
+  if(!State.user) return;    
+  localStorage.setItem('hz_tg_notify_last_asked_' + State.user.docId, String(Date.now()));    
+}    
+function maybeShowNotifyPrompt(){    
+  if(!shouldShowNotifyPrompt()) return;    
+  markNotifyPromptAsked();    
+  $('#notifyStatus').textContent = '';    
+  openOv('ovTelegramNotify');    
+}    
+setInterval(maybeShowNotifyPrompt, 60*60*1000); // если клиент не включил — предлагаем снова раз в час, пока сайт открыт    
+function pollForNotifyStart(){    
+  clearInterval(NotifyOptIn.pollTimer);    
+  const myToken = NotifyOptIn.token;    
+  NotifyOptIn.pollTimer = setInterval(async ()=>{    
+    if(NotifyOptIn.token !== myToken){ clearInterval(NotifyOptIn.pollTimer); return; } // устарел, запросили заново    
+    try{    
+      const offset = Number(localStorage.getItem('hz_reg_bot_offset')||0);    
+      const res = await fetch(`https://api.telegram.org/bot${State.settings.regBotToken}/getUpdates?offset=${offset}&timeout=0`);    
+      const data = await res.json();    
+      if(!data.ok || !data.result) return;    
+      let maxId = offset;    
+      for(const upd of data.result){    
+        if(upd.update_id + 1 > maxId) maxId = upd.update_id + 1;    
+        const msg = upd.message;    
+        if(msg && msg.text && msg.text.trim() === ('/start ' + myToken) && NotifyOptIn.token===myToken){    
+          clearInterval(NotifyOptIn.pollTimer);    
+          const chatId = msg.chat.id;    
+          await sendTelegramNotifyEnabledMessages(chatId);    
+          if(State.user){    
+            db.collection('users').doc(State.user.docId).update({telegramChatId: chatId, telegramNotifyEnabled: true}).catch(()=>{});    
+            State.user.telegramChatId = chatId; State.user.telegramNotifyEnabled = true; saveLocalUser(State.user);    
+          }    
+          $('#notifyStatus').textContent = 'Готово! Уведомления включены ✅';    
+          setTimeout(()=>closeOv('ovTelegramNotify'), 1400);    
+        }    
+      }    
+      if(maxId > offset) localStorage.setItem('hz_reg_bot_offset', String(maxId));    
+    }catch(e){ /* сеть моргнула — пробуем на следующем тике */ }    
+  }, 2000);    
+}    
+$('#notifyEnableBtn').addEventListener('click', ()=>{    
+  NotifyOptIn.token = genNotifyToken();    
+  window.open(`https://t.me/${State.settings.regBotUsername}?start=${NotifyOptIn.token}`, '_blank');    
+  $('#notifyStatus').textContent = 'Открываем Telegram… нажмите «Старт» в боте';    
+  pollForNotifyStart();    
+});    
+document.addEventListener('click', (e)=>{    
+  if(e.target.closest('#ovTelegramNotify [data-close]')){ clearInterval(NotifyOptIn.pollTimer); NotifyOptIn.token = null; }    
+});    
 $('#loginSubmitBtn').addEventListener('click', async ()=>{    
   const code = $('#loginCountry').value, phone = $('#loginPhone').value.trim(), pass = $('#loginPassword').value;    
   const fullPhone = code+phone;    
@@ -4881,6 +4977,7 @@ $('#loginSubmitBtn').addEventListener('click', async ()=>{
   const userObj = Object.assign({docId:docSnap.id}, data);    
   State.user = userObj; saveLocalUser(userObj);    
   closeOv('ovLogin'); loadCart(); refreshUserUI(); refreshPricesForGeo();    
+  setTimeout(maybeShowNotifyPrompt, 1500);    
   toast('Вы вошли', data.fio, 'fa-circle-check');    
 });    
 $('#adminLoginSubmitBtn').addEventListener('click', ()=>{    
@@ -5004,6 +5101,7 @@ function renderProfile(){
       $('#productsBotChatIdInput').value = State.settings.productsBotChatId||'';    
       $('#regBotTokenInput').value = State.settings.regBotToken||'';    
       $('#regBotUsernameInput').value = State.settings.regBotUsername||'';    
+      $('#telegramChannelLinkInput').value = State.settings.telegramChannelLink||'';    
     }    
     openOv('ovBotSettings');    
   });    
@@ -5020,10 +5118,11 @@ $('#botSettingsSaveBtn').addEventListener('click', async ()=>{
     const productsBotChatId = $('#productsBotChatIdInput').value.trim();    
     const regBotToken = $('#regBotTokenInput').value.trim();    
     const regBotUsername = $('#regBotUsernameInput').value.trim().replace(/^@/,'');    
-    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsBotToken, productsChannelId, productsBotChatId, regBotToken, regBotUsername}, {merge:true});    
+    const telegramChannelLink = $('#telegramChannelLinkInput').value.trim();    
+    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsBotToken, productsChannelId, productsBotChatId, regBotToken, regBotUsername, telegramChannelLink}, {merge:true});    
     State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId;    
     State.settings.productsBotToken = productsBotToken; State.settings.productsChannelId = productsChannelId; State.settings.productsBotChatId = productsBotChatId;    
-    State.settings.regBotToken = regBotToken; State.settings.regBotUsername = regBotUsername;    
+    State.settings.regBotToken = regBotToken; State.settings.regBotUsername = regBotUsername; State.settings.telegramChannelLink = telegramChannelLink;    
   } else {    
     const chatAutoReply = $('#chatAutoReplyInput').value.trim();    
     await db.collection('users').doc(State.user.docId).update({botToken:token, botChatId:chatId, chatAutoReply});    
@@ -7041,6 +7140,7 @@ db.collection('users').where('role','==','seller').onSnapshot(snap=>{
   renderBanner();    
   renderFlashSaleBanner();    
   detectGuestRegionCurrency(); // определяем регион по IP, чтобы показать цены в местной валюте    
+  setTimeout(maybeShowNotifyPrompt, 3000); // не показываем окно уведомлений сразу при заходе, даём странице загрузиться    
   setTimeout(()=>{ if(!State.user){ /* guest is fine, browsing allowed */ } }, 0);    
   initInstallPrompts();    
   checkPageInUrl();    
@@ -7051,4 +7151,4 @@ db.collection('users').where('role','==','seller').onSnapshot(snap=>{
 boot();    
 </script>    
     
-</body></html> 
+</body></html>
