@@ -108,8 +108,28 @@ a{color:inherit; text-decoration:none;}
 .searchwrap{
   flex:1; min-width:0; display:flex; align-items:center; gap:6px;
   background:var(--surface-2); border-radius:999px; padding:8px 12px;
-  border:1px solid transparent;
+  border:1px solid transparent; position:relative;
 }
+.search-history-dropdown{
+  position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:41;
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  box-shadow:0 10px 28px rgba(0,0,0,.18); padding:10px 6px; display:none;
+}
+.search-history-dropdown.open{display:block;}
+.search-history-head{display:flex; align-items:center; justify-content:space-between; padding:2px 10px 8px; font-size:11.5px; font-weight:700; color:var(--text-dim);}
+.search-history-clear{color:var(--violet); font-weight:700; cursor:pointer;}
+.search-history-item{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; font-size:13.5px;}
+.search-history-item:active{background:var(--surface-2);}
+.search-history-item i{color:var(--text-dim); font-size:13px; width:14px; flex-shrink:0;}
+.search-history-item span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.search-history-remove{color:var(--text-dim); font-size:12px; padding:4px; flex-shrink:0;}
+.addr-chip{
+  display:flex; align-items:center; gap:7px; background:var(--surface-2); border:1.5px solid transparent;
+  border-radius:12px; padding:8px 12px; font-size:12.5px; font-weight:700; max-width:100%;
+}
+.addr-chip.active{border-color:var(--violet); background:rgba(123,47,247,.1); color:var(--violet);}
+.addr-chip .addr-chip-sub{font-weight:500; color:var(--text-dim); font-size:11px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.addr-chip .addr-chip-del{color:var(--text-dim); font-size:11px; padding:2px;}
 .searchwrap input{flex:1; min-width:0; width:0; border:none; background:none; outline:none; font-size:13.5px; color:var(--text);}
 .searchwrap i{color:var(--text-dim); font-size:14px; flex-shrink:0;}
 .iconbtn{
@@ -261,6 +281,12 @@ a{color:inherit; text-decoration:none;}
   background:linear-gradient(135deg,#FF5C8A,#E31C79); color:#fff; font-size:12px; font-weight:800;
   padding:4px 9px; border-radius:7px; line-height:1.2;
 }
+.flash-countdown{
+  background:rgba(0,0,0,.6); color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.3px;
+  padding:3px 8px; border-radius:6px; line-height:1.3; font-variant-numeric:tabular-nums;
+  display:flex; align-items:center; gap:4px;
+}
+.flash-countdown::before{font-family:"Font Awesome 6 Free"; font-weight:900; content:"\f017"; font-size:9.5px;}
 .promo-label{
   display:inline-flex; align-items:center; font-size:10.5px; font-weight:800; letter-spacing:.2px;
   color:#151420; background:#F3E9FF; padding:3px 9px; border-radius:6px; line-height:1.3; white-space:nowrap;
@@ -887,6 +913,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <i class="fa-solid fa-magnifying-glass"></i>
       <input id="searchInput" placeholder="Умный поиск товаров...">
       <button class="iconbtn" id="photoSearchBtn" style="width:26px;height:26px;background:none;"><i class="fa-solid fa-camera" style="color:var(--text-dim)"></i></button>
+      <div class="search-history-dropdown" id="searchHistoryDropdown"></div>
     </div>
     <button class="pillbtn primary" id="openCatalogBtn" style="position:relative;">
       <i class="fa-solid fa-bars"></i> Каталог
@@ -1256,7 +1283,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="section-title" style="padding:14px 0 6px;">Похожие товары</div>
     <div class="related-scroll" id="pdRelated"></div>
   </div>
-  <div id="pdStickyBar" style="display:none;position:absolute;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);align-items:center;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.08);">
+  <div id="pdStickyBar" style="display:none;position:absolute;left:0;right:0;bottom:0;z-index:10;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);align-items:center;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,.08);">
     <div style="flex:1;min-width:0;">
       <div id="pdStickyName" style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
       <div id="pdStickyPrice" style="font-size:15px;font-weight:800;color:var(--accent);"></div>
@@ -1299,11 +1326,13 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     </div>
     <div class="field">
       <label>Адрес доставки</label>
+      <div id="coSavedAddresses" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:10px;"></div>
       <div class="field-row" style="gap:8px;">
         <input id="coAddress" placeholder="Город, улица, дом, квартира" style="flex:1;">
         <button type="button" class="geo-btn" id="coGeoBtn" title="Определить по геолокации"><i class="fa-solid fa-location-crosshairs"></i></button>
       </div>
       <div id="coGeoStatus" style="font-size:11.5px;color:var(--text-dim);margin-top:6px;display:none;"></div>
+      <button type="button" id="coSaveAddressBtn" style="margin-top:8px;background:none;color:var(--violet);font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:5px;"><i class="fa-solid fa-bookmark"></i> Сохранить этот адрес</button>
     </div>
     <div class="field">
       <label>Способ оплаты</label>
@@ -3387,11 +3416,11 @@ function cardHtml(p){
   // promoLabel can hold one or more badges separated by "|" (e.g. "ХОРОШАЯ ЦЕНА|ЖАРКИЕ СКИДКИ")
   const promoBadges = p.promoLabel ? p.promoLabel.split('|').map(s=>s.trim()).filter(Boolean) : [];
   const fsActive = State.settings.flashSale;
-  const isFlashProduct = fsActive && fsActive.active && fsActive.endsAt && (fsActive.productIds||[]).includes(p.id)
-    && Date.now() < (fsActive.endsAt.toMillis ? fsActive.endsAt.toMillis() : new Date(fsActive.endsAt).getTime());
+  const flashEndsAtMs = fsActive && fsActive.endsAt ? (fsActive.endsAt.toMillis ? fsActive.endsAt.toMillis() : new Date(fsActive.endsAt).getTime()) : null;
+  const isFlashProduct = fsActive && fsActive.active && flashEndsAtMs && (fsActive.productIds||[]).includes(p.id) && Date.now() < flashEndsAtMs;
   const badgesHtml = (sale>0 || promoBadges.length || isFlashProduct)
     ? `<div class="card-img-badges">
-        ${isFlashProduct?`<div class="sale-ribbon" style="background:linear-gradient(135deg,#FF3D57,#FF7A3D);"><i class="fa-solid fa-bolt"></i> АКЦИЯ</div>`:''}
+        ${isFlashProduct?`<div class="sale-ribbon" style="background:linear-gradient(135deg,#FF3D57,#FF7A3D);"><i class="fa-solid fa-bolt"></i> АКЦИЯ</div><div class="flash-countdown" data-flash-ends="${flashEndsAtMs}">--:--:--</div>`:''}
         ${sale>0?`<div class="sale-ribbon">-${sale}%</div>`:''}
         ${promoBadges.map((b,i)=>`<div class="promo-label ${i>0?'hot':''}">${b}</div>`).join('')}
       </div>` : '';
@@ -3430,6 +3459,22 @@ function cardHtml(p){
 function skeletonCardsHtml(n){
   return Array.from({length:n}).map(()=>'<div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>').join('');
 }
+/* ============ ТАЙМЕР АКЦИИ НА КАРТОЧКАХ ============
+   Раз в секунду обновляем текст всех видимых бейджей обратного отсчёта на странице —
+   это дешевле, чем перерисовывать целые карточки, и работает для всех мест, где
+   используется cardHtml (каталог, похожие товары, популярное, избранное и т.д.) */
+setInterval(()=>{
+  const els = document.querySelectorAll('.flash-countdown[data-flash-ends]');
+  if(!els.length) return;
+  const now = Date.now();
+  els.forEach(el=>{
+    const endsAt = Number(el.getAttribute('data-flash-ends'));
+    const left = endsAt - now;
+    if(left<=0){ el.closest('.card-img-badges')?.querySelectorAll('.sale-ribbon, .flash-countdown').forEach(b=>{ if(b.textContent.includes('АКЦИЯ')||b.classList.contains('flash-countdown')) b.remove(); }); return; }
+    const h = Math.floor(left/3600000), m = Math.floor((left%3600000)/60000), s = Math.floor((left%60000)/1000);
+    el.textContent = h>0 ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  });
+}, 1000);
 /* Современная анимация загрузки товаров — показываем вместо "Товары не найдены",
    пока не пришло подтверждение от сервера (например, плохой интернет и в кэше пусто) */
 function loadingStateHtml(){
@@ -3710,6 +3755,56 @@ let searchDebounce;
 $('#searchInput').addEventListener('input', (e)=>{
   clearTimeout(searchDebounce);
   searchDebounce = setTimeout(()=>filterAndRenderGrid({search:e.target.value, catalogId:null, subcatalogId:null}), 250);
+  if(e.target.value.trim()) hideSearchHistory(); else renderSearchHistoryDropdown();
+});
+
+/* ============ ИСТОРИЯ ПОИСКА ============ */
+const HZ_SEARCH_HISTORY_KEY = 'hz_search_history';
+function getSearchHistory(){
+  try{ return JSON.parse(localStorage.getItem(HZ_SEARCH_HISTORY_KEY) || '[]'); }catch(e){ return []; }
+}
+function saveSearchHistoryEntry(q){
+  q = (q||'').trim();
+  if(!q || q.length<2) return;
+  let hist = getSearchHistory().filter(h=>h.toLowerCase()!==q.toLowerCase());
+  hist.unshift(q);
+  hist = hist.slice(0,8);
+  try{ localStorage.setItem(HZ_SEARCH_HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
+}
+function removeSearchHistoryEntry(q){
+  const hist = getSearchHistory().filter(h=>h!==q);
+  try{ localStorage.setItem(HZ_SEARCH_HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
+  renderSearchHistoryDropdown();
+}
+function renderSearchHistoryDropdown(){
+  const dd = $('#searchHistoryDropdown');
+  const hist = getSearchHistory();
+  if(!hist.length){ dd.classList.remove('open'); return; }
+  dd.innerHTML = `<div class="search-history-head"><span>Недавние запросы</span><span class="search-history-clear" id="clearSearchHistoryBtn">Очистить</span></div>` +
+    hist.map(q=>`<div class="search-history-item" data-history-query="${q.replace(/"/g,'&quot;')}"><i class="fa-solid fa-clock-rotate-left"></i><span>${q}</span><i class="fa-solid fa-xmark search-history-remove" data-history-remove="${q.replace(/"/g,'&quot;')}"></i></div>`).join('');
+  dd.classList.add('open');
+}
+function hideSearchHistory(){ $('#searchHistoryDropdown').classList.remove('open'); }
+$('#searchInput').addEventListener('focus', ()=>{ if(!$('#searchInput').value.trim()) renderSearchHistoryDropdown(); });
+$('#searchInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ saveSearchHistoryEntry(e.target.value); hideSearchHistory(); e.target.blur(); }
+});
+$('#searchHistoryDropdown').addEventListener('click', (e)=>{
+  const rm = e.target.closest('[data-history-remove]');
+  if(rm){ e.stopPropagation(); removeSearchHistoryEntry(rm.getAttribute('data-history-remove')); return; }
+  const clearBtn = e.target.closest('#clearSearchHistoryBtn');
+  if(clearBtn){ try{ localStorage.removeItem(HZ_SEARCH_HISTORY_KEY); }catch(err){} hideSearchHistory(); return; }
+  const item = e.target.closest('[data-history-query]');
+  if(item){
+    const q = item.getAttribute('data-history-query');
+    $('#searchInput').value = q;
+    filterAndRenderGrid({search:q, catalogId:null, subcatalogId:null});
+    saveSearchHistoryEntry(q);
+    hideSearchHistory();
+  }
+});
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.searchwrap')) hideSearchHistory();
 });
 
 /* ============ COMPARE ============ */
@@ -4286,10 +4381,59 @@ $('#checkoutOpenBtn').addEventListener('click', ()=>{
   $('#coGeoStatus').style.display = 'none';
   renderDeliveryMethodOptions();
   updateCoPayOptionsVisibility();
+  renderSavedAddressChips();
   resetPromoUI();
   checkFirstOrderEligibility();
   recalcCheckoutTotals();
   closeOv('ovCart'); openOv('ovCheckout');
+});
+/* ============ КНИГА АДРЕСОВ ============ */
+function renderSavedAddressChips(){
+  const wrap = $('#coSavedAddresses');
+  const list = (State.user && State.user.savedAddresses) || [];
+  if(!list.length){ wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+  const current = $('#coAddress').value.trim();
+  wrap.style.display = 'flex';
+  wrap.innerHTML = list.map((a,i)=>`
+    <div class="addr-chip ${a.address===current?'active':''}" data-select-addr="${i}">
+      <i class="fa-solid ${a.label==='Дом'?'fa-house':(a.label==='Работа'?'fa-briefcase':'fa-location-dot')}"></i>
+      <span>${a.label}</span><span class="addr-chip-sub">${a.address}</span>
+      <i class="fa-solid fa-xmark addr-chip-del" data-del-addr="${i}"></i>
+    </div>`).join('');
+}
+$('#coSavedAddresses').addEventListener('click', (e)=>{
+  const del = e.target.closest('[data-del-addr]');
+  if(del){
+    e.stopPropagation();
+    const idx = Number(del.getAttribute('data-del-addr'));
+    const list = (State.user.savedAddresses||[]).slice();
+    list.splice(idx,1);
+    State.user.savedAddresses = list;
+    saveLocalUser(State.user);
+    if(State.user.docId) db.collection('users').doc(State.user.docId).update({savedAddresses:list}).catch(()=>{});
+    renderSavedAddressChips();
+    return;
+  }
+  const sel = e.target.closest('[data-select-addr]');
+  if(sel){
+    const idx = Number(sel.getAttribute('data-select-addr'));
+    const a = (State.user.savedAddresses||[])[idx];
+    if(a){ $('#coAddress').value = a.address; renderSavedAddressChips(); }
+  }
+});
+$('#coSaveAddressBtn').addEventListener('click', ()=>{
+  const address = $('#coAddress').value.trim();
+  if(!address){ toast('Сначала введите адрес','','fa-circle-exclamation'); return; }
+  const label = prompt('Название адреса (например: Дом, Работа):', 'Дом');
+  if(!label || !label.trim()) return;
+  const list = (State.user.savedAddresses||[]).filter(a=>a.address!==address);
+  list.unshift({label: label.trim(), address});
+  State.user.savedAddresses = list.slice(0,10);
+  saveLocalUser(State.user);
+  if(State.user.docId) db.collection('users').doc(State.user.docId).set({savedAddresses: State.user.savedAddresses}, {merge:true}).catch(()=>{});
+  else { toast('Войдите в аккаунт, чтобы сохранять адреса','','fa-circle-exclamation'); return; }
+  renderSavedAddressChips();
+  toast('Адрес сохранён','','fa-circle-check');
 });
 $('#coGeoBtn').addEventListener('click', ()=>{
   if(!('geolocation' in navigator)){ toast('Геолокация не поддерживается вашим браузером','','fa-circle-exclamation'); return; }
@@ -5628,6 +5772,51 @@ function deliveryTimelineHtml(status){
     </div>`;
   }).join('')}</div>`;
 }
+/* ============ ОТМЕНА ЗАКАЗА КЛИЕНТОМ ============
+   Доступна только пока заказ ещё не подтверждён продавцом (Новый/Ожидает оплаты/
+   Ожидает оформления рассрочки) — как только он собран или в пути, отменить может
+   только продавец через чат, чтобы не срывать уже начатую доставку. */
+async function cancelOrderByClient(orderId, o){
+  if(!confirm('Отменить этот заказ? Товары вернутся в наличие, списанные бонусы — на баланс.')) return;
+  try{
+    const qtyByProduct = {};
+    (o.items||[]).forEach(it=>{ qtyByProduct[it.productId] = (qtyByProduct[it.productId]||0) + it.qty; });
+    const productIds = Object.keys(qtyByProduct);
+    await db.runTransaction(async (tx)=>{
+      const orderRef = db.collection('orders').doc(orderId);
+      const orderSnap = await tx.get(orderRef);
+      if(!orderSnap.exists) throw new Error('ORDER_NOT_FOUND');
+      const freshStatus = orderSnap.data().status || 'Новый';
+      if(!['Новый','Ожидает оплаты','Ожидает оформления рассрочки'].includes(freshStatus)) throw new Error('NOT_CANCELLABLE');
+      const refs = productIds.map(pid=>db.collection('products').doc(pid));
+      const snaps = await Promise.all(refs.map(ref=>tx.get(ref)));
+      snaps.forEach((snap,i)=>{
+        if(!snap.exists) return;
+        const pdata = snap.data();
+        const qty = qtyByProduct[productIds[i]];
+        if(pdata.stockQty!=null){
+          tx.update(refs[i], {stockQty: pdata.stockQty + qty, inStock: true, totalSold: firebase.firestore.FieldValue.increment(-qty)});
+        } else {
+          tx.update(refs[i], {totalSold: firebase.firestore.FieldValue.increment(-qty)});
+        }
+      });
+      tx.update(orderRef, {status: 'Отменён'});
+    });
+    if(o.bonusUsed>0 && o.clientId && o.clientId!=='guest'){
+      db.collection('users').doc(o.clientId).update({bonusBalance: firebase.firestore.FieldValue.increment(o.bonusUsed)}).catch(()=>{});
+      if(State.user.docId===o.clientId){
+        State.user.bonusBalance = (Number(State.user.bonusBalance)||0) + o.bonusUsed;
+        saveLocalUser(State.user);
+      }
+    }
+    toast('Заказ отменён', 'Товары возвращены в наличие', 'fa-circle-check');
+    renderOrders();
+  }catch(e){
+    console.warn(e);
+    if(e.message==='NOT_CANCELLABLE'){ toast('Заказ уже нельзя отменить','Продавец начал его обработку','fa-circle-exclamation'); renderOrders(); }
+    else { toast('Не удалось отменить заказ','','fa-circle-exclamation'); }
+  }
+}
 async function renderOrders(){
   const body = $('#ordersBody');
   body.innerHTML = '<div class="spinner"></div>';
@@ -5654,6 +5843,8 @@ async function renderOrders(){
   body.innerHTML = docs.map(d=>{
     const o = d.data();
     const canPay = State.user.role==='client' && o.paymentMethod==='card' && o.status!=='Оплачено' && o.status!=='Отменён';
+    const CANCELLABLE_STATUSES = ['Новый','Ожидает оплаты','Ожидает оформления рассрочки'];
+    const canCancel = State.user.role==='client' && CANCELLABLE_STATUSES.includes(o.status||'Новый');
     const statusSelectHtml = State.user.role==='seller' ? `<select class="order-status-select" data-order-status="${d.id}">${ORDER_STATUSES.map(s=>`<option value="${s}" ${((o.status||'Новый')===s)?'selected':''}>${s}</option>`).join('')}</select>` : '';
     return `<div class="order-item" data-order-id="${d.id}">
       <div class="row"><b>${o.clientName}</b><span class="order-status">${o.status||'Новый'}</span></div>
@@ -5671,6 +5862,7 @@ async function renderOrders(){
         ${canPay ? `<button class="btn btn-primary" style="padding:10px;font-size:13px;" data-pay-order="${d.id}"><i class="fa-solid fa-credit-card"></i> Оплатить</button>` : ''}
         ${statusSelectHtml}
         ${State.user.role==='client' ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-reorder="${d.id}"><i class="fa-solid fa-rotate-right"></i> Заказать снова</button>` : ''}
+        ${canCancel ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;color:var(--danger);border-color:var(--danger);" data-cancel-order="${d.id}"><i class="fa-solid fa-ban"></i> Отменить заказ</button>` : ''}
         <button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;color:var(--danger);border-color:var(--danger);" data-del-order="${d.id}"><i class="fa-solid fa-trash"></i></button>
       </div>
     </div>`;
@@ -5696,6 +5888,13 @@ async function renderOrders(){
   });
   body.querySelectorAll('[data-pay-order]').forEach(btn=>{
     btn.addEventListener('click', ()=>openPayOrderSheet(btn.getAttribute('data-pay-order')));
+  });
+  body.querySelectorAll('[data-cancel-order]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const orderId = btn.getAttribute('data-cancel-order');
+      const orderDoc = docs.find(dd=>dd.id===orderId);
+      if(orderDoc) cancelOrderByClient(orderId, orderDoc.data());
+    });
   });
   body.querySelectorAll('[data-order-status]').forEach(sel=>{
     sel.addEventListener('change', async ()=>{
