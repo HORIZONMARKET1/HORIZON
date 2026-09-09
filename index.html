@@ -3492,12 +3492,19 @@ function renderRecentlyViewed(allowShow){
   const sheetEl = document.getElementById('pdSheet');
   const barEl = document.getElementById('pdStickyBar');
   if(!sheetEl || !barEl) return;
+  let stickyBarShown = false;
   sheetEl.addEventListener('scroll', ()=>{
     // Показываем после того, как основной блок цены/кнопки уже проскроллен наверх
     const cartControls = document.getElementById('pdCartControls');
     if(!cartControls) return;
     const threshold = cartControls.offsetTop + cartControls.offsetHeight;
-    barEl.style.display = sheetEl.scrollTop > threshold ? 'flex' : 'none';
+    const show = sheetEl.scrollTop > threshold;
+    if(show===stickyBarShown) return;
+    stickyBarShown = show;
+    barEl.style.display = show ? 'flex' : 'none';
+    // Резервируем под панелью пустое место внизу прокручиваемого контента, чтобы она
+    // не перекрывала "Похожие товары" и их кнопки, когда докручиваешь до самого низа.
+    sheetEl.style.paddingBottom = show ? (barEl.offsetHeight + 14) + 'px' : '';
   });
   barEl.addEventListener('click', (e)=>{
     if(!e.target.closest('#pdStickyAddBtn')) return;
@@ -3506,6 +3513,11 @@ function renderRecentlyViewed(allowShow){
     if(realBtn){ realBtn.click(); }
     else { document.getElementById('pdQuickBuyBtn')?.click(); }
   });
+  window.resetPdStickyBar = function(){
+    stickyBarShown = false;
+    barEl.style.display = 'none';
+    sheetEl.style.paddingBottom = '';
+  };
 })();
 
 function renderGrid(list, sel){
@@ -4950,6 +4962,7 @@ function openProductDetail(pid){
   $('#pdStickyName').textContent = p.name;
   $('#pdStickyPrice').textContent = fmt(getVariantPrice(p, (p.sizes&&p.sizes[0])||null));
   $('#pdStickyBar').style.display = 'none';
+  if(window.resetPdStickyBar) window.resetPdStickyBar();
   const _pdSheetEl = $('#pdSheet'); if(_pdSheetEl) _pdSheetEl.scrollTop = 0;
   pdGalleryState = {images: p.images||[], idx:0};
   renderPdGalleryViewer();
