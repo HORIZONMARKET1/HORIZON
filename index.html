@@ -567,7 +567,8 @@ a{color:inherit; text-decoration:none;}
 .chat-thread{display:flex; flex-direction:column; height:60vh; }
 .chat-messages{flex:1; overflow-y:auto; padding:10px 2px; display:flex; flex-direction:column; gap:2px;}
 .chat-date-sep{align-self:center; background:var(--surface-2); color:var(--text-dim); font-size:11px; font-weight:700; padding:4px 12px; border-radius:999px; margin:10px 0 8px;}
-.msg-row{display:flex; align-items:flex-end; gap:6px; max-width:82%; margin-top:2px;}
+.msg-row{display:flex; align-items:flex-end; gap:6px; max-width:82%; margin-top:2px; animation:msgIn .18s ease;}
+@keyframes msgIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
 .msg-row.out{align-self:flex-end; flex-direction:row-reverse;}
 .msg-row.in{align-self:flex-start;}
 .msg-row.grouped{margin-top:1px;}
@@ -1685,6 +1686,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="sheet-title">Панель администратора <button class="close-x" data-close="ovAdmin"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="admin-tabs" id="adminTabs">
       <button class="admin-tab active" data-tab="catalogs">Каталоги</button>
+      <button class="admin-tab" data-tab="orders">Заказы</button>
       <button class="admin-tab" data-tab="products">Товары</button>
       <button class="admin-tab" data-tab="reviews">Отзывы</button>
       <button class="admin-tab" data-tab="users">Пользователи</button>
@@ -2412,6 +2414,7 @@ function closeOv(id){
     State.activeOpenChatDocId = null;
     if(chatTypingCheckInterval){ clearInterval(chatTypingCheckInterval); chatTypingCheckInterval = null; }
     if(State.chatMetaThreadUnsub){ State.chatMetaThreadUnsub(); State.chatMetaThreadUnsub = null; }
+    if(State.chatPresenceUnsub){ State.chatPresenceUnsub(); State.chatPresenceUnsub = null; }
   }
   if(id==='ovAbout'){
     $('#consultantFab').classList.remove('show');
@@ -2489,6 +2492,7 @@ document.addEventListener('click', (e)=>{
           State.activeOpenChatDocId = null;
           if(chatTypingCheckInterval){ clearInterval(chatTypingCheckInterval); chatTypingCheckInterval = null; }
           if(State.chatMetaThreadUnsub){ State.chatMetaThreadUnsub(); State.chatMetaThreadUnsub = null; }
+          if(State.chatPresenceUnsub){ State.chatPresenceUnsub(); State.chatPresenceUnsub = null; }
         }
         if(ov.id==='ovAbout'){
           $('#consultantFab').classList.remove('show');
@@ -4519,7 +4523,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const items = State.cart.map(c=>{
     const p = State.products.find(pp=>pp.id===c.productId);
     const price = (c.wholesale && p && p.wholesale) ? (p.wholesale.price||0) : (p ? getVariantPrice(p, c.size) : 0);
-    return {productId:c.productId, name:p?p.name:'', price, qty:c.qty, sellerId:(p && p.sellerId) || null, wholesale: !!c.wholesale, size:c.size||null, color:c.color||null};
+    return {productId:c.productId, name:p?p.name:'', price, qty:c.qty, sellerId:(p && p.sellerId) || 'admin', wholesale: !!c.wholesale, size:c.size||null, color:c.color||null};
   });
   const subtotal = cartTotal();
   const deliveryFee = currentDeliveryFee();
@@ -5262,7 +5266,7 @@ function refreshPdCartControls(p){
         ? `<div class="qty-stepper" style="width:fit-content;"><button data-qty="-1" data-id="${pid}"${sizeAttr}${colorAttr}>-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${pid}"${sizeAttr}${colorAttr}>+</button></div>`
         : `<button class="btn btn-primary" data-addcart="${pid}"${sizeAttr}${colorAttr}><i class="fa-solid fa-cart-plus"></i> В корзину</button>`)}
     ${(hasWholesale && p.inStock!==false) ? `<button class="btn btn-outline" data-toggle-wholesale="1"><i class="fa-solid fa-boxes-stacked"></i> Купить оптом</button>` : ''}
-    ${p.sellerId ? `<button class="btn btn-outline" style="width:auto;padding:14px 16px;" data-chat-seller="${p.sellerId}" data-seller-name="${(State.sellersCache&&State.sellersCache[p.sellerId]&&State.sellersCache[p.sellerId].fio)||'HORIZON MARKET'}" data-chat-product="${pid}" data-chat-product-name="${p.name}"><i class="fa-solid fa-comment-dots"></i></button>` : ''}
+    <button class="btn btn-outline" style="width:auto;padding:14px 16px;" data-chat-seller="${p.sellerId||'admin'}" data-seller-name="${(p.sellerId&&State.sellersCache&&State.sellersCache[p.sellerId]&&State.sellersCache[p.sellerId].fio)||'HORIZON MARKET'}" data-chat-product="${pid}" data-chat-product-name="${p.name}"><i class="fa-solid fa-comment-dots"></i></button>
   </div>
   ${(hasWholesale && p.inStock!==false) ? `<div id="pdWholesalePanel" style="display:none;margin-bottom:14px;padding:14px;background:var(--surface-2);border-radius:14px;">
       <div style="font-weight:700;font-size:13px;margin-bottom:6px;"><i class="fa-solid fa-boxes-stacked"></i> Характеристики опта</div>
@@ -5570,7 +5574,7 @@ $('#adminLoginSubmitBtn').addEventListener('click', ()=>{
   const validLogin = State.settings.adminLogin || 'admin';
   const validPass = State.settings.adminPassword || '12345';
   if(login===validLogin && pass===validPass){
-    const userObj = {role:'admin', fio:'Администратор'};
+    const userObj = {role:'admin', fio:'Администратор', docId:'admin'};
     State.user = userObj; saveLocalUser(userObj);
     closeOv('ovAdminLogin'); loadCart(); refreshUserUI();
     toast('Добро пожаловать, Админ', '', 'fa-shield-halved');
@@ -5620,6 +5624,7 @@ function refreshUserUI(){
   if(State.user && State.user.docId) setupMessageNotifications();
   if(State.user && State.user.docId) setupOrderStatusNotifications();
   if(State.user && State.user.role==='client') startUnpaidOrderReminder(); else stopUnpaidOrderReminder();
+  if(State.user && State.user.docId) startPresenceHeartbeat(); else stopPresenceHeartbeat();
   syncPushTokenAfterAuth();
 }
 function renderProfile(){
@@ -5888,13 +5893,13 @@ async function renderOrders(){
   docs = docs.slice(0,50);
   if(docs.length===0){ $('#ordersClearAllBtn').style.display='none'; $('#ordersExportBtn').style.display='none'; body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt"></i><div>Заказов пока нет</div></div>'; return; }
   $('#ordersClearAllBtn').style.display = 'flex';
-  $('#ordersExportBtn').style.display = State.user.role==='seller' ? 'flex' : 'none';
+  $('#ordersExportBtn').style.display = (State.user.role==='seller'||State.user.role==='admin') ? 'flex' : 'none';
   body.innerHTML = docs.map(d=>{
     const o = d.data();
     const canPay = State.user.role==='client' && o.paymentMethod==='card' && o.status!=='Оплачено' && o.status!=='Отменён';
     const CANCELLABLE_STATUSES = ['Новый','Ожидает оплаты','Ожидает оформления рассрочки'];
     const canCancel = State.user.role==='client' && CANCELLABLE_STATUSES.includes(o.status||'Новый');
-    const statusSelectHtml = State.user.role==='seller' ? `<select class="order-status-select" data-order-status="${d.id}">${ORDER_STATUSES.map(s=>`<option value="${s}" ${((o.status||'Новый')===s)?'selected':''}>${s}</option>`).join('')}</select>` : '';
+    const statusSelectHtml = (State.user.role==='seller'||State.user.role==='admin') ? `<select class="order-status-select" data-order-status="${d.id}">${ORDER_STATUSES.map(s=>`<option value="${s}" ${((o.status||'Новый')===s)?'selected':''}>${s}</option>`).join('')}</select>` : '';
     return `<div class="order-item" data-order-id="${d.id}">
       <div class="row"><b>${o.clientName}</b><span class="order-status">${o.status||'Новый'}</span></div>
       ${State.user.role==='client' ? deliveryTimelineHtml(o.status) : ''}
@@ -6067,17 +6072,18 @@ function chatDateSepLabel(ts){
 async function renderChatList(){
   const body = $('#chatListBody');
   body.innerHTML = '<div class="spinner"></div>';
-  const field = State.user.role==='seller' ? 'sellerId' : 'clientId';
+  const field = (State.user.role==='seller'||State.user.role==='admin') ? 'sellerId' : 'clientId';
   const snap = await db.collection('chats').where(field,'==',State.user.docId).get().catch(()=>null);
   if(!snap || snap.empty){ body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-comment-dots"></i><div>Чатов пока нет</div></div>'; return; }
   const rows = [];
   for(const d of snap.docs){
     const c = d.data();
-    const otherId = State.user.role==='seller' ? c.clientId : c.sellerId;
+    const otherId = (State.user.role==='seller'||State.user.role==='admin') ? c.clientId : c.sellerId;
     let otherDoc = null;
-    try{ otherDoc = (await db.collection('users').doc(otherId).get()).data(); }catch(e){}
+    if(otherId==='admin'){ otherDoc = {fio:'HORIZON MARKET'}; }
+    else { try{ otherDoc = (await db.collection('users').doc(otherId).get()).data(); }catch(e){} }
     rows.push({
-      chatDocId:d.id, otherId, otherName: otherDoc?otherDoc.fio:'Пользователь', lastProductName: c.lastProductName||'',
+      chatDocId:d.id, otherId, otherName: otherDoc?otherDoc.fio:'Пользователь', otherPhoto: (otherDoc&&otherDoc.photo)||'', lastProductName: c.lastProductName||'',
       lastMessageText: c.lastMessageText||'', lastMessageAt: c.lastMessageAt||null,
       lastMessageIsMine: c.lastMessageSenderId===State.user.docId, lastMessageImage: !!c.lastMessageHasImage
     });
@@ -6087,8 +6093,8 @@ async function renderChatList(){
     const unread = State.chatUnreadCounts[r.chatDocId]||0;
     let preview = r.lastMessageImage ? '📷 Фото' : (r.lastMessageText || (r.lastProductName ? 'По товару: '+r.lastProductName : 'Нажмите, чтобы открыть чат'));
     if(r.lastMessageIsMine && r.lastMessageText) preview = 'Вы: ' + preview;
-    return `<div class="chat-list-item ${unread>0?'unread':''}" data-openchat="${r.otherId}" data-name="${r.otherName}">
-    <div class="chat-avatar">${(r.otherName||'U')[0]}</div>
+    return `<div class="chat-list-item ${unread>0?'unread':''}" data-openchat="${r.otherId}" data-name="${r.otherName}" data-photo="${(r.otherPhoto||'').replace(/"/g,'&quot;')}">
+    ${r.otherPhoto ? `<img class="chat-avatar" style="object-fit:cover;" src="${r.otherPhoto}">` : `<div class="chat-avatar">${(r.otherName||'U')[0]}</div>`}
     <div class="chat-list-body">
       <div class="chat-list-top-row"><div class="chat-list-name">${r.otherName}</div><div class="chat-list-time">${chatListTime(r.lastMessageAt)}</div></div>
       <div class="chat-list-last"><span>${preview}</span></div>
@@ -6097,16 +6103,41 @@ async function renderChatList(){
   </div>`;
   }).join('');
   body.querySelectorAll('[data-openchat]').forEach(el=>{
-    el.addEventListener('click', ()=>openChatThread(el.getAttribute('data-openchat'), el.getAttribute('data-name')));
+    el.addEventListener('click', ()=>openChatThread(el.getAttribute('data-openchat'), el.getAttribute('data-name'), null, null, el.getAttribute('data-photo')));
   });
 }
+/* ============ ПРИСУТСТВИЕ (онлайн / был недавно) ============
+   Лёгкий heartbeat в отдельной коллекции presence — не трогаем документ пользователя,
+   чтобы не плодить лишние правила/нагрузку на users. Раз в 45с, пока приложение открыто
+   и вкладка видна, обновляем свою метку — собеседник в чате видит "в сети" / "был(а)..." */
+let presenceInterval = null;
+function startPresenceHeartbeat(){
+  if(presenceInterval || !State.user || !State.user.docId) return;
+  const ping = ()=>{ if(document.visibilityState==='visible') db.collection('presence').doc(State.user.docId).set({lastActiveAt: firebase.firestore.FieldValue.serverTimestamp()}, {merge:true}).catch(()=>{}); };
+  ping();
+  presenceInterval = setInterval(ping, 45000);
+  document.addEventListener('visibilitychange', ping);
+}
+function stopPresenceHeartbeat(){ if(presenceInterval){ clearInterval(presenceInterval); presenceInterval = null; } }
+function presenceStatusLabel(lastActiveAtMs){
+  if(!lastActiveAtMs) return '';
+  const diffMs = Date.now() - lastActiveAtMs;
+  if(diffMs < 90000) return '<span style="color:#3DDC84;">● в сети</span>';
+  const mins = Math.round(diffMs/60000);
+  if(mins < 60) return `был(а) ${mins} мин назад`;
+  const hrs = Math.round(mins/60);
+  if(hrs < 24) return `был(а) ${hrs} ч назад`;
+  const days = Math.round(hrs/24);
+  return days===1 ? 'был(а) вчера' : `был(а) ${days} дн назад`;
+}
 let chatTypingCheckInterval = null;
-function openChatThread(otherId, otherName, productId, productName){
+function openChatThread(otherId, otherName, productId, productName, otherPhoto){
   State.activeChatSellerId = otherId;
   State.activeChatProductId = productId || null;
   State.activeChatProductName = productName || null;
   $('#chatThreadName').textContent = otherName||'Чат';
-  $('#chatThreadAvatar').textContent = (otherName||'U')[0];
+  let chatOtherPhoto = otherPhoto || '';
+  $('#chatThreadAvatar').innerHTML = chatOtherPhoto ? `<img src="${chatOtherPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (otherName||'U')[0];
   $('#chatThreadStatus').textContent = '\u00a0';
   $('#chatMessages').innerHTML = '';
   $('#chatInputMsg').value = '';
@@ -6119,7 +6150,28 @@ function openChatThread(otherId, otherName, productId, productName){
   updateChatBadgeVisibility();
   if(State.chatUnsub) State.chatUnsub();
   if(State.chatMetaThreadUnsub) State.chatMetaThreadUnsub();
+  if(State.chatPresenceUnsub) State.chatPresenceUnsub();
   if(chatTypingCheckInterval) clearInterval(chatTypingCheckInterval);
+  // Присутствие собеседника — отдельная лёгкая коллекция presence (см. startPresenceHeartbeat).
+  let otherLastActiveMs = 0;
+  State.chatPresenceUnsub = db.collection('presence').doc(otherId).onSnapshot(snap=>{
+    const p = snap.data();
+    otherLastActiveMs = p ? (chatTsToMillis(p.lastActiveAt)||0) : 0;
+  }, ()=>{});
+  // Подтягиваем актуальные имя/фото собеседника из его профиля (на случай, если их не
+  // передали при вызове или он их поменял) — обновляем шапку и аватарки в сообщениях.
+  if(otherId!=='admin'){
+    db.collection('users').doc(otherId).get().then(snap=>{
+      const d = snap.data();
+      if(!d) return;
+      if(d.fio){ $('#chatThreadName').textContent = d.fio; }
+      if(d.photo && d.photo!==chatOtherPhoto){
+        chatOtherPhoto = d.photo;
+        $('#chatThreadAvatar').innerHTML = `<img src="${chatOtherPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        $$('#chatMessages .msg-avatar').forEach(av=>{ av.innerHTML = `<img src="${chatOtherPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`; });
+      }
+    }).catch(()=>{});
+  }
   // Индикатор "печатает..." — собеседник пишет typingBy/typingAt в документ чата,
   // мы просто следим, не устарела ли отметка (> 4с считаем, что перестал печатать).
   let lastTypingAtMs = 0;
@@ -6135,7 +6187,7 @@ function openChatThread(otherId, otherName, productId, productName){
     if(lastTypingAtMs && Date.now()-lastTypingAtMs < 4000){
       statusEl.innerHTML = `печатает <span class="chat-typing-dots"><span></span><span></span><span></span></span>`;
     } else {
-      statusEl.innerHTML = '&nbsp;';
+      statusEl.innerHTML = presenceStatusLabel(otherLastActiveMs) || '&nbsp;';
     }
   }, 700);
   State.chatUnsub = db.collection('chats').doc(chatDocId).collection('messages').orderBy('createdAt','asc')
@@ -6154,8 +6206,8 @@ function openChatThread(otherId, otherName, productId, productName){
         if(!mine && m.read!==true) toMarkRead.push(d.ref);
         const tickIcon = m.read ? 'fa-check-double' : (m.createdAt ? 'fa-check' : 'fa-clock');
         const ticks = mine ? `<span class="msg-ticks ${m.read?'read':''}"><i class="fa-solid ${tickIcon}"></i></span>` : '';
-        html += `<div class="msg-row ${mine?'out':'in'} ${grouped?'grouped':''}">
-          ${!mine ? `<div class="msg-avatar ${grouped?'spacer':''}">${(otherName||'U')[0]}</div>` : ''}
+        html += `<div class="msg-row ${mine?'out':'in'} ${grouped?'grouped':''}" data-msg-id="${d.id}" data-msg-mine="${mine?'1':'0'}">
+          ${!mine ? `<div class="msg-avatar ${grouped?'spacer':''}">${chatOtherPhoto?`<img src="${chatOtherPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(otherName||'U')[0]}</div>` : ''}
           <div class="msg ${mine?'out':'in'}">
             ${m.productName?`<div style="font-size:11px;opacity:.8;margin-bottom:3px;"><i class="fa-solid fa-tag"></i> ${m.productName}</div>`:''}
             ${m.image?`<img class="chat-img" src="${m.image}" data-lightbox-img="${m.image}">`:''}
@@ -6182,8 +6234,8 @@ function sendChatMessage(imageData){
   if(!State.activeChatSellerId) return;
   const chatDocId = [State.user.docId, State.activeChatSellerId].sort().join('_');
   const chatMeta = {
-    clientId: State.user.role==='seller'?State.activeChatSellerId:State.user.docId,
-    sellerId: State.user.role==='seller'?State.user.docId:State.activeChatSellerId,
+    clientId: (State.user.role==='seller'||State.user.role==='admin')?State.activeChatSellerId:State.user.docId,
+    sellerId: (State.user.role==='seller'||State.user.role==='admin')?State.user.docId:State.activeChatSellerId,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     lastMessageText: text || '', lastMessageHasImage: !!imageData,
     lastMessageSenderId: State.user.docId, lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -6195,7 +6247,10 @@ function sendChatMessage(imageData){
   if(imageData) msgData.image = imageData;
   if(State.activeChatProductId){ msgData.productId = State.activeChatProductId; msgData.productName = State.activeChatProductName||''; }
   db.collection('chats').doc(chatDocId).collection('messages').add(msgData).then(()=>{
-    if(State.user.role==='client') maybeTriggerSellerAutoReply(chatDocId, State.activeChatSellerId);
+    if(State.user.role==='client'){
+      maybeTriggerSellerAutoReply(chatDocId, State.activeChatSellerId);
+      if(imageData) maybeAutoReplyReceiptPhoto(chatDocId, State.activeChatSellerId);
+    }
   });
   $('#chatInputMsg').value='';
   $('#chatSendBtn').disabled = true;
@@ -6227,8 +6282,41 @@ async function maybeTriggerSellerAutoReply(chatDocId, sellerId){
     }, 1500);
   }catch(e){}
 }
+/* Клиент прислал фото в чат — в этом приложении фото почти всегда прикладывают именно
+   как чек об оплате (см. подсказку у кнопки-скрепки "Отправить чек/фото"), поэтому сразу
+   отвечаем автоматическим статусом обработки платежа, не дожидаясь продавца/админа. */
+function maybeAutoReplyReceiptPhoto(chatDocId, sellerId){
+  if(!sellerId) return;
+  setTimeout(()=>{
+    db.collection('chats').doc(chatDocId).collection('messages').add({
+      senderId: sellerId, text: '✅ Чек получен! Ваш платёж обрабатывается, ждите 5 минут.', isAutoReply:true, read:false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+  }, 900);
+}
 $('#chatSendBtn').addEventListener('click', ()=>sendChatMessage());
 $('#chatInputMsg').addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendChatMessage(); });
+/* Долгое нажатие на своё сообщение — удалить (как в обычных мессенджерах) */
+(function setupChatLongPressDelete(){
+  const container = document.getElementById('chatMessages');
+  if(!container) return;
+  let pressTimer = null, pressedRow = null;
+  const clearPress = ()=>{ if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; } pressedRow=null; };
+  container.addEventListener('pointerdown', (e)=>{
+    const row = e.target.closest('.msg-row[data-msg-mine="1"]');
+    if(!row) return;
+    pressedRow = row;
+    pressTimer = setTimeout(()=>{
+      if(pressedRow!==row) return;
+      if(confirm('Удалить это сообщение?')){
+        const msgId = row.getAttribute('data-msg-id');
+        const chatDocId = [State.user.docId, State.activeChatSellerId].sort().join('_');
+        db.collection('chats').doc(chatDocId).collection('messages').doc(msgId).delete().catch(()=>{});
+      }
+    }, 550);
+  });
+  ['pointerup','pointercancel','pointerleave','scroll'].forEach(ev=>container.addEventListener(ev, clearPress));
+})();
 $('#chatImageInput').addEventListener('change', async (e)=>{
   const f = e.target.files[0]; if(!f) return;
   const imageData = await compressImage(f, 1000, 0.75);
@@ -6267,7 +6355,7 @@ State.chatMsgListeners = State.chatMsgListeners || {};
 State.chatListenerStartTime = State.chatListenerStartTime || null;
 function setupMessageNotifications(){
   if(!State.user || !State.user.docId) return;
-  const field = State.user.role==='seller' ? 'sellerId' : 'clientId';
+  const field = (State.user.role==='seller'||State.user.role==='admin') ? 'sellerId' : 'clientId';
   State.chatListenerStartTime = Date.now();
   if(State.chatsMetaUnsub) State.chatsMetaUnsub();
   State.chatsMetaUnsub = db.collection('chats').where(field,'==',State.user.docId).onSnapshot(snap=>{
@@ -6933,6 +7021,15 @@ let adminActiveTab = 'catalogs';
 document.addEventListener('click', (e)=>{
   const tab = e.target.closest('.admin-tab');
   if(tab && tab.closest('#adminTabs')){
+    if(tab.getAttribute('data-tab')==='orders'){
+      // "Заказы" — не отдельная вкладка внутри панели, а быстрый переход к уже готовому
+      // полноценному экрану заказов (там же можно менять статус оплаты/доставки, платежи,
+      // экспорт), чтобы не дублировать эту логику второй раз внутри admin-tab-body.
+      closeOv('ovAdmin');
+      openOv('ovOrders');
+      renderOrders();
+      return;
+    }
     $$('.admin-tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
     adminActiveTab = tab.getAttribute('data-tab');
