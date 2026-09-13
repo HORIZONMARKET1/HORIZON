@@ -4737,7 +4737,6 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   if(social.telegram) smsText += ` Telegram: ${social.telegram}`;
   if(social.whatsapp) smsText += ` WhatsApp: ${social.whatsapp}`;
   sendSms(code+phone, smsText);
-  startUnpaidOrderReminder();
 });
 
 /* ============ VARIANT SELECT (size / color) ============ */
@@ -5479,9 +5478,13 @@ function regBotConfigured(){
 }
 function openTelegramForVerify(){
   const url = `https://t.me/${State.settings.regBotUsername}?start=${RegVerify.token}`;
-  // location.href (а не window.open) — чтобы на телефоне сразу открылось приложение Telegram,
-  // а не встроенный браузер внутри PWA-обёртки сайта.
-  window.location.href = url;
+  // Важно: именно window.open(..., '_blank'), а НЕ location.href. location.href уводит
+  // текущую страницу на t.me, из-за чего страница может перезагрузиться/выгрузиться —
+  // тогда пропадает State (RegVerify.token, таймер опроса getUpdates), и введённый
+  // код после этого уже не подтверждает регистрацию. window.open открывает Telegram
+  // в отдельном окне/вкладке (а на телефоне — тем не менее сразу в приложении Telegram,
+  // если оно установлено), а опрос кода в фоне на этой странице продолжает работать.
+  window.open(url, '_blank');
   $('#regVerifyStatus').textContent = 'Открываем Telegram… нажмите «Старт» в боте, чтобы получить код';
   pollForVerifyChat();
   startResendCooldown();
@@ -5544,7 +5547,7 @@ function stopRegVerifyFlow(){
   RegVerify.token = null; RegVerify.chatId = null; RegVerify.code = null; RegVerify.pendingPayload = null;
 }
 $('#regVerifyOpenBotBtn').addEventListener('click', ()=>{
-  window.location.href = `https://t.me/${State.settings.regBotUsername}?start=${RegVerify.token}`;
+  window.open(`https://t.me/${State.settings.regBotUsername}?start=${RegVerify.token}`, '_blank');
 });
 $('#regVerifyResendBtn').addEventListener('click', ()=>{
   if($('#regVerifyResendBtn').disabled) return;
@@ -5687,7 +5690,7 @@ function pollForNotifyStart(){
 }
 $('#notifyEnableBtn').addEventListener('click', ()=>{
   NotifyOptIn.token = genNotifyToken();
-  window.location.href = `https://t.me/${State.settings.regBotUsername}?start=${NotifyOptIn.token}`;
+  window.open(`https://t.me/${State.settings.regBotUsername}?start=${NotifyOptIn.token}`, '_blank');
   $('#notifyStatus').textContent = 'Открываем Telegram… нажмите «Старт» в боте';
   pollForNotifyStart();
 });
@@ -5722,46 +5725,17 @@ function logout(){
   if(State.chatsMetaUnsub){ State.chatsMetaUnsub(); State.chatsMetaUnsub=null; }
   if(State.orderStatusUnsub){ State.orderStatusUnsub(); State.orderStatusUnsub=null; }
   State.chatMsgListeners = {}; State.orderStatusCache = {};
-  State.user=null; clearLocalUser(); loadCart(); refreshUserUI(); closeAllOverlays(); stopUnpaidOrderReminder(); toast('Вы вышли','','fa-right-from-bracket');
+  State.user=null; clearLocalUser(); loadCart(); refreshUserUI(); closeAllOverlays(); toast('Вы вышли','','fa-right-from-bracket');
   refreshPricesForGeo(); // после выхода снова показываем цены по гео-региону гостя
 }
 
-/* ============ UNPAID ORDER REMINDER (client hasn't sent payment receipt yet) ============ */
-function showUnpaidOrderReminder(){
-  const wrap = $('#toastWrap');
-  const el = document.createElement('div');
-  el.className = 'toast toast-persistent';
-  el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div style="flex:1;"><div class="toast-title">У вас есть неоплаченный товар</div><div class="toast-sub">Переведите оплату продавцу и отправьте чек в чат, чтобы заказ обработали</div></div><button class="toast-close" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>`;
-  el.querySelector('.toast-close').addEventListener('click', ()=>el.remove());
-  wrap.appendChild(el);
-}
-async function checkUnpaidOrders(){
-  if(!State.user || State.user.role!=='client' || !State.user.docId) return;
-  try{
-    const snap = await db.collection('orders')
-      .where('clientId','==',State.user.docId)
-      .where('paymentMethod','==','card')
-      .where('status','==','Ожидает оплаты')
-      .get();
-    if(!snap.empty) showUnpaidOrderReminder();
-  }catch(e){ console.warn('unpaid orders check failed', e); }
-}
-function startUnpaidOrderReminder(){
-  stopUnpaidOrderReminder();
-  if(!State.user || State.user.role!=='client') return;
-  checkUnpaidOrders();
-  State.unpaidReminderInterval = setInterval(checkUnpaidOrders, 5*60*1000);
-}
-function stopUnpaidOrderReminder(){
-  if(State.unpaidReminderInterval){ clearInterval(State.unpaidReminderInterval); State.unpaidReminderInterval = null; }
-}
+
 
 /* ============ PROFILE ============ */
 function refreshUserUI(){
   filterAndRenderGrid({}); renderProfile(); updateChatBadgeVisibility(); loadNotifications();
   if(State.user && State.user.docId) setupMessageNotifications();
   if(State.user && State.user.docId) setupOrderStatusNotifications();
-  if(State.user && State.user.role==='client') startUnpaidOrderReminder(); else stopUnpaidOrderReminder();
   if(State.user && State.user.docId) startPresenceHeartbeat(); else stopPresenceHeartbeat();
   syncPushTokenAfterAuth();
 }
