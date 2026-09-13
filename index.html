@@ -1827,6 +1827,16 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   </div>
 </div>
 
+<!-- ORDER RECEIVED: RATING / REVIEW / PHOTO PER ITEM -->
+<div class="overlay center" id="ovOrderReceipt">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Заказ получен <button class="close-x" data-close="ovOrderReceipt"><i class="fa-solid fa-xmark"></i></button></div>
+    <p style="color:var(--text-dim);font-size:13px;margin-top:-8px;margin-bottom:14px;">Спасибо! Оцените товары из этого заказа — это поможет другим покупателям.</p>
+    <div id="orderReceiptList"></div>
+    <button class="btn btn-primary" id="orderReceiptDoneBtn" style="margin-top:6px;"><i class="fa-solid fa-check"></i> Готово</button>
+  </div>
+</div>
+
 <!-- SELLER REVIEW FORM -->
 <div class="overlay center" id="ovSellerReviewForm">
   <div class="sheet" style="border-radius:24px;">
@@ -2780,6 +2790,99 @@ async function sendTelegramWithButton(token, chatId, text, buttonText, buttonUrl
     if(!res.ok){ console.warn('Telegram sendMessage (button) failed', await res.text().catch(()=>'')); }
     return res.ok;
   }catch(e){ console.warn('Telegram error', e); return false; }
+}
+/* Тот же sendMessage, но с двумя кнопками в один ряд — используется для персональных
+   уведомлений о новом товаре ("Посмотреть в Telegram" / "Посмотреть на сайте"). */
+async function sendTelegramWith2Buttons(token, chatId, text, btn1Text, btn1Url, btn2Text, btn2Url){
+  if(!token || !chatId) return false;
+  try{
+    const row = [];
+    if(btn1Url) row.push({text:btn1Text, url:btn1Url});
+    if(btn2Url) row.push({text:btn2Text, url:btn2Url});
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: chatId, text, parse_mode:'HTML', reply_markup: row.length ? {inline_keyboard:[row]} : undefined})
+    });
+    if(!res.ok){ console.warn('Telegram sendMessage (2 buttons) failed', await res.text().catch(()=>'')); }
+    return res.ok;
+  }catch(e){ console.warn('Telegram error', e); return false; }
+}
+/* ============ ПЕРСОНАЛЬНЫЕ УВЕДОМЛЕНИЯ О НОВОМ ТОВАРЕ В ЛИЧНОМ TELEGRAM-БОТЕ ============
+   Каждому зарегистрированному клиенту, у которого включены уведомления (telegramNotifyEnabled,
+   привязка chatId происходит один раз через бот регистрации/подтверждения), при появлении
+   нового товара уходит персональное сообщение со случайным "цепляющим" текстом из пула,
+   ценой в его валюте (курс зависит от кода страны, с которым он зарегистрирован — см.
+   currencyForCountryCode/getUserCurrency) и двумя кнопками: "Смотреть в Telegram" (открывает наш
+   канал, куда товар публикуется автоматически) и "Смотреть на сайте" (прямая ссылка на товар —
+   если у клиента установлено PWA-приложение сайта, операционная система откроет его в приложении,
+   иначе — в браузере; это штатное поведение системных ссылок, отдельный код не нужен). */
+const PRODUCT_PROMO_TEXT_TEMPLATES = [
+  '🔥 Горячая новинка: {name} уже ждёт вас — всего за {price}!',
+  '✨ Только что добавили: {name} по цене {price}. Успейте первыми!',
+  '💥 Акция дня: {name} — {price}. Разбирают быстро!',
+  '🎯 Специально для вас: {name} теперь в каталоге, цена {price}.',
+  '🚀 Новинка недели — {name}. Цена всего {price}!',
+  '🛍 Свежее поступление: {name} за {price}. Загляните, пока в наличии!',
+  '⚡️ Молния-предложение: {name} — {price}. Не пропустите!',
+  '🌟 Эксклюзив HORIZON MARKET: {name}, цена {price}.',
+  '🎁 Для наших подписчиков: {name} по выгодной цене {price}.',
+  '📦 Только прибыло: {name} — {price}. Забронируйте прямо сейчас!',
+  '💎 Топ-товар месяца: {name} за {price}.',
+  '🔔 Не проходите мимо: {name} — цена {price}.',
+  '🏷 Свежая цена: {name} теперь всего {price}!',
+  '🆕 В каталоге пополнение: {name}, {price}.',
+  '🔋 Заряжаемся новинками: {name} — {price}.',
+  '🎉 Праздник для шопинга: {name} по {price}!',
+  '🧊 Горячо и холодно одновременно: {name} за {price} — успейте!',
+  '📈 Спрос растёт: {name} уже разбирают, цена {price}.',
+  '🕒 Ограниченная партия: {name} — {price}.',
+  '💡 Идея для подарка: {name}, всего {price}.',
+  '🥇 Хит продаж: {name} по цене {price}.',
+  '🛒 Добавьте в корзину: {name} — {price}.',
+  '🎈 Приятный сюрприз: {name} теперь по {price}!',
+  '🔑 Ключевая новинка сезона: {name}, цена {price}.',
+  '🌈 Разнообразьте покупки: {name} за {price}.',
+  '📣 Внимание, новинка: {name} — {price}. Смотрите скорее!',
+  '🧨 Взрывное предложение: {name} по {price}!',
+  '🏆 Выбор покупателей: {name}, цена {price}.',
+  '🕶 Стильно и выгодно: {name} за {price}.',
+  '🍀 Удачная находка: {name} — {price}. Успейте заказать!'
+];
+function fillPromoTemplate(tpl, name, priceStr){
+  return tpl.replace('{name}', name).replace('{price}', priceStr);
+}
+async function broadcastNewProductToTelegramClients(p){
+  try{
+    if(!State.settings.regBotToken) return; // личный бот уведомлений не настроен админом
+    // Замок через транзакцию на самом товаре — чтобы при нескольких одновременно открытых
+    // вкладках/устройствах (админ, продавцы, случайные клиенты онлайн) сообщение каждому
+    // клиенту ушло только один раз, а не по разу с каждой открытой вкладки.
+    const claimed = await db.runTransaction(async (tx)=>{
+      const ref = db.collection('products').doc(p.id);
+      const snap = await tx.get(ref);
+      if(!snap.exists) return false;
+      if(snap.data().promoBroadcastSent) return false;
+      tx.update(ref, {promoBroadcastSent: true});
+      return true;
+    }).catch(()=>false);
+    if(!claimed) return;
+    // Публикуем товар в Telegram-канал (если бот публикации настроен), чтобы кнопка
+    // "Смотреть в Telegram" вела на канал, где этот товар уже есть свежим постом.
+    if(State.settings.productsBotToken) publishProductToTelegram(p).catch(()=>{});
+    const snap = await db.collection('users').where('telegramNotifyEnabled','==',true).limit(500).get().catch(()=>null);
+    if(!snap || snap.empty) return;
+    const siteUrl = getProductUrl(p.id);
+    const channelUrl = State.settings.telegramChannelLink || null;
+    for(const doc of snap.docs){
+      const u = doc.data();
+      if(!u.telegramChatId) continue;
+      const cur = u.countryCode==='+7' ? currencyForCountryCode('RU') : u.countryCode==='+998' ? currencyForCountryCode('UZ') : currencyForCountryCode('TJ');
+      const priceStr = fmtInCurrency(p.price, cur);
+      const tpl = PRODUCT_PROMO_TEXT_TEMPLATES[Math.floor(Math.random()*PRODUCT_PROMO_TEXT_TEMPLATES.length)];
+      const text = fillPromoTemplate(tpl, escapeHtmlTg(p.name), priceStr);
+      sendTelegramWith2Buttons(State.settings.regBotToken, u.telegramChatId, text, '📢 Смотреть в Telegram', channelUrl, '🌐 Смотреть на сайте', siteUrl).catch(()=>{});
+    }
+  }catch(e){ console.warn('broadcastNewProductToTelegramClients failed', e); }
 }
 
 /* ============ АВТОПУБЛИКАЦИЯ ТОВАРОВ В TELEGRAM (отдельный бот: канал + чат) ============ */
@@ -4603,11 +4706,16 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     if(seller && seller.botToken && seller.botChatId) sendTelegram(seller.botToken, seller.botChatId, text);
     if(State.settings.adminBotToken && State.settings.adminBotChatId) sendTelegram(State.settings.adminBotToken, State.settings.adminBotChatId, text);
     pushNewOrderNotification(sellerId, `${name}: ${list.split('\n')[0]}${bySeller[sellerId].length>1?` и ещё ${bySeller[sellerId].length-1}`:''} — ${fmt(total)}`);
-    // auto seller "thanks" chat message to client
+    // auto seller "thanks + payment choice" chat message to client — приходит от имени
+    // продавца сразу после оформления заказа, с двумя кнопками прямо в сообщении.
     if(sellerId){
       const chatId = [State.user.docId, sellerId].sort().join('_');
       db.collection('chats').doc(chatId).collection('messages').add({
-        senderId: sellerId, text: `Спасибо ${name} за заказ. Мы свяжемся с вами в ближайшее время. Оплатите товар, зайдя в историю своих заказов.`,
+        senderId: sellerId, text: `Спасибо ${name} за заказ! Мы свяжемся с вами в ближайшее время. Выберите способ оплаты:`,
+        actions: [
+          {type:'pay', label:'💳 Оплатить', orderId: orderRef.id, sellerId},
+          {type:'cod', label:'📦 Оплатить после получения', orderId: orderRef.id, sellerId}
+        ],
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).catch(()=>{});
       db.collection('chats').doc(chatId).set({clientId: State.user.docId, sellerId, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}, {merge:true}).catch(()=>{});
@@ -5058,6 +5166,34 @@ function openReviewForm(pid){
   renderReviewStars();
   openOv('ovReviewForm');
 }
+/* ============ ПОДТВЕРЖДЕНИЕ ПОЛУЧЕНИЯ ЗАКАЗА (клиент нажал "Получил" в истории заказов
+   или "Подтвердить получение" в чате) — отмечаем заказ полученным и даём оценить/оставить
+   отзыв и фото по каждому товару из заказа (переиспользует существующую форму отзыва). */
+async function openOrderReceiptConfirm(orderId){
+  if(!State.user) return;
+  db.collection('orders').doc(orderId).update({clientConfirmedReceipt:true}).catch(()=>{});
+  const wrap = $('#orderReceiptList');
+  wrap.innerHTML = '<div class="spinner"></div>';
+  openOv('ovOrderReceipt');
+  let orderDoc;
+  try{ orderDoc = await db.collection('orders').doc(orderId).get(); }catch(e){}
+  const items = (orderDoc && orderDoc.exists) ? (orderDoc.data().items||[]) : [];
+  if(!items.length){ wrap.innerHTML = '<div class="empty-state"><div>Товары заказа не найдены</div></div>'; return; }
+  wrap.innerHTML = items.map(it=>`
+    <div class="list-row">
+      <div class="list-row-title" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;">${it.name} <span style="color:var(--text-dim);font-weight:400;">x${it.qty}</span></div>
+      ${it.productId ? `<button class="tiny-btn primary" data-receipt-review="${it.productId}"><i class="fa-solid fa-star"></i> Оставить отзыв</button>` : ''}
+    </div>
+  `).join('');
+  wrap.querySelectorAll('[data-receipt-review]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ openReviewForm(btn.getAttribute('data-receipt-review')); });
+  });
+}
+$('#orderReceiptDoneBtn').addEventListener('click', ()=>{
+  closeOv('ovOrderReceipt');
+  toast('Спасибо!', 'Ваша оценка помогает другим покупателям', 'fa-circle-check');
+  if($('#ovOrders').classList.contains('open')) renderOrders();
+});
 $('#reviewPhotoInput').addEventListener('change', async (e)=>{
   const f = e.target.files[0]; if(!f) return;
   reviewPhotoData = await compressImage(f, 700, 0.7);
@@ -5343,7 +5479,9 @@ function regBotConfigured(){
 }
 function openTelegramForVerify(){
   const url = `https://t.me/${State.settings.regBotUsername}?start=${RegVerify.token}`;
-  window.open(url, '_blank');
+  // location.href (а не window.open) — чтобы на телефоне сразу открылось приложение Telegram,
+  // а не встроенный браузер внутри PWA-обёртки сайта.
+  window.location.href = url;
   $('#regVerifyStatus').textContent = 'Открываем Telegram… нажмите «Старт» в боте, чтобы получить код';
   pollForVerifyChat();
   startResendCooldown();
@@ -5406,7 +5544,7 @@ function stopRegVerifyFlow(){
   RegVerify.token = null; RegVerify.chatId = null; RegVerify.code = null; RegVerify.pendingPayload = null;
 }
 $('#regVerifyOpenBotBtn').addEventListener('click', ()=>{
-  window.open(`https://t.me/${State.settings.regBotUsername}?start=${RegVerify.token}`, '_blank');
+  window.location.href = `https://t.me/${State.settings.regBotUsername}?start=${RegVerify.token}`;
 });
 $('#regVerifyResendBtn').addEventListener('click', ()=>{
   if($('#regVerifyResendBtn').disabled) return;
@@ -5549,7 +5687,7 @@ function pollForNotifyStart(){
 }
 $('#notifyEnableBtn').addEventListener('click', ()=>{
   NotifyOptIn.token = genNotifyToken();
-  window.open(`https://t.me/${State.settings.regBotUsername}?start=${NotifyOptIn.token}`, '_blank');
+  window.location.href = `https://t.me/${State.settings.regBotUsername}?start=${NotifyOptIn.token}`;
   $('#notifyStatus').textContent = 'Открываем Telegram… нажмите «Старт» в боте';
   pollForNotifyStart();
 });
@@ -5766,13 +5904,14 @@ function renderPmList(){
       </div>
       <div class="field"><label>Номер карты</label><input data-pm-field="cardNumber" data-idx="${i}" value="${m.cardNumber||''}" placeholder="0000 0000 0000 0000" inputmode="numeric"></div>
       <div class="field"><label>Имя владельца карты</label><input data-pm-field="cardHolder" data-idx="${i}" value="${m.cardHolder||''}" placeholder="IVAN IVANOV"></div>
+      <div class="field"><label>Ссылка на оплату <span style="color:var(--text-dim);font-weight:400;">(необязательно — deep-link приложения банка, например alifpay://pay?... или https://... — при нажатии «Оплатить» клиент сразу попадёт в приложение этого банка)</span></label><input data-pm-field="paymentLink" data-idx="${i}" value="${m.paymentLink||''}" placeholder="https:// или схема приложения банка"></div>
     </div>
   `).join('') || '<p style="color:var(--text-dim);font-size:13px;">Пока нет добавленных карт</p>';
   $('#pmAddBtn').style.display = pmState.length>=4 ? 'none' : 'block';
 }
 $('#pmAddBtn').addEventListener('click', ()=>{
   if(pmState.length>=4) return;
-  pmState.push({bankName:'', icon:'', cardNumber:'', cardHolder:''});
+  pmState.push({bankName:'', icon:'', cardNumber:'', cardHolder:'', paymentLink:''});
   renderPmList();
 });
 document.addEventListener('input', (e)=>{
@@ -5899,6 +6038,7 @@ async function renderOrders(){
     const canPay = State.user.role==='client' && o.paymentMethod==='card' && o.status!=='Оплачено' && o.status!=='Отменён';
     const CANCELLABLE_STATUSES = ['Новый','Ожидает оплаты','Ожидает оформления рассрочки'];
     const canCancel = State.user.role==='client' && CANCELLABLE_STATUSES.includes(o.status||'Новый');
+    const canConfirmReceipt = State.user.role==='client' && o.status==='Доставлен' && !o.clientConfirmedReceipt;
     const statusSelectHtml = (State.user.role==='seller'||State.user.role==='admin') ? `<select class="order-status-select" data-order-status="${d.id}">${ORDER_STATUSES.map(s=>`<option value="${s}" ${((o.status||'Новый')===s)?'selected':''}>${s}</option>`).join('')}</select>` : '';
     return `<div class="order-item" data-order-id="${d.id}">
       <div class="row"><b>${o.clientName}</b><span class="order-status">${o.status||'Новый'}</span></div>
@@ -5914,6 +6054,7 @@ async function renderOrders(){
       <div style="font-size:12px;color:var(--text-dim);">${(o.items||[]).map(i=>i.name+' x'+i.qty).join(', ')}</div>
       <div class="order-actions">
         ${canPay ? `<button class="btn btn-primary" style="padding:10px;font-size:13px;" data-pay-order="${d.id}"><i class="fa-solid fa-credit-card"></i> Оплатить</button>` : ''}
+        ${canConfirmReceipt ? `<button class="btn btn-primary" style="padding:10px;font-size:13px;width:auto;" data-confirm-receipt="${d.id}"><i class="fa-solid fa-box-open"></i> Получил</button>` : ''}
         ${statusSelectHtml}
         ${State.user.role==='client' ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-reorder="${d.id}"><i class="fa-solid fa-rotate-right"></i> Заказать снова</button>` : ''}
         ${canCancel ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;color:var(--danger);border-color:var(--danger);" data-cancel-order="${d.id}"><i class="fa-solid fa-ban"></i> Отменить заказ</button>` : ''}
@@ -5943,6 +6084,9 @@ async function renderOrders(){
   body.querySelectorAll('[data-pay-order]').forEach(btn=>{
     btn.addEventListener('click', ()=>openPayOrderSheet(btn.getAttribute('data-pay-order')));
   });
+  body.querySelectorAll('[data-confirm-receipt]').forEach(btn=>{
+    btn.addEventListener('click', ()=>openOrderReceiptConfirm(btn.getAttribute('data-confirm-receipt')));
+  });
   body.querySelectorAll('[data-cancel-order]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const orderId = btn.getAttribute('data-cancel-order');
@@ -5967,6 +6111,17 @@ async function renderOrders(){
           db.collection('users').doc(prevData.clientId).update({bonusBalance: firebase.firestore.FieldValue.increment(points)}).catch(()=>{});
           db.collection('orders').doc(orderId).update({loyaltyPointsAwarded: points}).catch(()=>{});
         }
+        // Сообщение от продавца в чат: "спасибо за заказ, подтвердите" с кнопкой,
+        // по которой откроется оценка/отзыв/фото товара.
+        const actingSellerId = State.user.role==='admin' ? 'admin' : State.user.docId;
+        const chatId = [prevData.clientId, actingSellerId].sort().join('_');
+        db.collection('chats').doc(chatId).collection('messages').add({
+          senderId: actingSellerId,
+          text: `Спасибо за заказ, ${prevData.clientName||'уважаемый клиент'}! Подтвердите, пожалуйста, получение заказа.`,
+          actions: [{type:'confirm_receipt', label:'✅ Подтвердить получение', orderId}],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(()=>{});
+        db.collection('chats').doc(chatId).set({clientId: prevData.clientId, sellerId: actingSellerId, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}, {merge:true}).catch(()=>{});
       }
       toast('Статус заказа обновлён','','fa-circle-check');
       renderOrders();
@@ -6015,7 +6170,7 @@ async function openPayOrderSheet(orderId){
     const sellerName = isAdminSeller ? 'HORIZON MARKET' : (seller ? seller.fio : 'Продавец');
     const methods = isAdminSeller ? (State.settings.adminPaymentMethods || []) : ((seller && seller.paymentMethods) || []);
     const itemsTotal = bySeller[sellerId].reduce((s,i)=>s+i.price*i.qty,0);
-    const cardsHtml = methods.length ? methods.map(m=>`
+    const cardsHtml = methods.length ? methods.map((m,mi)=>`
       <div class="pay-card-item">
         <div class="pay-card-bank-row">
           <div class="pay-card-bank-icon">${m.icon?`<img src="${m.icon}">`:(m.bankName||'B')[0]}</div>
@@ -6023,12 +6178,23 @@ async function openPayOrderSheet(orderId){
         </div>
         <div class="pay-card-number">${m.cardNumber||''}</div>
         <div class="pay-card-holder">${m.cardHolder||''}</div>
+        ${m.paymentLink ? `<button class="btn btn-primary" style="margin-top:10px;" data-open-bank="${encodeURIComponent(m.paymentLink)}" data-bank-name="${(m.bankName||'').replace(/"/g,'&quot;')}"><i class="fa-solid fa-arrow-up-right-from-square"></i> Оплатить через ${m.bankName||'приложение банка'}</button>` : ''}
       </div>
     `).join('') : '<p style="color:var(--text-dim);font-size:13px;">Продавец не указал способ оплаты. Свяжитесь с ним в чате.</p>';
     return `<div class="pay-seller-title"><i class="fa-solid fa-store"></i> ${sellerName} · ${fmt(itemsTotal)}</div>
       ${cardsHtml}
-      <button class="btn btn-primary" data-paid-seller="${sellerId}" data-paid-order="${orderId}" style="margin-bottom:6px;"><i class="fa-solid fa-check"></i> Я оплатил</button>`;
+      <button class="btn btn-outline" data-paid-seller="${sellerId}" data-paid-order="${orderId}" style="margin:6px 0;"><i class="fa-solid fa-check"></i> Я оплатил</button>`;
   }).join('');
+  // Кнопка на карте выбранного банка — сразу открывает приложение этого банка по
+  // ссылке из способа оплаты (deep-link/URL, настроенной продавцом/админом в способах оплаты).
+  body.querySelectorAll('[data-open-bank]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const link = decodeURIComponent(btn.getAttribute('data-open-bank'));
+      if(!link) return;
+      window.location.href = link;
+      setTimeout(()=>{ toast(`Открываем ${btn.getAttribute('data-bank-name')||'банк'}…`, 'Если приложение не открылось, установите его или свяжитесь с продавцом', 'fa-building-columns'); }, 400);
+    });
+  });
   body.querySelectorAll('[data-paid-seller]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const sellerId = btn.getAttribute('data-paid-seller');
@@ -6212,6 +6378,7 @@ function openChatThread(otherId, otherName, productId, productName, otherPhoto){
             ${m.productName?`<div style="font-size:11px;opacity:.8;margin-bottom:3px;"><i class="fa-solid fa-tag"></i> ${m.productName}</div>`:''}
             ${m.image?`<img class="chat-img" src="${m.image}" data-lightbox-img="${m.image}">`:''}
             ${m.text?`<div${m.image?' style="margin-top:6px;"':''}>${m.text}${m.isAutoReply?' <span style="opacity:.6;font-size:10px;">(автоответ)</span>':''}</div>`:''}
+            ${(m.actions && m.actions.length && !m.actionsUsed) ? `<div class="msg-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">${m.actions.map((a)=>`<button class="btn btn-primary" style="padding:8px 12px;font-size:12.5px;width:auto;" data-msg-action="${a.type}" data-msg-action-msgid="${d.id}" data-msg-action-chat="${chatDocId}" data-msg-action-payload="${encodeURIComponent(JSON.stringify(a))}">${a.label}</button>`).join('')}</div>` : (m.actions && m.actionsUsed ? `<div style="margin-top:6px;font-size:11px;opacity:.65;"><i class="fa-solid fa-circle-check"></i> ${m.actionsUsedLabel||'Готово'}</div>` : '')}
             <div class="msg-meta"><span>${chatTimeHHMM(m.createdAt)}</span>${ticks}</div>
           </div>
         </div>`;
@@ -6228,6 +6395,40 @@ function openChatThread(otherId, otherName, productId, productName, otherPhoto){
       }
     }, err=>console.warn(err));
 }
+/* ============ КНОПКИ-ДЕЙСТВИЯ ВНУТРИ СООБЩЕНИЙ ЧАТА ============
+   Системные сообщения от продавца (например, при оформлении заказа или при доставке)
+   могут нести массив actions — интерактивные кнопки прямо в пузыре сообщения.
+   Поддерживаемые типы: 'pay' (открыть выбор банка), 'cod' (оплата при получении),
+   'confirm_receipt' (подтвердить получение заказа → оценка/отзыв/фото). */
+async function markChatActionUsed(chatDocId, msgId, label){
+  try{ await db.collection('chats').doc(chatDocId).collection('messages').doc(msgId).update({actionsUsed:true, actionsUsedLabel: label||'Готово'}); }catch(e){}
+}
+document.addEventListener('click', async (e)=>{
+  const btn = e.target.closest('[data-msg-action]');
+  if(!btn) return;
+  const type = btn.getAttribute('data-msg-action');
+  const chatDocId = btn.getAttribute('data-msg-action-chat');
+  const msgId = btn.getAttribute('data-msg-action-msgid');
+  let payload = {};
+  try{ payload = JSON.parse(decodeURIComponent(btn.getAttribute('data-msg-action-payload')||'{}')); }catch(err){}
+  if(type==='pay'){
+    markChatActionUsed(chatDocId, msgId, '✅ Способ оплаты выбран');
+    closeOv('ovChatThread');
+    openPayOrderSheet(payload.orderId);
+  } else if(type==='cod'){
+    try{ await db.collection('orders').doc(payload.orderId).update({paymentMethod:'cod', status:'Новый'}); }catch(err){}
+    markChatActionUsed(chatDocId, msgId, '✅ Оплата при получении');
+    db.collection('chats').doc(chatDocId).collection('messages').add({
+      senderId: payload.sellerId, text: '👍 Хорошо, оплата при получении товара. Мы подготовим ваш заказ.',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+    toast('Выбрана оплата при получении', '', 'fa-circle-check');
+  } else if(type==='confirm_receipt'){
+    markChatActionUsed(chatDocId, msgId, '✅ Получение подтверждено');
+    closeOv('ovChatThread');
+    openOrderReceiptConfirm(payload.orderId);
+  }
+});
 function sendChatMessage(imageData){
   const text = $('#chatInputMsg').value.trim();
   if(!text && !imageData) return;
@@ -7611,6 +7812,7 @@ function notifyNewProduct(p){
     refProductId: p.id,
     refProductName: p.name
   });
+  broadcastNewProductToTelegramClients(p).catch(()=>{});
 }
 function notifyBackInStock(p){
   if('Notification' in window && Notification.permission==='granted'){
