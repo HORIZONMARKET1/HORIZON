@@ -1359,6 +1359,17 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div id="coDeliveryMethodNote" style="font-size:11.5px;color:var(--text-dim);margin-top:6px;"></div>
     </div>
     <div class="field">
+      <label>Способ получения</label>
+      <label class="pay-option active" id="coReceivePickupOption">
+        <input type="radio" name="coReceiveMethod" value="pickup" checked="">
+        <div><div class="pay-option-title"><i class="fa-solid fa-store"></i> Самовывоз</div><div class="pay-option-sub">Забираете заказ самостоятельно</div></div>
+      </label>
+      <label class="pay-option" id="coReceiveDeliveryOption">
+        <input type="radio" name="coReceiveMethod" value="delivery">
+        <div><div class="pay-option-title"><i class="fa-solid fa-motorcycle"></i> Доставка</div><div class="pay-option-sub">Курьером по адресу · сумма доставки договорная</div></div>
+      </label>
+    </div>
+    <div class="field" id="coAddressField">
       <label>Адрес доставки</label>
       <div id="coSavedAddresses" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:10px;"></div>
       <div class="field-row" style="gap:8px;">
@@ -1408,7 +1419,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="cart-total-row" id="coPromoRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Скидка по промокоду</span><span id="coPromoDiscount">0 ₽</span></div>
     <div class="cart-total-row" id="coFirstOrderRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Скидка на первый заказ</span><span id="coFirstOrderDiscount">0 ₽</span></div>
     <div class="cart-total-row" id="coBonusRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Списание бонусов</span><span id="coBonusApplied">0 ₽</span></div>
-    <div class="cart-total-row" style="padding:0 0 10px;font-size:13px;font-weight:600;color:var(--text-dim);"><span>Доставка (оплачивает клиент)</span><span id="coDeliveryFee">Бесплатно</span></div>
+    <div class="cart-total-row" id="coDeliveryFeeRow" style="padding:0 0 10px;font-size:13px;font-weight:600;color:var(--text-dim);"><span>Доставка</span><span id="coDeliveryFee">Бесплатно</span></div>
     <div class="cart-total-row" style="border-top:1.5px solid var(--border);padding-top:12px;"><span>Итого к оплате</span><span id="coTotal">0 ₽</span></div>
     <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;">
       <div style="flex:1;min-width:100px;text-align:center;padding:8px 6px;border-radius:10px;background:var(--surface-2);font-size:10.5px;color:var(--text-dim);font-weight:600;"><i class="fa-solid fa-shield-halved" style="display:block;font-size:16px;margin-bottom:4px;color:var(--accent);"></i>Оплата защищена</div>
@@ -4637,14 +4648,20 @@ function getBonusToRedeem(subtotalAfterPromo){
   return Math.max(0, Math.min(requested, maxRedeemableBonus(subtotalAfterPromo)));
 }
 function recalcCheckoutTotals(){
-  const subtotal = cartTotal(), fee = currentDeliveryFee();
+  const subtotal = cartTotal();
+  const receiveMethodInput = document.querySelector('input[name="coReceiveMethod"]:checked');
+  const receiveMethod = receiveMethodInput ? receiveMethodInput.value : 'pickup';
+  // Самовывоз — доставки нет, доставка курьером — сумма договорная и не входит в
+  // сумму заказа заранее: курьер согласует её с клиентом при принятии заказа.
+  const fee = 0;
+  $('#coDeliveryFeeRow').style.display = receiveMethod==='delivery' ? 'flex' : 'none';
+  $('#coDeliveryFee').textContent = receiveMethod==='delivery' ? 'Договорная' : 'Бесплатно';
   const promoDiscount = appliedPromo ? appliedPromo.discount : 0;
   const pct = Number(State.settings.firstOrderDiscountPercent) || 0;
   firstOrderDiscountAmount = (isFirstOrderEligible && pct>0) ? Math.round(Math.max(0, subtotal-promoDiscount) * pct/100) : 0;
   const afterPromo = Math.max(0, subtotal - promoDiscount - firstOrderDiscountAmount);
   const bonusUsed = getBonusToRedeem(afterPromo);
   $('#coSubtotal').textContent = fmt(subtotal);
-  $('#coDeliveryFee').textContent = fee>0 ? fmt(fee) : 'Бесплатно';
   if(appliedPromo){
     $('#coPromoRow').style.display = 'flex';
     $('#coPromoDiscount').textContent = '-'+fmt(promoDiscount);
@@ -4704,6 +4721,16 @@ $('#coPromoApplyBtn').addEventListener('click', ()=>{
   statusEl.style.color='var(--success)'; statusEl.textContent = `Промокод применён: скидка ${fmt(discount)}`;
   recalcCheckoutTotals();
 });
+function updateCoReceiveMethodUI(){
+  const checked = document.querySelector('input[name="coReceiveMethod"]:checked');
+  const method = checked ? checked.value : 'pickup';
+  $('#coReceivePickupOption').classList.toggle('active', method==='pickup');
+  $('#coReceiveDeliveryOption').classList.toggle('active', method==='delivery');
+  $('#coAddressField').style.display = method==='delivery' ? 'block' : 'none';
+}
+document.addEventListener('change', (e)=>{
+  if(e.target.name === 'coReceiveMethod'){ updateCoReceiveMethodUI(); recalcCheckoutTotals(); }
+});
 $('#checkoutOpenBtn').addEventListener('click', ()=>{
   if(State.cart.length===0){ toast('Корзина пуста','','fa-circle-exclamation'); return; }
   $('#coName').value = State.user.fio||'';
@@ -4711,6 +4738,9 @@ $('#checkoutOpenBtn').addEventListener('click', ()=>{
   $('#coCountryCode').value = State.user.countryCode||'+7';
   $('#coAddress').value = State.user.address||'';
   $('#coGeoStatus').style.display = 'none';
+  const pickupRadio = document.querySelector('input[name="coReceiveMethod"][value="pickup"]');
+  if(pickupRadio) pickupRadio.checked = true;
+  updateCoReceiveMethodUI();
   renderDeliveryMethodOptions();
   updateCoPayOptionsVisibility();
   renderSavedAddressChips();
@@ -4795,7 +4825,10 @@ $('#coGeoBtn').addEventListener('click', ()=>{
 $('#coSubmitBtn').addEventListener('click', async ()=>{
   const name = $('#coName').value.trim(), phone = $('#coPhone').value.trim(), code = $('#coCountryCode').value, country = $('#coCountry').value, address = $('#coAddress').value.trim();
   if(!name || !phone){ toast('Заполните имя и телефон','','fa-circle-exclamation'); return; }
-  if(!address){ toast('Укажите адрес доставки','','fa-circle-exclamation'); return; }
+  const receiveMethodInput = document.querySelector('input[name="coReceiveMethod"]:checked');
+  const receiveMethod = receiveMethodInput ? receiveMethodInput.value : 'pickup';
+  const receiveMethodLabel = receiveMethod==='delivery' ? 'Доставка' : 'Самовывоз';
+  if(receiveMethod==='delivery' && !address){ toast('Укажите адрес доставки','','fa-circle-exclamation'); return; }
   const deliveryMethodInput = document.querySelector('input[name="coDeliveryMethod"]:checked');
   const deliveryMethod = deliveryMethodInput ? deliveryMethodInput.value : null;
   const deliveryMethodLabel = deliveryMethodInput ? deliveryMethodInput.getAttribute('data-title') : null;
@@ -4805,7 +4838,9 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     return {productId:c.productId, name:p?p.name:'', price, qty:c.qty, sellerId:(p && p.sellerId) || 'admin', wholesale: !!c.wholesale, size:c.size||null, color:c.color||null};
   });
   const subtotal = cartTotal();
-  const deliveryFee = currentDeliveryFee();
+  // Самовывоз — доставки нет; доставка курьером — сумма договорная, не входит в
+  // сумму заказа заранее (курьер согласует её при принятии заказа, см. courierPrice).
+  const deliveryFee = 0;
   const promoDiscount = appliedPromo ? appliedPromo.discount : 0;
   const firstOrderDiscount = firstOrderDiscountAmount;
   const afterPromo = Math.max(0, subtotal - promoDiscount - firstOrderDiscount);
@@ -4815,7 +4850,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const paymentMethod = payMethodInput ? payMethodInput.value : 'card';
   const installmentProvider = paymentMethod==='installment' ? $('#coInstallmentProvider').value : null;
   const initialStatus = paymentMethod==='installment' ? 'Ожидает оформления рассрочки' : 'Ожидает оплаты';
-  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, deliveryMethod, deliveryMethodLabel, address, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, installmentProvider, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, receiveMethod, receiveMethodLabel, needsCourier:false, deliveryMethod, deliveryMethodLabel, address, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, installmentProvider, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
   const orderRef = db.collection('orders').doc();
   try{
     // Reserve stock atomically: aggregate quantity per product (a product can appear in
@@ -4878,7 +4913,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     const promoLine = appliedPromo ? `\n🏷️ Промокод ${appliedPromo.code}: -${fmt(promoDiscount)}` : '';
     const bonusLine = bonusUsed>0 ? `\n🪙 Списано бонусов: -${fmt(bonusUsed)}` : '';
     const installmentLine = paymentMethod==='installment' ? `\n📆 Оплата в рассрочку: ${installmentProvider}` : '';
-    const text = `🛍️ <b>Новый заказ HORIZON MARKET</b>\n👤 ${name}\n📞 ${code}${phone}\n🌍 ${country}${deliveryMethodLabel?`\n🚚 Способ доставки: ${deliveryMethodLabel}`:''}\n📍 ${address}\n\n${list}\n\n💵 Сумма заказа: ${fmt(subtotal)}${promoLine}${bonusLine}${installmentLine}\n🚚 Доставка: ${deliveryFee>0?fmt(deliveryFee):'бесплатно'}\n💰 Итого: ${fmt(total)}`;
+    const text = `🛍️ <b>Новый заказ HORIZON MARKET</b>\n👤 ${name}\n📞 ${code}${phone}\n🌍 ${country}\n${receiveMethod==='delivery'?'🛵':'🏬'} Способ получения: ${receiveMethodLabel}${deliveryMethodLabel?`\n🚚 Способ доставки: ${deliveryMethodLabel}`:''}${address?`\n📍 ${address}`:''}\n\n${list}\n\n💵 Сумма заказа: ${fmt(subtotal)}${promoLine}${bonusLine}${installmentLine}\n🚚 Доставка: ${receiveMethod==='delivery'?'договорная':'самовывоз'}\n💰 Итого: ${fmt(total)}`;
     if(seller && seller.botToken && seller.botChatId) sendTelegram(seller.botToken, seller.botChatId, text);
     if(State.settings.adminBotToken && State.settings.adminBotChatId) sendTelegram(State.settings.adminBotToken, State.settings.adminBotChatId, text);
     pushNewOrderNotification(sellerId, `${name}: ${list.split('\n')[0]}${bySeller[sellerId].length>1?` и ещё ${bySeller[sellerId].length-1}`:''} — ${fmt(total)}`);
@@ -5940,10 +5975,12 @@ function renderProfile(){
       menu += `<div class="menu-item" id="becomeCourierBtn"><i class="fa-solid fa-motorcycle"></i> Стать курьером <i class="fa-solid fa-chevron-right"></i></div>`;
     } else if(u.courierStatus==='active'){
       menu += `<div class="menu-item" id="openCourierOrdersBtn"><i class="fa-solid fa-boxes-packing"></i> Заказы курьера <i class="fa-solid fa-chevron-right"></i></div>`;
-      if(!u.courierNotifyEnabled){
-        menu += `<div class="menu-item" id="courierNotifyOptInBtn"><i class="fa-brands fa-telegram"></i> Получать уведомления о заказах <i class="fa-solid fa-chevron-right"></i></div>`;
-      } else {
-        menu += `<div class="menu-item"><i class="fa-brands fa-telegram" style="color:var(--accent);"></i> Уведомления о заказах включены</div>`;
+      // Кнопка остаётся всегда активной (не исчезает после включения) — каждое нажатие
+      // заново открывает приложение Telegram и переводит курьера в бот, который его
+      // определяет по привязанному chatId и присылает новые заказы туда.
+      menu += `<div class="menu-item" id="courierNotifyOptInBtn"><i class="fa-brands fa-telegram"${u.courierNotifyEnabled?' style="color:var(--accent);"':''}></i> Получать заказы <i class="fa-solid fa-chevron-right"></i></div>`;
+      if(u.courierNotifyEnabled){
+        menu += `<div class="menu-item" style="font-size:11.5px;color:var(--text-dim);padding-top:0;"><i class="fa-solid fa-check" style="color:var(--accent);"></i> Уведомления о заказах включены</div>`;
       }
     }
   }
@@ -6212,7 +6249,14 @@ function pollForCourierNotifyStart(){
 }
 function startCourierNotifyOptIn(){
   if(!regBotConfigured()){ toast('Telegram-бот пока не настроен','','fa-circle-exclamation'); return; }
-  if(State.user.telegramChatId){ finishCourierNotifyEnable(State.user.telegramChatId); return; }
+  if(State.user.telegramChatId){
+    // Чат уже привязан к аккаунту — бот и так определит курьера по chatId, но по
+    // требованию курьера при каждом нажатии всё равно открываем приложение Telegram,
+    // чтобы он попал в бот и увидел, что он на связи.
+    window.open(`https://t.me/${State.settings.regBotUsername}`, '_blank');
+    finishCourierNotifyEnable(State.user.telegramChatId);
+    return;
+  }
   CourierNotify.token = genNotifyToken();
   window.open(`https://t.me/${State.settings.regBotUsername}?start=${CourierNotify.token}`, '_blank');
   toast('Открываем Telegram…','Нажмите «Старт» в боте','fa-brands fa-telegram');
@@ -6244,7 +6288,8 @@ function checkCourierOrderInUrl(){
   if(!State.user || State.user.courierStatus!=='active' || State.user.courierBlocked) return;
   seenCourierOrderUrlIds.add(orderId);
   db.collection('orders').doc(orderId).get().then(doc=>{
-    if(!doc.exists || doc.data().courierId) return;
+    if(!doc.exists) return;
+    if(doc.data().courierId){ toast('Заказ уже забрали','Он больше недоступен для принятия','fa-circle-exclamation'); return; }
     openCourierAcceptModal(orderId, doc.data());
   }).catch(()=>{});
 }
@@ -6364,8 +6409,25 @@ $('#courierAcceptOrderSubmitBtn').addEventListener('click', async ()=>{
   closeOv('ovCourierAcceptOrder');
   if(!claimed){ toast('Заказ уже принят другим курьером','','fa-circle-exclamation'); renderCourierOrdersBody(); return; }
   toast('Заказ принят','Не забудьте забрать товар в магазине','fa-motorcycle');
+  notifyCouriersOrderTaken(orderId);
   renderCourierOrdersBody();
 });
+/* Если курьер не успел принять заказ и его забрал другой курьер — остальным активным
+   курьерам, которым он был предложен, приходит сообщение в бот «заказ уже забрали»,
+   и он пропадает из списка доступных заказов при следующем открытии. */
+async function notifyCouriersOrderTaken(orderId){
+  try{
+    if(!State.settings.regBotToken) return;
+    const snap = await db.collection('users').where('courierStatus','==','active').where('courierNotifyEnabled','==',true).get();
+    if(!snap || snap.empty) return;
+    const text = '🚫 Заказ уже забрали. Он больше недоступен для принятия.';
+    snap.docs.forEach(doc=>{
+      const u = doc.data();
+      if(doc.id===State.user.docId || u.courierBlocked || !u.telegramChatId) return;
+      sendTelegram(State.settings.regBotToken, u.telegramChatId, text).catch(()=>{});
+    });
+  }catch(e){ console.warn('notifyCouriersOrderTaken failed', e); }
+}
 
 /* --- Оценка / жалоба на курьера (клиент, после доставки) --- */
 let courierRateOrderId = null, courierRateSelectedStars = 5, courierRateCourierId = null;
@@ -6490,6 +6552,9 @@ $('#pmSaveBtn').addEventListener('click', async ()=>{
 
 /* ============ ORDERS ============ */
 const ORDER_STATUSES = ['Новый','Ожидает оплаты','Ожидает оформления рассрочки','Оплата проверяется','Оплачено','Собран','В пути','У курьера','Доставлен','Отменён'];
+/* Админ управляет только статусом оплаты (и отменой) — статус доставки (Собран/В пути/
+   У курьера/Доставлен) переводит только курьер, назначенный на заказ, из «Мои доставки». */
+const ADMIN_ORDER_STATUSES = ['Новый','Ожидает оплаты','Ожидает оформления рассрочки','Оплата проверяется','Оплачено','Отменён'];
 const DELIVERY_TRACK_STEPS = ['Собран','В пути','У курьера','Доставлен'];
 /* Визуальная шкала статуса доставки для клиента: 4 шага от "Собран" до "Доставлен".
    Ничего не рисуем для отменённых заказов и для тех, что ещё даже не оплачены — до
@@ -6584,8 +6649,11 @@ async function renderOrders(){
     const canCancel = State.user.role==='client' && CANCELLABLE_STATUSES.includes(o.status||'Новый');
     const canConfirmReceipt = State.user.role==='client' && o.status==='Доставлен' && !o.clientConfirmedReceipt;
     const canRateCourier = State.user.role==='client' && o.status==='Доставлен' && o.courierId && !o.courierRated;
-    const statusSelectHtml = (State.user.role==='seller'||State.user.role==='admin') ? `<select class="order-status-select" data-order-status="${d.id}">${ORDER_STATUSES.map(s=>`<option value="${s}" ${((o.status||'Новый')===s)?'selected':''}>${s}</option>`).join('')}</select>` : '';
-    const courierAdminHtml = (State.user.role==='admin' && o.status!=='Отменён') ? (
+    const statusOptions = State.user.role==='admin' ? ADMIN_ORDER_STATUSES : ORDER_STATUSES;
+    const statusSelectHtml = (State.user.role==='seller'||State.user.role==='admin') ? `<select class="order-status-select" data-order-status="${d.id}">${statusOptions.map(s=>`<option value="${s}" ${((o.status||'Новый')===s)?'selected':''}>${s}</option>`).join('')}</select>` : '';
+    // Кнопка «Нужен курьер» доступна админу только для заказов, где клиент выбрал
+    // получение «Доставка» при оформлении — самовывоз курьера не требует.
+    const courierAdminHtml = (State.user.role==='admin' && o.status!=='Отменён' && o.receiveMethod==='delivery') ? (
       o.courierId ? `<div style="font-size:11.5px;color:var(--text-dim);padding:6px 0;"><i class="fa-solid fa-motorcycle"></i> Курьер: ${o.courierName||''} · доставка ${fmt(o.courierPrice||0)}</div>`
       : o.needsCourier ? `<div style="font-size:11.5px;color:var(--text-dim);padding:6px 0;"><i class="fa-solid fa-motorcycle"></i> Ищем курьера…</div>`
       : `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-need-courier="${d.id}"><i class="fa-solid fa-motorcycle"></i> Нужен курьер</button>`
@@ -6603,6 +6671,7 @@ async function renderOrders(){
       ${o.paymentMethod==='installment' ? `<div style="font-size:11.5px;color:var(--violet);"><i class="fa-solid fa-calendar-days"></i> Рассрочка${o.installmentProvider?` (${o.installmentProvider})`:''}</div>` : ''}
       ${o.promoCode ? `<div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-tag"></i> Промокод ${o.promoCode}: -${fmt(o.promoDiscount||0)}</div>` : ''}
       ${o.bonusUsed ? `<div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-coins"></i> Списано бонусов: -${fmt(o.bonusUsed)}</div>` : ''}
+      ${o.receiveMethodLabel ? `<div style="font-size:11.5px;color:var(--text-dim);"><i class="fa-solid ${o.receiveMethod==='delivery'?'fa-motorcycle':'fa-store'}"></i> ${o.receiveMethodLabel}${o.receiveMethod==='delivery' && !o.courierId ? ' · сумма договорная' : ''}</div>` : ''}
       ${o.deliveryMethodLabel ? `<div style="font-size:11.5px;color:var(--text-dim);"><i class="fa-solid fa-box"></i> Способ доставки: ${o.deliveryMethodLabel}</div>` : ''}
       ${o.deliveryFee ? `<div style="font-size:11.5px;color:var(--text-dim);"><i class="fa-solid fa-truck"></i> Доставка: ${fmt(o.deliveryFee)}</div>` : ''}
       ${o.address?`<div style="font-size:12px;color:var(--text-dim);margin-top:2px;"><i class="fa-solid fa-location-dot"></i> ${o.address}</div>`:''}
