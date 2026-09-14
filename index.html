@@ -667,6 +667,10 @@ a{color:inherit; text-decoration:none;}
 .install-banner .txt span{font-size:11px; color:var(--text-dim);}
 
 .stars-input i{font-size:20px; color:var(--border); cursor:pointer;}
+.hz-btn-loading{opacity:.72; cursor:default;}
+.hz-btn-spinner{display:inline-block; width:14px; height:14px; margin-right:7px; border:2px solid rgba(255,255,255,.45); border-top-color:#fff; border-radius:50%; vertical-align:-2px; animation:hzBtnSpin .7s linear infinite;}
+.btn-outline.hz-btn-loading .hz-btn-spinner, .tiny-btn.hz-btn-loading .hz-btn-spinner{border-color:rgba(120,120,120,.35); border-top-color:var(--accent);}
+@keyframes hzBtnSpin{to{transform:rotate(360deg);}}
 .stars-input i.active{color:#FFA800;}
 
 .catalog-drawer{max-height:none; overflow-y:visible;}
@@ -1579,6 +1583,11 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div class="field"><label>Юзернейм бота</label><input id="regBotUsernameInput" placeholder="Например: HorizonVerifyBot"></div>
       <div class="field"><label>Ссылка на Telegram-канал <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label><input id="telegramChannelLinkInput" placeholder="https://t.me/mychannel"></div>
       <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Эту ссылку с кнопкой «Подписаться» бот присылает клиенту сразу после включения уведомлений.</p>
+      <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+      <div style="font-weight:800;font-size:15px;margin-bottom:2px;">Курьеры</div>
+      <p style="color:var(--text-dim);font-size:11.5px;margin:2px 0 10px;">Реквизиты, на которые курьеры еженедельно переводят налог, и процент от суммы, заработанной курьером за неделю.</p>
+      <div class="field"><label>Банковские реквизиты для оплаты налога курьерами</label><textarea id="courierBankReqInput" rows="2" placeholder="Например: Карта Т-Банк 2200 1234 5678 9012, Иванов И.И."></textarea></div>
+      <div class="field"><label>Налог, % от заработка за неделю</label><input id="courierTaxPercentInput" type="number" min="0" max="100" step="0.1" placeholder="1"></div>
     </div>
     <button class="btn btn-primary" id="botSettingsSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
   </div>
@@ -1690,6 +1699,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="admin-tab" data-tab="products">Товары</button>
       <button class="admin-tab" data-tab="reviews">Отзывы</button>
       <button class="admin-tab" data-tab="users">Пользователи</button>
+      <button class="admin-tab" data-tab="courier">Курьеры</button>
       <button class="admin-tab" data-tab="banners">Баннеры</button>
       <button class="admin-tab" data-tab="popupad">Реклама</button>
       <button class="admin-tab" data-tab="push">Push</button>
@@ -1851,6 +1861,92 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   </div>
 </div>
 
+<!-- COURIER: TERMS / INTRO -->
+<div class="overlay center" id="ovCourierTerms">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Работа с HORIZON <button class="close-x" data-close="ovCourierTerms"><i class="fa-solid fa-xmark"></i></button></div>
+    <div style="text-align:center;margin-bottom:12px;"><i class="fa-solid fa-motorcycle" style="font-size:38px;color:var(--violet);"></i></div>
+    <p style="font-weight:800;font-size:15px;text-align:center;margin:0 0 10px;">Нам нужен курьер-доставщик!</p>
+    <div style="font-size:13px;color:var(--text-dim);line-height:1.65;margin-bottom:16px;">
+      <b style="color:var(--text);">Условия работы:</b><br>
+      • График свободный — работаете, когда вам удобно<br>
+      • Когда появляется заказ, вы сами принимаете его в приложении<br>
+      • Забираете заказанный товар в магазине и доставляете покупателю<br>
+      • Цену за доставку назначаете сами<br>
+      • Каждые 7 дней вы оплачиваете компании HORIZON налог — 1% от суммы, заработанной за неделю
+    </div>
+    <button class="btn btn-primary" id="courierAcceptTermsBtn"><i class="fa-solid fa-check"></i> Принят</button>
+  </div>
+</div>
+
+<!-- COURIER: APPLICATION FORM -->
+<div class="overlay" id="ovCourierApply">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Анкета курьера <button class="close-x" data-close="ovCourierApply"><i class="fa-solid fa-xmark"></i></button></div>
+    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;margin-bottom:12px;">Условие: загрузите своё настоящее фото — не картинку и не чужое фото.</p>
+    <label class="photo-upload" for="courierPhotoInput"><i class="fa-solid fa-camera"></i><img id="courierPhotoPreview" style="display:none;"></label>
+    <input type="file" accept="image/*" id="courierPhotoInput" class="hidden">
+    <div class="field"><label>ФИО</label><input id="courierFio" placeholder="Иванов Иван Иванович"></div>
+    <div class="field"><label>Номер телефона</label><input id="courierPhone" placeholder="+7 900 123-45-67"></div>
+    <div class="field"><label>Пол</label>
+      <select id="courierGender"><option value="Мужской">Мужской</option><option value="Женский">Женский</option></select>
+    </div>
+    <div class="field"><label>Возраст</label><input id="courierAge" type="number" min="16" max="80" placeholder="25"></div>
+    <div class="field">
+      <label>Фото паспорта</label>
+      <label class="btn btn-outline" style="margin:0;"><i class="fa-solid fa-id-card"></i> Загрузить фото паспорта<input type="file" accept="image/*" class="hidden" id="courierPassportInput"></label>
+      <img id="courierPassportPreview" style="display:none;max-width:140px;border-radius:10px;margin-top:8px;">
+    </div>
+    <button class="btn btn-primary" id="courierApplySubmitBtn" style="margin-top:6px;"><i class="fa-solid fa-arrow-right"></i> Далее</button>
+  </div>
+</div>
+
+<!-- COURIER: WEEKLY TAX PAYMENT -->
+<div class="overlay center" id="ovCourierTax">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Оплата за неделю <button class="close-x" data-close="ovCourierTax"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="courierTaxBody"></div>
+  </div>
+</div>
+
+<!-- COURIER: RATE / COMPLAIN ABOUT COURIER (client side) -->
+<div class="overlay center" id="ovCourierRate">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Оценить курьера <button class="close-x" data-close="ovCourierRate"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="courierRateName" style="font-weight:700;font-size:14px;margin-bottom:12px;"></div>
+    <div class="stars-input" id="courierRateStarsInput" style="text-align:center;margin-bottom:14px;">
+      <i class="fa-solid fa-star" data-star="1"></i><i class="fa-solid fa-star" data-star="2"></i><i class="fa-solid fa-star" data-star="3"></i><i class="fa-solid fa-star" data-star="4"></i><i class="fa-solid fa-star" data-star="5"></i>
+    </div>
+    <div class="field"><label>Жалоба (необязательно)</label><textarea id="courierRateComplaint" rows="3" placeholder="Если что-то было не так — напишите здесь"></textarea></div>
+    <button class="btn btn-primary" id="courierRateSubmitBtn"><i class="fa-solid fa-check"></i> Отправить</button>
+  </div>
+</div>
+
+<!-- COURIER: ACCEPT ORDER (set ETA + price) -->
+<div class="overlay center" id="ovCourierAcceptOrder">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Принять заказ <button class="close-x" data-close="ovCourierAcceptOrder"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="courierAcceptOrderInfo" style="font-size:13px;color:var(--text-dim);margin-bottom:12px;"></div>
+    <div class="field"><label>Через сколько минут доставите товар?</label><input id="courierEtaInput" type="number" min="1" placeholder="40"></div>
+    <div class="field"><label>Ваша цена за доставку</label><input id="courierPriceInput" type="number" min="0" placeholder="150"></div>
+    <button class="btn btn-primary" id="courierAcceptOrderSubmitBtn"><i class="fa-solid fa-check"></i> Принять заказ</button>
+  </div>
+</div>
+
+<!-- COURIER: ORDERS (available to accept + my deliveries) -->
+<div class="overlay page-overlay" id="ovCourierOrders">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Заказы курьера <button class="close-x" data-close="ovCourierOrders"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="admin-tabs" id="courierOrdersTabs" style="margin-bottom:12px;">
+      <button class="admin-tab active" data-couriertab="available">Доступные</button>
+      <button class="admin-tab" data-couriertab="mine">Мои доставки</button>
+    </div>
+    <div id="courierOrdersBody"><div class="spinner"></div></div>
+  </div>
+</div>
+
 <!-- SELLER SHOP -->
 <div class="overlay page-overlay" id="ovSellerShop">
   <div class="sheet">
@@ -1996,6 +2092,86 @@ function startApp(){
 /* ============ FIREBASE INIT ============ */
 const db = firebase.firestore();
 const storage = firebase.storage();
+
+/* ============ ГЛОБАЛЬНАЯ АНИМАЦИЯ ЗАГРУЗКИ НА КНОПКАХ ============
+   Чтобы при слабом интернете кнопка не выглядела "зависшей": перехватываем реальные
+   сетевые вызовы (Firestore и fetch, которым отправляются сообщения в Telegram), и
+   на время их выполнения показываем спиннер прямо на нажатой кнопке. Работает
+   автоматически для всех кнопок сайта — ничего не нужно менять в самих обработчиках. */
+(function instrumentNetworkForButtonLoading(){
+  let fsPending = 0, fetchPending = 0;
+  function wrap(obj, method){
+    if(!obj || typeof obj[method] !== 'function') return;
+    const orig = obj[method];
+    obj[method] = function(...args){
+      fsPending++;
+      let ret;
+      try{ ret = orig.apply(this, args); }
+      catch(e){ fsPending = Math.max(0, fsPending-1); throw e; }
+      if(ret && typeof ret.then === 'function'){
+        ret.then(()=>{ fsPending = Math.max(0, fsPending-1); }, ()=>{ fsPending = Math.max(0, fsPending-1); });
+      } else {
+        fsPending = Math.max(0, fsPending-1);
+      }
+      return ret;
+    };
+  }
+  try{
+    const fs = firebase.firestore;
+    wrap(fs.DocumentReference && fs.DocumentReference.prototype, 'get');
+    wrap(fs.DocumentReference && fs.DocumentReference.prototype, 'set');
+    wrap(fs.DocumentReference && fs.DocumentReference.prototype, 'update');
+    wrap(fs.DocumentReference && fs.DocumentReference.prototype, 'delete');
+    wrap(fs.Query && fs.Query.prototype, 'get'); // CollectionReference наследует get() от Query
+    wrap(fs.CollectionReference && fs.CollectionReference.prototype, 'add');
+    wrap(fs.WriteBatch && fs.WriteBatch.prototype, 'commit');
+    wrap(fs.Firestore && fs.Firestore.prototype, 'runTransaction');
+  }catch(e){ console.warn('button-loading: firestore instrumentation failed', e); }
+  try{
+    const origFetch = window.fetch;
+    window.fetch = function(...args){
+      fetchPending++;
+      const p = origFetch.apply(this, args);
+      p.then(()=>{ fetchPending = Math.max(0, fetchPending-1); }, ()=>{ fetchPending = Math.max(0, fetchPending-1); });
+      return p;
+    };
+  }catch(e){ console.warn('button-loading: fetch instrumentation failed', e); }
+  window.__hzGetPendingOps = ()=> fsPending + fetchPending;
+})();
+(function setupGlobalButtonLoadingSpinner(){
+  const SELECTOR = '.btn, .tiny-btn';
+  const EXCLUDE_SELECTOR = '[data-close], .admin-tab, .theme-switch';
+  function showSpinner(btn){
+    if(btn.classList.contains('hz-btn-loading')) return;
+    btn.dataset.hzOrigHtml = btn.innerHTML;
+    btn.classList.add('hz-btn-loading');
+    if('disabled' in btn) btn.disabled = true;
+    btn.innerHTML = '<span class="hz-btn-spinner"></span>' + btn.dataset.hzOrigHtml;
+  }
+  function hideSpinner(btn){
+    if(!btn.classList.contains('hz-btn-loading')) return;
+    btn.classList.remove('hz-btn-loading');
+    if('disabled' in btn) btn.disabled = false;
+    if(btn.dataset.hzOrigHtml!=null){ btn.innerHTML = btn.dataset.hzOrigHtml; delete btn.dataset.hzOrigHtml; }
+  }
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest(SELECTOR);
+    if(!btn || btn.disabled) return;
+    if(btn.closest(EXCLUDE_SELECTOR)) return;
+    if(btn.querySelector('input')) return; // кнопки-загрузчики файлов (своё фото, паспорт и т.п.) не трогаем
+    const baseline = window.__hzGetPendingOps ? window.__hzGetPendingOps() : 0;
+    let hadNetwork = false, ticks = 0;
+    showSpinner(btn);
+    const iv = setInterval(()=>{
+      ticks++;
+      const cur = window.__hzGetPendingOps ? window.__hzGetPendingOps() : 0;
+      if(cur > baseline) hadNetwork = true;
+      if(hadNetwork && cur <= baseline){ clearInterval(iv); hideSpinner(btn); }
+      else if(!hadNetwork && ticks >= 4){ clearInterval(iv); hideSpinner(btn); } // ~320мс без сети — кнопка не сетевая
+      else if(ticks >= 150){ clearInterval(iv); hideSpinner(btn); } // защита от вечного спиннера (~12с)
+    }, 80);
+  }, true);
+})();
 
 /* ============ ОФЛАЙН-КЭШ FIRESTORE ============
    Включает локальное (IndexedDB) хранение последних загруженных данных — товары, каталоги и т.д.
@@ -5748,7 +5924,8 @@ function renderProfile(){
     return;
   }
   const u = State.user;
-  const roleLabel = u.role==='admin' ? 'Администратор' : u.role==='seller' ? 'Продавец' : 'Покупатель';
+  checkCourierWeekRollover(u);
+  const roleLabel = u.role==='admin' ? 'Администратор' : u.role==='seller' ? 'Продавец' : (u.courierStatus==='active' ? 'Курьер' : 'Покупатель');
   let menu = `<div class="menu-item" id="openAboutMenuBtn"><i class="fa-solid fa-circle-info"></i> О нас <i class="fa-solid fa-chevron-right"></i></div>`;
   menu += `<div class="menu-item"><i class="fa-solid fa-circle-half-stroke"></i> Тёмная тема <button class="theme-switch" id="themeSwitch" style="margin-left:auto;"><span class="knob"><i class="fa-solid fa-moon"></i></span></button></div>`;
   const pushOn = ('Notification' in window) && Notification.permission === 'granted';
@@ -5757,6 +5934,18 @@ function renderProfile(){
   menu += `<div class="menu-item" data-open="ovEditProfile"><i class="fa-solid fa-pen"></i> Редактировать профиль <i class="fa-solid fa-chevron-right"></i></div>`;
   if(u.role==='client' || u.role==='seller'){
     menu += `<div class="menu-item" id="openOrdersBtn"><i class="fa-solid fa-receipt"></i> История заказов <i class="fa-solid fa-chevron-right"></i></div>`;
+  }
+  if(u.role==='client'){
+    if(!u.courierStatus || u.courierStatus==='rejected'){
+      menu += `<div class="menu-item" id="becomeCourierBtn"><i class="fa-solid fa-motorcycle"></i> Стать курьером <i class="fa-solid fa-chevron-right"></i></div>`;
+    } else if(u.courierStatus==='active'){
+      menu += `<div class="menu-item" id="openCourierOrdersBtn"><i class="fa-solid fa-boxes-packing"></i> Заказы курьера <i class="fa-solid fa-chevron-right"></i></div>`;
+      if(!u.courierNotifyEnabled){
+        menu += `<div class="menu-item" id="courierNotifyOptInBtn"><i class="fa-brands fa-telegram"></i> Получать уведомления о заказах <i class="fa-solid fa-chevron-right"></i></div>`;
+      } else {
+        menu += `<div class="menu-item"><i class="fa-brands fa-telegram" style="color:var(--accent);"></i> Уведомления о заказах включены</div>`;
+      }
+    }
   }
   if(u.role==='seller'){
     menu += `<div class="menu-item" id="openSellerAnalyticsBtn"><i class="fa-solid fa-chart-line"></i> Аналитика <i class="fa-solid fa-chevron-right"></i></div>`;
@@ -5783,10 +5972,34 @@ function renderProfile(){
         <button class="btn btn-outline" style="margin-top:6px;padding:8px;font-size:12px;" id="shareReferralBtn"><i class="fa-solid fa-user-plus"></i> Поделиться кодом</button>
       </div>
     </div>` : '';
+  let courierBannerHtml = '';
+  if(u.role==='client' && u.courierStatus==='pending'){
+    courierBannerHtml = `<div style="background:var(--surface-2);border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:4px;"><i class="fa-solid fa-clock"></i> Заявка на курьера рассматривается</div>
+      <div style="font-size:12px;color:var(--text-dim);">Ваш запрос проверяется, мы ответим вам в ближайшее время, пожалуйста подождите.</div>
+    </div>`;
+  } else if(u.role==='client' && u.courierStatus==='active' && u.courierBlocked){
+    courierBannerHtml = `<div style="background:rgba(220,53,69,.1);border:1.5px solid var(--danger);border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div style="font-weight:800;font-size:13.5px;color:var(--danger);margin-bottom:4px;"><i class="fa-solid fa-lock"></i> Ваш аккаунт временно заблокирован</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">Оплатите налог, чтобы восстановить доступ к заказам.</div>
+      <button class="btn btn-primary" id="courierUnblockBtn" style="padding:9px;font-size:13px;width:100%;"><i class="fa-solid fa-unlock"></i> Разблокировать</button>
+    </div>`;
+  } else if(u.role==='client' && u.courierStatus==='active' && u.courierTaxStatus==='due'){
+    courierBannerHtml = `<div style="background:var(--surface-2);border:1.5px solid var(--accent);border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:4px;"><i class="fa-solid fa-coins"></i> Оплата за неделю</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">Заработано за неделю: ${fmt(u.courierTaxEarned||0)} · налог к оплате: <b style="color:var(--text);">${fmt(u.courierTaxAmount||0)}</b></div>
+      <button class="btn btn-primary" id="courierPayTaxBtn" style="padding:9px;font-size:13px;width:100%;"><i class="fa-solid fa-arrow-right"></i> Оплатить</button>
+    </div>`;
+  } else if(u.role==='client' && u.courierStatus==='active' && u.courierTaxStatus==='pending_review'){
+    courierBannerHtml = `<div style="background:var(--surface-2);border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div style="font-weight:800;font-size:13.5px;margin-bottom:4px;"><i class="fa-solid fa-clock"></i> Оплата проверяется</div>
+      <div style="font-size:12px;color:var(--text-dim);">Мы получили ваш чек, администратор скоро подтвердит оплату.</div>
+    </div>`;
+  }
   body.innerHTML = `<div class="profile-head">
     ${u.photo?`<img class="profile-avatar" src="${u.photo}">`:`<div class="profile-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--grad-main);color:#fff;font-weight:800;font-size:22px;">${(u.fio||'A')[0]}</div>`}
     <div><div class="profile-name">${u.fio||'Пользователь'}</div><div class="profile-role">${roleLabel}</div></div>
-  </div>${bioHtml}${loyaltyHtml}${menu}`;
+  </div>${bioHtml}${loyaltyHtml}${courierBannerHtml}${menu}`;
   $('#shareReferralBtn')?.addEventListener('click', ()=>shareReferralLink());
   $('#logoutBtn')?.addEventListener('click', logout);
   $('#openAboutMenuBtn')?.addEventListener('click', ()=>{ renderAbout(); openOv('ovAbout'); });
@@ -5804,6 +6017,8 @@ function renderProfile(){
       $('#regBotTokenInput').value = State.settings.regBotToken||'';
       $('#regBotUsernameInput').value = State.settings.regBotUsername||'';
       $('#telegramChannelLinkInput').value = State.settings.telegramChannelLink||'';
+      $('#courierBankReqInput').value = State.settings.courierBankRequisites||'';
+      $('#courierTaxPercentInput').value = State.settings.courierTaxPercent!=null ? State.settings.courierTaxPercent : 1;
     }
     openOv('ovBotSettings');
   });
@@ -5811,6 +6026,11 @@ function renderProfile(){
   $('#openSellerAnalyticsBtn')?.addEventListener('click', ()=>{ openOv('ovSellerAnalytics'); renderSellerAnalytics(); });
   $('#openSellerCrmBtn')?.addEventListener('click', ()=>{ openOv('ovSellerCRM'); renderSellerCRM(); });
   $('#openPaymentMethodsBtn')?.addEventListener('click', openPaymentMethodsSheet);
+  $('#becomeCourierBtn')?.addEventListener('click', ()=> openOv('ovCourierTerms'));
+  $('#courierUnblockBtn')?.addEventListener('click', ()=> openCourierTaxSheet());
+  $('#courierPayTaxBtn')?.addEventListener('click', ()=> openCourierTaxSheet());
+  $('#openCourierOrdersBtn')?.addEventListener('click', ()=> openCourierOrdersOverlay());
+  $('#courierNotifyOptInBtn')?.addEventListener('click', ()=> startCourierNotifyOptIn());
 }
 $('#botSettingsSaveBtn').addEventListener('click', async ()=>{
   const token = $('#botTokenInput').value.trim(), chatId = $('#botChatIdInput').value.trim();
@@ -5821,16 +6041,366 @@ $('#botSettingsSaveBtn').addEventListener('click', async ()=>{
     const regBotToken = $('#regBotTokenInput').value.trim();
     const regBotUsername = $('#regBotUsernameInput').value.trim().replace(/^@/,'');
     const telegramChannelLink = $('#telegramChannelLinkInput').value.trim();
-    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsBotToken, productsChannelId, productsBotChatId, regBotToken, regBotUsername, telegramChannelLink}, {merge:true});
+    const courierBankRequisites = $('#courierBankReqInput').value.trim();
+    const courierTaxPercent = Number($('#courierTaxPercentInput').value)||1;
+    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsBotToken, productsChannelId, productsBotChatId, regBotToken, regBotUsername, telegramChannelLink, courierBankRequisites, courierTaxPercent}, {merge:true});
     State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId;
     State.settings.productsBotToken = productsBotToken; State.settings.productsChannelId = productsChannelId; State.settings.productsBotChatId = productsBotChatId;
     State.settings.regBotToken = regBotToken; State.settings.regBotUsername = regBotUsername; State.settings.telegramChannelLink = telegramChannelLink;
+    State.settings.courierBankRequisites = courierBankRequisites; State.settings.courierTaxPercent = courierTaxPercent;
   } else {
     const chatAutoReply = $('#chatAutoReplyInput').value.trim();
     await db.collection('users').doc(State.user.docId).update({botToken:token, botChatId:chatId, chatAutoReply});
     State.user.botToken = token; State.user.botChatId = chatId; State.user.chatAutoReply = chatAutoReply; saveLocalUser(State.user);
   }
   closeOv('ovBotSettings'); toast('Настройки бота сохранены','','fa-circle-check');
+});
+
+/* ============ КУРЬЕРЫ (COURIER) ============ */
+function getCourierOrderUrl(orderId){
+  const url = new URL(window.location.href);
+  url.search=''; url.hash='';
+  url.searchParams.set('courierOrder', orderId);
+  return url.toString();
+}
+/* Системное сообщение "от администратора" в чат [пользователь ↔ admin] — использует тот же
+   псевдо-чат ('admin'), что и обычные заказы без продавца, поэтому открывается стандартным
+   openChatThread('admin', ...) и туда же попадает автоответ на присланное фото (чек). */
+function sendAdminChatMessage(userId, text, imageData){
+  if(!userId) return;
+  const chatDocId = [userId, 'admin'].sort().join('_');
+  db.collection('chats').doc(chatDocId).set({
+    clientId: userId, sellerId: 'admin', updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    lastMessageText: text||'', lastMessageHasImage: !!imageData, lastMessageSenderId: 'admin', lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge:true}).catch(()=>{});
+  const msgData = { senderId:'admin', text: text||'', read:false, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+  if(imageData) msgData.image = imageData;
+  db.collection('chats').doc(chatDocId).collection('messages').add(msgData).catch(()=>{});
+}
+function courierWeeklyTaxPercent(){ return State.settings.courierTaxPercent!=null ? State.settings.courierTaxPercent : 1; }
+/* Раз в 7 дней: фиксируем налог за прошедшую неделю (1% от заработанного), и если налог за
+   ПРЕДЫДУЩУЮ неделю так и не был подтверждён администратором — блокируем аккаунт курьера. */
+function checkCourierWeekRollover(u){
+  if(!u || u.role!=='client' || u.courierStatus!=='active' || !u.docId) return;
+  const WEEK = 7*24*60*60*1000;
+  if(!u.courierWeekStart){
+    const upd = {courierWeekStart: Date.now(), courierEarnedThisWeek: 0};
+    db.collection('users').doc(u.docId).update(upd).catch(()=>{});
+    Object.assign(u, upd);
+    return;
+  }
+  if(Date.now() - u.courierWeekStart < WEEK) return;
+  const earned = u.courierEarnedThisWeek || 0;
+  const updates = { courierWeekStart: Date.now(), courierEarnedThisWeek: 0 };
+  if(u.courierTaxStatus==='due' || u.courierTaxStatus==='pending_review'){
+    updates.courierBlocked = true; updates.courierBlockReason = 'unpaid_tax';
+  }
+  if(earned > 0){
+    updates.courierTaxStatus = 'due';
+    updates.courierTaxAmount = Math.round(earned * courierWeeklyTaxPercent() / 100);
+    updates.courierTaxEarned = earned;
+  } else {
+    updates.courierTaxStatus = 'none'; updates.courierTaxAmount = 0;
+  }
+  db.collection('users').doc(u.docId).update(updates).catch(()=>{});
+  Object.assign(u, updates); saveLocalUser(u);
+}
+
+/* --- Заявка на курьера: условия → анкета → отправка администратору --- */
+let courierPhotoData = '', courierPassportData = '';
+$('#courierAcceptTermsBtn').addEventListener('click', ()=>{
+  closeOv('ovCourierTerms');
+  courierPhotoData=''; courierPassportData='';
+  $('#courierPhotoPreview').style.display='none';
+  $('#courierPassportPreview').style.display='none';
+  $('#courierFio').value=''; $('#courierPhone').value=''; $('#courierAge').value=''; $('#courierGender').value='Мужской';
+  openOv('ovCourierApply');
+});
+$('#courierPhotoInput').addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  courierPhotoData = await compressImage(f, 500, 0.75);
+  const prev = $('#courierPhotoPreview'); prev.src = courierPhotoData; prev.style.display='block';
+});
+$('#courierPassportInput').addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  courierPassportData = await compressImage(f, 1000, 0.8);
+  const prev = $('#courierPassportPreview'); prev.src = courierPassportData; prev.style.display='block';
+});
+$('#courierApplySubmitBtn').addEventListener('click', async ()=>{
+  const fio = $('#courierFio').value.trim();
+  const phone = $('#courierPhone').value.trim();
+  const gender = $('#courierGender').value;
+  const age = Number($('#courierAge').value);
+  if(!courierPhotoData){ toast('Загрузите своё фото','','fa-circle-exclamation'); return; }
+  if(!fio || !phone || !age){ toast('Заполните все поля анкеты','','fa-circle-exclamation'); return; }
+  if(!courierPassportData){ toast('Загрузите фото паспорта','','fa-circle-exclamation'); return; }
+  const application = { photo: courierPhotoData, fio, phone, gender, age, passportPhoto: courierPassportData, appliedAt: Date.now() };
+  try{
+    await db.collection('users').doc(State.user.docId).update({ courierApplication: application, courierStatus: 'pending' });
+    State.user.courierApplication = application; State.user.courierStatus = 'pending'; saveLocalUser(State.user);
+  }catch(e){ toast('Не удалось отправить заявку','','fa-circle-exclamation'); return; }
+  closeOv('ovCourierApply');
+  toast('Ваш запрос проверяется','Мы ответим вам в ближайшее время','fa-clock');
+  sendAdminChatMessage(State.user.docId, 'Ваш запрос проверяется. Мы ответим вам в ближайшее время, пожалуйста подождите.');
+  if(State.settings.adminBotToken && State.settings.adminBotChatId){
+    const caption = `🛵 <b>Новая заявка на курьера</b>\nФИО: ${escapeHtmlTg(fio)}\nТелефон: ${escapeHtmlTg(phone)}\nПол: ${escapeHtmlTg(gender)}\nВозраст: ${age}`;
+    sendTelegramPhoto(State.settings.adminBotToken, State.settings.adminBotChatId, courierPassportData, caption).catch(()=>{});
+  }
+  renderProfile();
+});
+
+/* --- Еженедельная оплата налога --- */
+function openCourierTaxSheet(){
+  const u = State.user;
+  const amount = u.courierTaxAmount||0;
+  const req = State.settings.courierBankRequisites || 'Реквизиты пока не указаны администратором';
+  $('#courierTaxBody').innerHTML = `
+    <p style="font-size:13px;color:var(--text-dim);margin:0 0 10px;">${u.courierBlocked ? 'Оплатите налог, чтобы восстановить доступ к заказам.' : 'Еженедельная оплата налога HORIZON.'}</p>
+    <div style="background:var(--surface-2);border-radius:12px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--text-dim);">Заработано за неделю</div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:8px;">${fmt(u.courierTaxEarned||0)}</div>
+      <div style="font-size:12px;color:var(--text-dim);">К оплате (${courierWeeklyTaxPercent()}%)</div>
+      <div style="font-weight:800;font-size:20px;color:var(--accent);">${fmt(amount)}</div>
+    </div>
+    <div class="field"><label>Реквизиты для перевода</label><textarea rows="2" readonly style="font-size:13px;">${req}</textarea></div>
+    <button class="btn btn-primary" id="courierMarkPaidBtn" style="width:100%;"><i class="fa-solid fa-paper-plane"></i> Я оплатил</button>`;
+  openOv('ovCourierTax');
+  $('#courierMarkPaidBtn').addEventListener('click', async ()=>{
+    try{ await db.collection('users').doc(u.docId).update({courierTaxStatus:'pending_review'}); }catch(e){}
+    u.courierTaxStatus = 'pending_review'; saveLocalUser(u);
+    closeOv('ovCourierTax');
+    sendAdminChatMessage(u.docId, `Пользователь сообщает об оплате налога за неделю (${fmt(amount)}). Пожалуйста, отправьте чек об оплате в этот чат.`);
+    openChatThread('admin', 'Администратор');
+    toast('Ваш платёж проверяется','Мы ответим в течение 15 минут','fa-clock');
+    renderProfile();
+  });
+}
+
+/* --- Включение уведомлений о заказах через Telegram-бот (тот же бот, что регистрация) --- */
+const CourierNotify = { token: null, pollTimer: null };
+async function finishCourierNotifyEnable(chatId){
+  await sendTelegram(State.settings.regBotToken, chatId, '✅ Уведомления о заказах включены! Когда появится заказ, вам придёт сообщение — принимайте его в приложении.');
+  if(State.user){
+    db.collection('users').doc(State.user.docId).update({telegramChatId: chatId, telegramNotifyEnabled:true, courierNotifyEnabled:true}).catch(()=>{});
+    State.user.telegramChatId = chatId; State.user.telegramNotifyEnabled = true; State.user.courierNotifyEnabled = true; saveLocalUser(State.user);
+  }
+  toast('Уведомления включены','Когда появится заказ, вам придёт сообщение','fa-circle-check');
+  renderProfile();
+}
+function pollForCourierNotifyStart(){
+  clearInterval(CourierNotify.pollTimer);
+  const myToken = CourierNotify.token;
+  CourierNotify.pollTimer = setInterval(async ()=>{
+    if(CourierNotify.token !== myToken){ clearInterval(CourierNotify.pollTimer); return; }
+    try{
+      const offset = Number(localStorage.getItem('hz_reg_bot_offset')||0);
+      const res = await fetch(`https://api.telegram.org/bot${State.settings.regBotToken}/getUpdates?offset=${offset}&timeout=0`);
+      const data = await res.json();
+      if(!data.ok || !data.result) return;
+      let maxId = offset;
+      for(const upd of data.result){
+        if(upd.update_id + 1 > maxId) maxId = upd.update_id + 1;
+        const msg = upd.message;
+        if(msg && msg.text && msg.text.trim() === ('/start ' + myToken) && CourierNotify.token===myToken){
+          clearInterval(CourierNotify.pollTimer);
+          await finishCourierNotifyEnable(msg.chat.id);
+        }
+      }
+      if(maxId > offset) localStorage.setItem('hz_reg_bot_offset', String(maxId));
+    }catch(e){}
+  }, 2000);
+}
+function startCourierNotifyOptIn(){
+  if(!regBotConfigured()){ toast('Telegram-бот пока не настроен','','fa-circle-exclamation'); return; }
+  if(State.user.telegramChatId){ finishCourierNotifyEnable(State.user.telegramChatId); return; }
+  CourierNotify.token = genNotifyToken();
+  window.open(`https://t.me/${State.settings.regBotUsername}?start=${CourierNotify.token}`, '_blank');
+  toast('Открываем Telegram…','Нажмите «Старт» в боте','fa-brands fa-telegram');
+  pollForCourierNotifyStart();
+}
+
+/* --- Оповещение активных курьеров о новом заказе, который нужно доставить --- */
+async function notifyCouriersAboutOrder(orderId, o){
+  try{
+    if(!State.settings.regBotToken) return;
+    const snap = await db.collection('users').where('courierStatus','==','active').where('courierNotifyEnabled','==',true).get();
+    if(!snap || snap.empty) return;
+    const itemsText = (o.items||[]).map(i=>`${i.name} x${i.qty}`).join(', ');
+    const text = `🛵 <b>Новый заказ</b>\nТовар: ${escapeHtmlTg(itemsText)}\nКлиент: ${escapeHtmlTg(o.clientName||'')}\nТелефон: ${escapeHtmlTg(o.clientPhone||'')}\nАдрес: ${escapeHtmlTg(o.address||'—')}`;
+    const url = getCourierOrderUrl(orderId);
+    snap.docs.forEach(doc=>{
+      const u = doc.data();
+      if(u.courierBlocked || !u.telegramChatId) return;
+      sendTelegramWithButton(State.settings.regBotToken, u.telegramChatId, text, '✅ Принять заказ', url).catch(()=>{});
+    });
+  }catch(e){ console.warn('notifyCouriersAboutOrder failed', e); }
+}
+/* Открытие приложения по ссылке из Telegram-уведомления курьеру — сразу открываем форму приёма заказа. */
+const seenCourierOrderUrlIds = new Set();
+function checkCourierOrderInUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('courierOrder');
+  if(!orderId || seenCourierOrderUrlIds.has(orderId)) return;
+  if(!State.user || State.user.courierStatus!=='active' || State.user.courierBlocked) return;
+  seenCourierOrderUrlIds.add(orderId);
+  db.collection('orders').doc(orderId).get().then(doc=>{
+    if(!doc.exists || doc.data().courierId) return;
+    openCourierAcceptModal(orderId, doc.data());
+  }).catch(()=>{});
+}
+
+/* --- Список заказов курьера: доступные к принятию + свои доставки --- */
+let courierOrdersActiveTab = 'available';
+function openCourierOrdersOverlay(){
+  courierOrdersActiveTab = 'available';
+  $('#courierOrdersTabs').querySelectorAll('.admin-tab').forEach(t=>t.classList.toggle('active', t.getAttribute('data-couriertab')==='available'));
+  openOv('ovCourierOrders');
+  renderCourierOrdersBody();
+}
+$('#courierOrdersTabs').addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-couriertab]');
+  if(!btn) return;
+  courierOrdersActiveTab = btn.getAttribute('data-couriertab');
+  $('#courierOrdersTabs').querySelectorAll('.admin-tab').forEach(t=>t.classList.toggle('active', t===btn));
+  renderCourierOrdersBody();
+});
+async function renderCourierOrdersBody(){
+  const body = $('#courierOrdersBody');
+  body.innerHTML = '<div class="spinner"></div>';
+  if(courierOrdersActiveTab==='available'){
+    const snap = await db.collection('orders').where('needsCourier','==',true).get().catch(()=>null);
+    const list = snap ? snap.docs.filter(d=>!d.data().courierId && d.data().status!=='Отменён' && d.data().status!=='Доставлен') : [];
+    if(!list.length){ body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>Пока нет доступных заказов</div></div>'; return; }
+    body.innerHTML = list.map(d=>{
+      const o = d.data();
+      return `<div style="border:1.5px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--text-dim);">${(o.items||[]).map(i=>i.name+' x'+i.qty).join(', ')}</div>
+        <div style="font-weight:700;font-size:13.5px;margin-top:4px;">${o.clientName||''} · ${o.clientPhone||''}</div>
+        ${o.address?`<div style="font-size:12px;color:var(--text-dim);margin-top:2px;"><i class="fa-solid fa-location-dot"></i> ${o.address}</div>`:''}
+        <button class="btn btn-primary" style="margin-top:10px;" data-courier-accept="${d.id}"><i class="fa-solid fa-check"></i> Принять заказ</button>
+      </div>`;
+    }).join('');
+    body.querySelectorAll('[data-courier-accept]').forEach(btn=>btn.addEventListener('click', ()=>{
+      const orderId = btn.getAttribute('data-courier-accept');
+      const doc = list.find(d=>d.id===orderId);
+      if(doc) openCourierAcceptModal(orderId, doc.data());
+    }));
+  } else {
+    const snap = await db.collection('orders').where('courierId','==',State.user.docId).get().catch(()=>null);
+    const list = snap ? snap.docs.slice().sort((a,b)=>{
+      const ta=a.data().createdAt?a.data().createdAt.toMillis():0, tb=b.data().createdAt?b.data().createdAt.toMillis():0; return tb-ta;
+    }) : [];
+    if(!list.length){ body.innerHTML = '<div class="empty-state"><i class="fa-solid fa-boxes-packing"></i><div>У вас пока нет доставок</div></div>'; return; }
+    body.innerHTML = list.map(d=>{
+      const o = d.data();
+      const pickedUp = o.status==='У курьера' || o.status==='Доставлен';
+      const delivered = o.status==='Доставлен';
+      return `<div style="border:1.5px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;">
+        <div class="row"><b style="font-size:13.5px;">${o.clientName||''}</b><span class="order-status">${o.status||'Новый'}</span></div>
+        <div style="font-size:12px;color:var(--text-dim);">${(o.items||[]).map(i=>i.name+' x'+i.qty).join(', ')}</div>
+        ${o.address?`<div style="font-size:12px;color:var(--text-dim);margin-top:2px;"><i class="fa-solid fa-location-dot"></i> ${o.address}</div>`:''}
+        <div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Ваша цена доставки: <b>${fmt(o.courierPrice||0)}</b></div>
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          ${!pickedUp?`<button class="btn btn-primary" style="padding:9px;font-size:12.5px;" data-courier-pickedup="${d.id}"><i class="fa-solid fa-motorcycle"></i> Забрал товар — в пути</button>`:''}
+          ${pickedUp && !delivered?`<button class="btn btn-primary" style="padding:9px;font-size:12.5px;" data-courier-delivered="${d.id}"><i class="fa-solid fa-box-open"></i> Доставлено</button>`:''}
+          ${delivered?`<div style="font-size:12.5px;color:var(--success);font-weight:700;"><i class="fa-solid fa-check"></i> Доставлен</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    body.querySelectorAll('[data-courier-pickedup]').forEach(btn=>btn.addEventListener('click', async ()=>{
+      await db.collection('orders').doc(btn.getAttribute('data-courier-pickedup')).update({status:'У курьера'}).catch(()=>{});
+      toast('Статус обновлён: товар в пути','','fa-circle-check');
+      renderCourierOrdersBody();
+    }));
+    body.querySelectorAll('[data-courier-delivered]').forEach(btn=>btn.addEventListener('click', async ()=>{
+      const orderId = btn.getAttribute('data-courier-delivered');
+      const doc = list.find(dd=>dd.id===orderId);
+      const o = doc ? doc.data() : {};
+      const price = o.courierPrice||0;
+      await db.collection('orders').doc(orderId).update({status:'Доставлен'}).catch(()=>{});
+      await db.collection('users').doc(State.user.docId).update({
+        courierOrdersCount: firebase.firestore.FieldValue.increment(1),
+        courierTotalEarned: firebase.firestore.FieldValue.increment(price),
+        courierEarnedThisWeek: firebase.firestore.FieldValue.increment(price)
+      }).catch(()=>{});
+      State.user.courierOrdersCount = (State.user.courierOrdersCount||0)+1;
+      State.user.courierTotalEarned = (State.user.courierTotalEarned||0)+price;
+      State.user.courierEarnedThisWeek = (State.user.courierEarnedThisWeek||0)+price;
+      saveLocalUser(State.user);
+      toast('Заказ доставлен','','fa-circle-check');
+      renderCourierOrdersBody();
+    }));
+  }
+}
+
+/* --- Приём конкретного заказа курьером: свои время и цена доставки --- */
+let courierAcceptOrderId = null;
+function openCourierAcceptModal(orderId, o){
+  courierAcceptOrderId = orderId;
+  $('#courierAcceptOrderInfo').innerHTML = `<b>${(o.items||[]).map(i=>i.name+' x'+i.qty).join(', ')}</b><br>${o.clientName||''} · ${o.clientPhone||''}${o.address?'<br>'+o.address:''}`;
+  $('#courierEtaInput').value=''; $('#courierPriceInput').value='';
+  openOv('ovCourierAcceptOrder');
+}
+$('#courierAcceptOrderSubmitBtn').addEventListener('click', async ()=>{
+  const eta = Number($('#courierEtaInput').value);
+  const price = Number($('#courierPriceInput').value);
+  if(!eta || !price){ toast('Укажите время и цену доставки','','fa-circle-exclamation'); return; }
+  const orderId = courierAcceptOrderId;
+  if(!orderId) return;
+  let claimed = false;
+  try{
+    claimed = await db.runTransaction(async (tx)=>{
+      const ref = db.collection('orders').doc(orderId);
+      const snap = await tx.get(ref);
+      if(!snap.exists || snap.data().courierId) return false;
+      tx.update(ref, {
+        courierId: State.user.docId, courierName: State.user.fio||'', courierPhoto: State.user.photo||'',
+        courierPhone: (State.user.courierApplication&&State.user.courierApplication.phone)||State.user.fullPhone||'',
+        courierPrice: price, courierEtaMinutes: eta, courierAcceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      return true;
+    });
+  }catch(e){ toast('Не удалось принять заказ','','fa-circle-exclamation'); return; }
+  closeOv('ovCourierAcceptOrder');
+  if(!claimed){ toast('Заказ уже принят другим курьером','','fa-circle-exclamation'); renderCourierOrdersBody(); return; }
+  toast('Заказ принят','Не забудьте забрать товар в магазине','fa-motorcycle');
+  renderCourierOrdersBody();
+});
+
+/* --- Оценка / жалоба на курьера (клиент, после доставки) --- */
+let courierRateOrderId = null, courierRateSelectedStars = 5, courierRateCourierId = null;
+function renderCourierRateStars(){
+  $('#courierRateStarsInput').querySelectorAll('i').forEach(star=>{
+    star.classList.toggle('active', parseInt(star.getAttribute('data-star'))<=courierRateSelectedStars);
+  });
+}
+$('#courierRateStarsInput').addEventListener('click', (e)=>{
+  const star = e.target.closest('[data-star]');
+  if(star){ courierRateSelectedStars = parseInt(star.getAttribute('data-star')); renderCourierRateStars(); }
+});
+function openCourierRateModal(orderId, o){
+  courierRateOrderId = orderId; courierRateCourierId = o.courierId; courierRateSelectedStars = 5;
+  $('#courierRateName').textContent = o.courierName || 'Курьер';
+  $('#courierRateComplaint').value='';
+  renderCourierRateStars();
+  openOv('ovCourierRate');
+}
+$('#courierRateSubmitBtn').addEventListener('click', async ()=>{
+  if(!courierRateOrderId) return;
+  const complaint = $('#courierRateComplaint').value.trim();
+  try{
+    await db.collection('orders').doc(courierRateOrderId).update({courierRated:true, courierRating: courierRateSelectedStars, courierComplaint: complaint||null});
+    if(courierRateCourierId){
+      await db.collection('users').doc(courierRateCourierId).update({
+        courierRatingSum: firebase.firestore.FieldValue.increment(courierRateSelectedStars),
+        courierRatingCount: firebase.firestore.FieldValue.increment(1)
+      }).catch(()=>{});
+      if(complaint) db.collection('users').doc(courierRateCourierId).update({courierComplaints: firebase.firestore.FieldValue.arrayUnion({orderId: courierRateOrderId, text: complaint, at: Date.now()})}).catch(()=>{});
+    }
+  }catch(e){}
+  closeOv('ovCourierRate');
+  toast('Спасибо за оценку!','','fa-circle-check');
+  if($('#ovOrders').classList.contains('open')) renderOrders();
 });
 
 let editPhotoData = '';
@@ -6013,7 +6583,18 @@ async function renderOrders(){
     const CANCELLABLE_STATUSES = ['Новый','Ожидает оплаты','Ожидает оформления рассрочки'];
     const canCancel = State.user.role==='client' && CANCELLABLE_STATUSES.includes(o.status||'Новый');
     const canConfirmReceipt = State.user.role==='client' && o.status==='Доставлен' && !o.clientConfirmedReceipt;
+    const canRateCourier = State.user.role==='client' && o.status==='Доставлен' && o.courierId && !o.courierRated;
     const statusSelectHtml = (State.user.role==='seller'||State.user.role==='admin') ? `<select class="order-status-select" data-order-status="${d.id}">${ORDER_STATUSES.map(s=>`<option value="${s}" ${((o.status||'Новый')===s)?'selected':''}>${s}</option>`).join('')}</select>` : '';
+    const courierAdminHtml = (State.user.role==='admin' && o.status!=='Отменён') ? (
+      o.courierId ? `<div style="font-size:11.5px;color:var(--text-dim);padding:6px 0;"><i class="fa-solid fa-motorcycle"></i> Курьер: ${o.courierName||''} · доставка ${fmt(o.courierPrice||0)}</div>`
+      : o.needsCourier ? `<div style="font-size:11.5px;color:var(--text-dim);padding:6px 0;"><i class="fa-solid fa-motorcycle"></i> Ищем курьера…</div>`
+      : `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-need-courier="${d.id}"><i class="fa-solid fa-motorcycle"></i> Нужен курьер</button>`
+    ) : '';
+    const courierClientHtml = (State.user.role==='client' && o.courierId) ? `<div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding:8px;background:var(--surface-2);border-radius:10px;">
+        ${o.courierPhoto?`<img src="${o.courierPhoto}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;">`:''}
+        <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:12.5px;">${o.courierName||'Курьер'}</div><div style="font-size:11.5px;color:var(--text-dim);">${o.courierPhone||''}${o.courierPrice?' · доставка '+fmt(o.courierPrice):''}</div></div>
+        ${o.courierPhone?`<a href="tel:${o.courierPhone}" class="btn btn-outline" style="padding:7px 10px;font-size:12px;width:auto;"><i class="fa-solid fa-phone"></i></a>`:''}
+      </div>` : '';
     return `<div class="order-item" data-order-id="${d.id}">
       <div class="row"><b>${o.clientName}</b><span class="order-status">${o.status||'Новый'}</span></div>
       ${State.user.role==='client' ? deliveryTimelineHtml(o.status) : ''}
@@ -6026,9 +6607,12 @@ async function renderOrders(){
       ${o.deliveryFee ? `<div style="font-size:11.5px;color:var(--text-dim);"><i class="fa-solid fa-truck"></i> Доставка: ${fmt(o.deliveryFee)}</div>` : ''}
       ${o.address?`<div style="font-size:12px;color:var(--text-dim);margin-top:2px;"><i class="fa-solid fa-location-dot"></i> ${o.address}</div>`:''}
       <div style="font-size:12px;color:var(--text-dim);">${(o.items||[]).map(i=>i.name+' x'+i.qty).join(', ')}</div>
+      ${courierClientHtml}
       <div class="order-actions">
         ${canPay ? `<button class="btn btn-primary" style="padding:10px;font-size:13px;" data-pay-order="${d.id}"><i class="fa-solid fa-credit-card"></i> Оплатить</button>` : ''}
         ${canConfirmReceipt ? `<button class="btn btn-primary" style="padding:10px;font-size:13px;width:auto;" data-confirm-receipt="${d.id}"><i class="fa-solid fa-box-open"></i> Получил</button>` : ''}
+        ${canRateCourier ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-rate-courier="${d.id}"><i class="fa-solid fa-star"></i> Оценить курьера</button>` : ''}
+        ${courierAdminHtml}
         ${statusSelectHtml}
         ${State.user.role==='client' ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-reorder="${d.id}"><i class="fa-solid fa-rotate-right"></i> Заказать снова</button>` : ''}
         ${canCancel ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;color:var(--danger);border-color:var(--danger);" data-cancel-order="${d.id}"><i class="fa-solid fa-ban"></i> Отменить заказ</button>` : ''}
@@ -6060,6 +6644,23 @@ async function renderOrders(){
   });
   body.querySelectorAll('[data-confirm-receipt]').forEach(btn=>{
     btn.addEventListener('click', ()=>openOrderReceiptConfirm(btn.getAttribute('data-confirm-receipt')));
+  });
+  body.querySelectorAll('[data-need-courier]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const orderId = btn.getAttribute('data-need-courier');
+      const orderDoc = docs.find(dd=>dd.id===orderId);
+      await db.collection('orders').doc(orderId).update({needsCourier:true}).catch(()=>{});
+      toast('Ищем курьера','Заказ теперь доступен курьерам','fa-motorcycle');
+      if(orderDoc) notifyCouriersAboutOrder(orderId, orderDoc.data());
+      renderOrders();
+    });
+  });
+  body.querySelectorAll('[data-rate-courier]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const orderId = btn.getAttribute('data-rate-courier');
+      const orderDoc = docs.find(dd=>dd.id===orderId);
+      if(orderDoc) openCourierRateModal(orderId, orderDoc.data());
+    });
   });
   body.querySelectorAll('[data-cancel-order]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
@@ -7525,6 +8126,78 @@ function renderAdminTab(){
         window.hzDeleteFirebaseConfig();
       }
     });
+  } else if(adminActiveTab==='courier'){
+    body.innerHTML = '<div class="spinner"></div>';
+    db.collection('users').where('courierStatus','in',['pending','active','rejected']).get().then(snap=>{
+      const list = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      const pending = list.filter(u=>u.courierStatus==='pending');
+      const active = list.filter(u=>u.courierStatus==='active');
+      const rejected = list.filter(u=>u.courierStatus==='rejected');
+      function courierCardHtml(u){
+        const app = u.courierApplication || {};
+        const statsHtml = u.courierStatus==='active' ? `<div style="font-size:12px;color:var(--text-dim);margin-top:6px;">Заказов выполнено: <b>${u.courierOrdersCount||0}</b> · Заработано всего: <b>${fmt(u.courierTotalEarned||0)}</b></div>` : '';
+        const taxHtml = u.courierStatus==='active' && u.courierTaxStatus==='pending_review' ? `<div style="margin-top:8px;padding:8px;background:var(--surface-2);border-radius:10px;">
+            <div style="font-size:12px;">Ожидает подтверждения оплаты: <b>${fmt(u.courierTaxAmount||0)}</b></div>
+            <button class="btn btn-primary" data-confirmpaid="${u.id}" style="margin-top:6px;padding:7px;font-size:12px;">Подтвердить оплату</button>
+          </div>` : '';
+        const blockedHtml = u.courierBlocked ? `<div style="color:var(--danger);font-size:12px;font-weight:700;margin-top:4px;"><i class="fa-solid fa-lock"></i> Заблокирован (${u.courierBlockReason==='unpaid_tax'?'не оплачен налог':'вручную'})</div>` : '';
+        const actions = u.courierStatus==='pending' ? `
+            <button class="btn btn-primary" data-courierapprove="${u.id}" style="padding:8px;font-size:12.5px;width:auto;flex:1;"><i class="fa-solid fa-check"></i> Одобрить</button>
+            <button class="btn" data-courierblock="${u.id}" style="padding:8px;font-size:12.5px;width:auto;flex:1;"><i class="fa-solid fa-lock"></i> Заблокировать</button>
+            <button class="btn" data-courierreject="${u.id}" style="padding:8px;font-size:12.5px;width:auto;flex:1;color:var(--danger);"><i class="fa-solid fa-xmark"></i> Отказать</button>`
+          : u.courierStatus==='active' ? `
+            <button class="btn" data-${u.courierBlocked?'courierunblock':'courierblock'}="${u.id}" style="padding:8px;font-size:12.5px;width:auto;">${u.courierBlocked?'<i class=\"fa-solid fa-unlock\"></i> Разблокировать':'<i class=\"fa-solid fa-lock\"></i> Заблокировать'}</button>`
+          : `<button class="btn btn-primary" data-courierapprove="${u.id}" style="padding:8px;font-size:12.5px;width:auto;"><i class="fa-solid fa-check"></i> Одобрить</button>`;
+        return `<div style="border:1.5px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;">
+          <div style="display:flex;gap:10px;">
+            ${app.photo?`<img src="${app.photo}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;">`:''}
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:13.5px;">${app.fio||u.fio||'—'}</div>
+              <div style="font-size:12px;color:var(--text-dim);">${app.phone||''} · ${app.gender||''}${app.age?', '+app.age+' лет':''}</div>
+            </div>
+            ${app.passportPhoto?`<img src="${app.passportPhoto}" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0;cursor:pointer;" data-viewpassport="${app.passportPhoto}">`:''}
+          </div>
+          ${statsHtml}${taxHtml}${blockedHtml}
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">${actions}</div>
+        </div>`;
+      }
+      body.innerHTML = `
+        ${pending.length?`<h4 style="margin:0 0 8px;font-size:13px;">Новые заявки (${pending.length})</h4>${pending.map(courierCardHtml).join('')}`:''}
+        ${active.length?`<h4 style="margin:16px 0 8px;font-size:13px;">Активные курьеры (${active.length})</h4>${active.map(courierCardHtml).join('')}`:''}
+        ${rejected.length?`<h4 style="margin:16px 0 8px;font-size:13px;">Отклонённые (${rejected.length})</h4>${rejected.map(courierCardHtml).join('')}`:''}
+        ${!list.length?'<div class="empty-state"><i class="fa-solid fa-motorcycle"></i></div>':''}`;
+      body.querySelectorAll('[data-viewpassport]').forEach(img=>img.addEventListener('click', ()=>window.open(img.getAttribute('data-viewpassport'),'_blank')));
+      body.querySelectorAll('[data-courierapprove]').forEach(b=>b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-courierapprove');
+        await db.collection('users').doc(id).update({courierStatus:'active', courierBlocked:false, courierWeekStart:Date.now(), courierEarnedThisWeek:0, courierOrdersCount:0, courierTotalEarned:0, courierTaxStatus:'none'});
+        sendAdminChatMessage(id, '✅ Ваша заявка на курьера одобрена! Теперь в профиле доступны заказы курьера.');
+        toast('Курьер одобрен','','fa-circle-check'); renderAdminTab();
+      }));
+      body.querySelectorAll('[data-courierreject]').forEach(b=>b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-courierreject');
+        await db.collection('users').doc(id).update({courierStatus:'rejected'});
+        sendAdminChatMessage(id, 'К сожалению, ваша заявка на курьера отклонена.');
+        toast('Заявка отклонена','','fa-circle-check'); renderAdminTab();
+      }));
+      body.querySelectorAll('[data-courierblock]').forEach(b=>b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-courierblock');
+        await db.collection('users').doc(id).update({courierBlocked:true, courierBlockReason:'admin'});
+        sendAdminChatMessage(id, 'Ваш аккаунт курьера временно заблокирован администратором.');
+        toast('Курьер заблокирован','','fa-circle-check'); renderAdminTab();
+      }));
+      body.querySelectorAll('[data-courierunblock]').forEach(b=>b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-courierunblock');
+        await db.collection('users').doc(id).update({courierBlocked:false});
+        sendAdminChatMessage(id, '✅ Ваш аккаунт курьера разблокирован.');
+        toast('Курьер разблокирован','','fa-circle-check'); renderAdminTab();
+      }));
+      body.querySelectorAll('[data-confirmpaid]').forEach(b=>b.addEventListener('click', async ()=>{
+        const id = b.getAttribute('data-confirmpaid');
+        await db.collection('users').doc(id).update({courierTaxStatus:'paid', courierBlocked:false});
+        sendAdminChatMessage(id, '✅ Оплата подтверждена, доступ восстановлен.');
+        toast('Оплата подтверждена','','fa-circle-check'); renderAdminTab();
+      }));
+    }).catch(e=>{ console.warn('courier tab load failed', e); body.innerHTML = '<div class="empty-state"><div>Не удалось загрузить курьеров</div></div>'; });
   }
 }
 function renderAdminPromoList(){
@@ -8234,6 +8907,7 @@ db.collection('products').orderBy('createdAt','desc').onSnapshot(snap=>{
   if(State.user){ renderFavorites(); }
   checkSharedProductInUrl();
   checkPageInUrl();
+  checkCourierOrderInUrl();
   maybeShowAdPopup(); // товары уже загружены — теперь можно подобрать товар для всплывающей рекламы
 }, ()=>{
   db.collection('products').onSnapshot(snap=>{
