@@ -2331,35 +2331,44 @@ function buildWarrantyCertHtml(order, orderId){
   </div>`;
 }
 /* Рендерит талон offscreen, растеризует в картинку (html2canvas) и собирает PDF (jsPDF).
-   Возвращает Blob с готовым PDF-файлом. */
-async function renderWarrantyCertToPdfBlob(order, orderId){
+   Возвращает готовый PDF как data-URI строку (data:application/pdf;base64,...) —
+   ХРАНИМ ЕГО ПРЯМО В FIRESTORE, без Firebase Storage. Это специально: в этом
+   проекте Storage используется только для админских GIF-баннеров, а все фото
+   от курьеров/клиентов (courierPhoto, deliveryPhoto, review-фото, фото в чате)
+   хранятся как base64 прямо в документах Firestore — у них уже точно есть
+   права на запись туда. Если грузить PDF в Storage, у курьера/клиента может
+   не быть прав — талон один раз уже "терялся" именно по этой причине.
+   attempts — пробуем несколько уровней качества, чтобы влезть в разумный
+   размер документа Firestore (лимит поля/документа — 1 МБ). */
+async function renderWarrantyCertPdfDataUri(order, orderId){
   const root = document.getElementById('warrantyCertRoot');
   root.innerHTML = buildWarrantyCertHtml(order, orderId);
   if(document.fonts && document.fonts.ready) await document.fonts.ready.catch(()=>{});
   await new Promise(r=>setTimeout(r, 60)); // даём шрифтам/картинке печати доотрисоваться
   const pageEl = root.querySelector('.wc-page');
-  const canvas = await html2canvas(pageEl, {scale:2, useCORS:true, backgroundColor:'#ffffff'});
+  const attempts = [{scale:1.8, q:0.88}, {scale:1.3, q:0.72}, {scale:1, q:0.6}];
+  let dataUri = null;
+  for(const a of attempts){
+    const canvas = await html2canvas(pageEl, {scale:a.scale, useCORS:true, backgroundColor:'#ffffff'});
+    const imgData = canvas.toDataURL('image/jpeg', a.q);
+    const { jsPDF } = window.jspdf;
+    const pdfWidth = 595.28; // A4 width in pt
+    const pdfHeight = pdfWidth * (canvas.height / canvas.width);
+    const doc = new jsPDF({unit:'pt', format:[pdfWidth, pdfHeight], compress:true});
+    doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    const uri = doc.output('datauristring');
+    if(uri.length < 700000){ dataUri = uri; break; } // ~700KB base64 — с запасом от лимита Firestore в 1MB
+    dataUri = uri; // если даже на последней попытке большой — всё равно отправим, лучше так чем ничего
+  }
   root.innerHTML = '';
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
-  const { jsPDF } = window.jspdf;
-  const pdfWidth = 595.28; // A4 width in pt
-  const pdfHeight = pdfWidth * (canvas.height / canvas.width);
-  const doc = new jsPDF({unit:'pt', format:[pdfWidth, pdfHeight]});
-  doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-  return doc.output('blob');
-}
-/* Загружает PDF в Firebase Storage и возвращает прямую ссылку на скачивание */
-async function uploadWarrantyCertPdf(blob, orderId){
-  const path = `warranties/${orderId}_${Date.now()}.pdf`;
-  const ref = storage.ref().child(path);
-  await ref.put(blob, {contentType:'application/pdf'});
-  return await ref.getDownloadURL();
+  return dataUri;
 }
 /* Главная функция: генерирует талон и присылает его клиенту прямо в чат
    с продавцом/админом (тот же чат, где сайт уже пишет о заказе). Ставит
    флаг warrantyCertSent на заказе, чтобы не отправить талон дважды —
-   он может сработать и по смене статуса на "Доставлен", и по кнопке
-   клиента "Получил", смотря что случится раньше. */
+   он может сработать по нескольким событиям (курьер отметил "Доставлено",
+   админ поменял статус вручную, клиент нажал "Получил") — сработает то,
+   что случится раньше, остальные тихо выйдут по проверке флага. */
 async function maybeSendWarrantyCertificate(orderId, orderDataHint){
   try{
     const orderRef = db.collection('orders').doc(orderId);
@@ -2368,8 +2377,8 @@ async function maybeSendWarrantyCertificate(orderId, orderDataHint){
     const order = snap.data();
     if(order.warrantyCertSent || order.warrantyCertPending) return; // уже отправлен или уже в процессе
     await orderRef.update({warrantyCertPending:true}).catch(()=>{});
-    const blob = await renderWarrantyCertToPdfBlob(order, orderId);
-    const fileURL = await uploadWarrantyCertPdf(blob, orderId);
+    const fileURL = await renderWarrantyCertPdfDataUri(order, orderId);
+    if(!fileURL) throw new Error('empty pdf data uri');
     const sellerId = getPrimarySellerIdForOrder(order);
     const clientId = order.clientId;
     if(clientId && clientId!=='guest'){
@@ -2386,7 +2395,7 @@ async function maybeSendWarrantyCertificate(orderId, orderDataHint){
         lastMessageSenderId: sellerId, lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
       }, {merge:true});
     }
-    await orderRef.update({warrantyCertSent:true, warrantyCertPending: firebase.firestore.FieldValue.delete(), warrantyCertUrl: fileURL}).catch(()=>{});
+    await orderRef.update({warrantyCertSent:true, warrantyCertPending: firebase.firestore.FieldValue.delete()}).catch(()=>{});
   }catch(e){
     console.warn('Не удалось сформировать гарантийный талон', e);
     db.collection('orders').doc(orderId).update({warrantyCertPending: firebase.firestore.FieldValue.delete()}).catch(()=>{});
@@ -6816,6 +6825,7 @@ $('#courierDeliverPhotoSubmitBtn').addEventListener('click', async ()=>{
   const o = doc ? doc.data() : {};
   const price = o.courierPrice||0;
   await db.collection('orders').doc(orderId).update({status:'Доставлен', deliveryPhoto: courierDeliverPhotoData}).catch(()=>{});
+  maybeSendWarrantyCertificate(orderId); // курьер отметил "Доставлено" с фото — присылаем PDF гарантийный талон в чат клиенту
   await db.collection('users').doc(State.user.docId).update({
     courierOrdersCount: firebase.firestore.FieldValue.increment(1),
     courierTotalEarned: firebase.firestore.FieldValue.increment(price),
