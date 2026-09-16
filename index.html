@@ -1732,6 +1732,18 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div class="field"><label>Адрес самовывоза / склада</label><textarea id="pickupAddressInput" rows="2" placeholder="Например: г. Душанбе, ул. Рудаки 12, магазин HORIZON"></textarea></div>
       <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Этот адрес видит клиент при выборе «Самовывоз» и курьер — как место, откуда забирать товар для доставки.</p>
       <div class="field"><label>Время работы для самовывоза</label><input id="pickupHoursInput" placeholder="Например: ежедневно с 9:00 до 20:00"></div>
+      <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+      <div style="font-weight:800;font-size:15px;margin-bottom:2px;"><i class="fa-solid fa-wand-magic-sparkles"></i> ИИ — автозаполнение товара</div>
+      <p style="color:var(--text-dim);font-size:11.5px;margin:2px 0 10px;">Провайдер для кнопки «ИИ» в форме добавления товара — она сама подбирает описание и характеристики по названию. Если один провайдер не работает в вашем регионе, переключитесь на другой.</p>
+      <div class="field"><label>Провайдер</label>
+        <select id="aiProviderInput">
+          <option value="openai">OpenAI (ChatGPT)</option>
+          <option value="openrouter">OpenRouter (прокси, много моделей, работает почти везде)</option>
+          <option value="gemini">Google Gemini</option>
+        </select>
+      </div>
+      <div class="field"><label>API ключ</label><input id="aiApiKeyInput" placeholder="sk-... / sk-or-... / AIza..."></div>
+      <p id="aiKeyHint" style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;"></p>
     </div>
     <button class="btn btn-primary" id="botSettingsSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>
   </div>
@@ -1759,7 +1771,14 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="sheet-title" id="productFormTitle">Новый товар <button class="close-x" data-close="ovProductForm"><i class="fa-solid fa-xmark"></i></button></div>
     <div class="field"><label>Каталог</label><select id="pfCatalog"></select></div>
     <div class="field"><label>Подкаталог</label><select id="pfSubcatalog"></select></div>
-    <div class="field"><label>Название товара</label><input id="pfName"></div>
+    <div class="field">
+      <label>Название товара</label>
+      <div style="display:flex;gap:8px;">
+        <input id="pfName" style="flex:1;">
+        <button type="button" class="tiny-btn primary" id="pfAiFillBtn" style="display:none;white-space:nowrap;padding:0 14px;"><i class="fa-solid fa-wand-magic-sparkles"></i> ИИ</button>
+      </div>
+      <p id="pfAiHint" style="display:none;color:var(--text-dim);font-size:11px;margin:4px 0 0;">Впишите название товара и нажмите «ИИ» — автоматически подберутся описание и характеристики (каталог, цену, артикул, бренд и фото укажите вручную).</p>
+    </div>
     <div class="field"><label>Артикул (необязательно)</label><input id="pfArticul" placeholder="Например: HM-10234"></div>
     <div class="field"><label>Бренд / производитель (необязательно)</label><input id="pfBrand" placeholder="Например: Samsung"></div>
     <div class="field-row">
@@ -6582,6 +6601,9 @@ function renderProfile(){
       $('#courierTaxPercentInput').value = State.settings.courierTaxPercent!=null ? State.settings.courierTaxPercent : 1;
       $('#pickupAddressInput').value = State.settings.pickupAddress||'';
       $('#pickupHoursInput').value = State.settings.pickupHours||'';
+      $('#aiProviderInput').value = State.settings.aiProvider || 'openai';
+      $('#aiApiKeyInput').value = State.settings.aiApiKey || State.settings.geminiApiKey || '';
+      updateAiKeyHint();
     }
     openOv('ovBotSettings');
   });
@@ -6615,12 +6637,15 @@ $('#botSettingsSaveBtn').addEventListener('click', async ()=>{
     const courierTaxPercent = Number($('#courierTaxPercentInput').value)||1;
     const pickupAddress = $('#pickupAddressInput').value.trim();
     const pickupHours = $('#pickupHoursInput').value.trim();
-    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsBotToken, productsChannelId, productsBotChatId, regBotToken, regBotUsername, telegramChannelLink, courierBankRequisites, courierTaxPercent, pickupAddress, pickupHours}, {merge:true});
+    const aiProvider = $('#aiProviderInput').value;
+    const aiApiKey = $('#aiApiKeyInput').value.trim();
+    await db.collection('settings').doc('main').set({adminBotToken:token, adminBotChatId:chatId, productsBotToken, productsChannelId, productsBotChatId, regBotToken, regBotUsername, telegramChannelLink, courierBankRequisites, courierTaxPercent, pickupAddress, pickupHours, aiProvider, aiApiKey}, {merge:true});
     State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId;
     State.settings.productsBotToken = productsBotToken; State.settings.productsChannelId = productsChannelId; State.settings.productsBotChatId = productsBotChatId;
     State.settings.regBotToken = regBotToken; State.settings.regBotUsername = regBotUsername; State.settings.telegramChannelLink = telegramChannelLink;
     State.settings.courierBankRequisites = courierBankRequisites; State.settings.courierTaxPercent = courierTaxPercent;
     State.settings.pickupAddress = pickupAddress; State.settings.pickupHours = pickupHours;
+    State.settings.aiProvider = aiProvider; State.settings.aiApiKey = aiApiKey;
   } else {
     const chatAutoReply = $('#chatAutoReplyInput').value.trim();
     await db.collection('users').doc(State.user.docId).update({botToken:token, botChatId:chatId, chatAutoReply});
@@ -8371,6 +8396,121 @@ document.addEventListener('click', (e)=>{
 });
 $('#pfAddCharBtn').addEventListener('click', ()=>{ pfChars.push({key:'',value:''}); renderPfChars(); });
 
+/* ============ ИИ-автозаполнение товара — только для админа ============
+   Админ вводит название товара, жмёт «ИИ» — выбранный провайдер (OpenAI /
+   OpenRouter / Gemini, настраивается в Профиль → Telegram-бот) возвращает
+   описание и список характеристик (параметр/значение), которые сами
+   подставляются в форму. Каталог, цену, артикул, бренд и фото админ
+   по-прежнему заполняет вручную. */
+const AI_PROVIDERS = {
+  openai:     {label:'OpenAI (ChatGPT)', model:'gpt-5-mini',           keyLink:'https://platform.openai.com/api-keys'},
+  openrouter: {label:'OpenRouter',       model:'openai/gpt-4o-mini',  keyLink:'https://openrouter.ai/keys'},
+  gemini:     {label:'Google Gemini',    model:'gemini-3.8-flash',    keyLink:'https://aistudio.google.com/apikey'}
+};
+function updateAiKeyHint(){
+  const sel = $('#aiProviderInput'); const hint = $('#aiKeyHint');
+  if(!sel || !hint) return;
+  const p = AI_PROVIDERS[sel.value] || AI_PROVIDERS.openai;
+  hint.innerHTML = `Получить ключ: <a href="${p.keyLink}" target="_blank" rel="noopener">${p.keyLink.replace('https://','')}</a>`;
+}
+$('#aiProviderInput')?.addEventListener('change', updateAiKeyHint);
+function buildAiPrompt(productName){
+  return `Ты — помощник интернет-магазина. Для товара с названием "${productName}" верни строго JSON без markdown-обёртки и без пояснений, в формате:
+{"description":"краткое привлекательное описание товара на русском языке, 2-3 предложения","characteristics":[{"key":"Название параметра","value":"Значение"}, ...]}
+В characteristics укажи от 5 до 10 реальных технических характеристик, типичных для этой категории товара (например для смартфона: экран, процессор, память, камера, батарея, ОС; для одежды: материал, состав, сезон и т.д.) — подбирай параметры под конкретный товар. Значения должны быть правдоподобными для этой модели/товара. Если это известная модель товара — используй её реальные характеристики. Отвечай только на русском языке.`;
+}
+function parseAiJsonResponse(text){
+  const cleaned = (text||'').trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'');
+  let parsed;
+  try{ parsed = JSON.parse(cleaned); }
+  catch(e){ throw new Error('bad-json'); }
+  if(!parsed || typeof parsed.description!=='string') throw new Error('bad-shape');
+  const chars = Array.isArray(parsed.characteristics) ? parsed.characteristics
+    .filter(c=>c && c.key && c.value)
+    .map(c=>({key:String(c.key).trim(), value:String(c.value).trim()})) : [];
+  return {description: parsed.description.trim(), characteristics: chars};
+}
+/* OpenAI и OpenRouter используют один и тот же формат Chat Completions —
+   OpenRouter полностью совместим с OpenAI API, отличается только адрес и ключ. */
+async function fetchAiOpenAiCompatible(baseUrl, model, apiKey, productName){
+  const res = await fetch(baseUrl, {
+    method:'POST',
+    headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}`},
+    body: JSON.stringify({
+      model,
+      messages:[{role:'user', content: buildAiPrompt(productName)}],
+      response_format:{type:'json_object'},
+      temperature:0.4
+    })
+  });
+  if(!res.ok){
+    const errText = await res.text().catch(()=>'');
+    console.warn('AI API error', res.status, errText);
+    throw new Error('api-error-'+res.status);
+  }
+  const data = await res.json();
+  const text = data?.choices?.[0]?.message?.content || '';
+  return parseAiJsonResponse(text);
+}
+async function fetchAiGemini(model, apiKey, productName){
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      contents:[{parts:[{text: buildAiPrompt(productName)}]}],
+      generationConfig:{responseMimeType:'application/json', temperature:0.4}
+    })
+  });
+  if(!res.ok){
+    const errText = await res.text().catch(()=>'');
+    console.warn('Gemini API error', res.status, errText);
+    throw new Error('api-error-'+res.status);
+  }
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('') || '';
+  return parseAiJsonResponse(text);
+}
+async function fetchProductAiData(productName){
+  const apiKey = State.settings.aiApiKey || State.settings.geminiApiKey;
+  if(!apiKey) throw new Error('no-api-key');
+  const provider = State.settings.aiProvider || 'openai';
+  if(provider === 'openrouter'){
+    return fetchAiOpenAiCompatible('https://openrouter.ai/api/v1/chat/completions', AI_PROVIDERS.openrouter.model, apiKey, productName);
+  }
+  if(provider === 'gemini'){
+    return fetchAiGemini(AI_PROVIDERS.gemini.model, apiKey, productName);
+  }
+  return fetchAiOpenAiCompatible('https://api.openai.com/v1/chat/completions', AI_PROVIDERS.openai.model, apiKey, productName);
+}
+$('#pfAiFillBtn').addEventListener('click', async ()=>{
+  const btn = $('#pfAiFillBtn');
+  const name = $('#pfName').value.trim();
+  if(!name){ toast('Введите название товара','','fa-circle-exclamation'); return; }
+  if(!(State.settings.aiApiKey || State.settings.geminiApiKey)){ toast('API ключ ИИ не настроен', 'Профиль → Telegram-бот → ИИ — автозаполнение товара', 'fa-circle-exclamation'); return; }
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ищу…';
+  try{
+    const result = await Promise.race([
+      fetchProductAiData(name),
+      new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 25000))
+    ]);
+    $('#pfDesc').value = result.description;
+    if(result.characteristics.length){
+      pfChars = result.characteristics;
+      renderPfChars();
+    }
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Готово';
+    setTimeout(()=>{ btn.innerHTML = origHtml; btn.disabled = false; }, 1500);
+    toast('Заполнено через ИИ', 'Проверьте описание и характеристики перед сохранением', 'fa-circle-check');
+  }catch(e){
+    console.warn('Не удалось получить данные от ИИ', e);
+    btn.innerHTML = origHtml; btn.disabled = false;
+    const msg = e && e.message==='no-api-key' ? 'API ключ не настроен' : 'Не удалось получить данные';
+    toast(msg, 'Попробуйте ещё раз, проверьте ключ или смените провайдера', 'fa-triangle-exclamation');
+  }
+});
+
+
 /* ---- sizes / variants (size, memory GB, RAM...) ---- */
 function renderPfSizes(){
   $('#pfSizesList').innerHTML = pfSizes.map((s,i)=>{
@@ -8504,6 +8644,9 @@ function openProductForm(productId){
   fillCatalogSelects();
   const p = productId ? State.products.find(pp=>pp.id===productId) : null;
   $('#productFormTitle').childNodes[0].textContent = p ? 'Изменить товар ' : 'Новый товар ';
+  const isAdminUser = State.user && State.user.role==='admin';
+  $('#pfAiFillBtn').style.display = isAdminUser ? '' : 'none';
+  $('#pfAiHint').style.display = isAdminUser ? '' : 'none';
   $('#pfName').value = p?p.name:'';
   $('#pfArticul').value = p?p.articul||'':'';
   $('#pfBrand').value = p?p.brand||'':'';
