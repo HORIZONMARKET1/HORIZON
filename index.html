@@ -1803,7 +1803,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       </select>
       <input id="pfPromoLabelCustom" placeholder="Введите свою надпись" style="margin-top:8px;display:none;">
     </div>
-    <div class="field"><label>Описание</label><textarea id="pfDesc" rows="2"></textarea></div>
+    <div class="field"><label>Описание</label><textarea id="pfDesc" rows="6"></textarea></div>
     <div class="field">
       <label>Характеристики</label>
       <div id="pfCharsList"></div>
@@ -1934,12 +1934,15 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 <div class="overlay center" id="ovImageSearch">
   <div class="sheet" style="border-radius:24px;">
     <div class="sheet-title">Поиск по фото <button class="close-x" data-close="ovImageSearch"><i class="fa-solid fa-xmark"></i></button></div>
-    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Загрузите фото — мы найдём товары в каталоге.</p>
+    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Наведите камеру на товар или выберите фото — мы найдём похожее в каталоге.</p>
     <div class="imgsearch-mode">
       <button class="active" data-imgsearch-mode="similar"><i class="fa-solid fa-shapes"></i> Похожие товары</button>
       <button data-imgsearch-mode="exact"><i class="fa-solid fa-bullseye"></i> Именно этот товар</button>
     </div>
-    <label class="btn btn-outline" style="margin-bottom:12px;"><i class="fa-solid fa-image"></i> Выбрать фото<input type="file" accept="image/*" class="hidden" id="imageSearchInput"></label>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <label class="btn btn-primary" style="flex:1;margin-bottom:0;"><i class="fa-solid fa-camera"></i> Камера<input type="file" accept="image/*" capture="environment" class="hidden" id="imageSearchCameraInput"></label>
+      <label class="btn btn-outline" style="flex:1;margin-bottom:0;"><i class="fa-solid fa-image"></i> Из галереи<input type="file" accept="image/*" class="hidden" id="imageSearchInput"></label>
+    </div>
     <div class="grid" id="imageSearchResults" style="padding:0;"></div>
   </div>
 </div>
@@ -3262,6 +3265,50 @@ function compressImage(file, maxSize=900, quality=0.72, trimToSquare=false){
   });
 }
 
+/* Умное автовыравнивание фото: пытаемся отделить товар от фона (по цвету рамки кадра)
+   и сразу предложить кадрирование вокруг найденной области, а не просто центр всего фото.
+   Если фон неоднородный/непонятный — тихо отступаем и используем обычное центрирование. */
+function detectContentBBox(img){
+  try{
+    const maxDim = 220;
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    if(!iw || !ih) return null;
+    const scale = Math.min(1, maxDim/Math.max(iw,ih));
+    const w = Math.max(1, Math.round(iw*scale)), h = Math.max(1, Math.round(ih*scale));
+    const c = document.createElement('canvas'); c.width=w; c.height=h;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img,0,0,w,h);
+    const data = ctx.getImageData(0,0,w,h).data;
+    const border = Math.max(2, Math.round(Math.min(w,h)*0.04));
+    let br=0,bg=0,bb=0,bn=0;
+    const addPx = (x,y)=>{ const i=(y*w+x)*4; br+=data[i]; bg+=data[i+1]; bb+=data[i+2]; bn++; };
+    for(let x=0;x<w;x++){ for(let y=0;y<border;y++) addPx(x,y); for(let y=h-border;y<h;y++) addPx(x,y); }
+    for(let y=border;y<h-border;y++){ for(let x=0;x<border;x++) addPx(x,y); for(let x=w-border;x<w;x++) addPx(x,y); }
+    if(bn===0) return null;
+    br/=bn; bg/=bn; bb/=bn;
+    const threshold = 28;
+    let minX=w, minY=h, maxX=-1, maxY=-1;
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        const i=(y*w+x)*4;
+        const dr=data[i]-br, dg=data[i+1]-bg, db=data[i+2]-bb;
+        if(Math.sqrt(dr*dr+dg*dg+db*db) > threshold){
+          if(x<minX)minX=x; if(x>maxX)maxX=x;
+          if(y<minY)minY=y; if(y>maxY)maxY=y;
+        }
+      }
+    }
+    if(maxX<minX || maxY<minY) return null; // чёткого объекта на фоне не нашли
+    const bboxW = maxX-minX+1, bboxH = maxY-minY+1;
+    const areaRatio = (bboxW*bboxH)/(w*h);
+    if(areaRatio > 0.94 || areaRatio < 0.02) return null; // почти весь кадр или почти ничего — не доверяем результату
+    const pad = 0.06, padX = bboxW*pad, padY = bboxH*pad;
+    return {
+      x: Math.max(0, (minX-padX)/scale), y: Math.max(0, (minY-padY)/scale),
+      w: Math.min(iw, (bboxW+2*padX)/scale), h: Math.min(ih, (bboxH+2*padY)/scale)
+    };
+  }catch(e){ return null; }
+}
 /* ===== IMAGE CROP TOOL (opens automatically for product photo uploads) ===== */
 let cropState = null;
 let cropOutputSize = {w:900, h:1200};
@@ -3281,13 +3328,23 @@ function openImageCropper(file, mode='product'){
           const stageW = stage.clientWidth, stageH = stage.clientHeight;
           const iw = img.naturalWidth, ih = img.naturalHeight;
           const minScale = Math.max(stageW/iw, stageH/ih);
+          let scale = minScale, tx = (stageW-iw*minScale)/2, ty = (stageH-ih*minScale)/2;
+          const bbox = detectContentBBox(img);
+          if(bbox){
+            const desiredScale = Math.max(stageW/bbox.w, stageH/bbox.h);
+            scale = Math.min(Math.max(desiredScale, minScale), minScale*4);
+            const cx = bbox.x + bbox.w/2, cy = bbox.y + bbox.h/2;
+            tx = stageW/2 - cx*scale;
+            ty = stageH/2 - cy*scale;
+          }
           cropState = {
             iw, ih, stageW, stageH, minScale, maxScale: minScale*4,
-            scale: minScale, tx:(stageW-iw*minScale)/2, ty:(stageH-ih*minScale)/2,
+            scale, tx, ty,
             dragging:false, startX:0, startY:0, startTx:0, startTy:0,
             resolve
           };
-          $('#cropZoom').value = 0;
+          clampCropPosition();
+          $('#cropZoom').value = Math.round(((cropState.scale-minScale)/(minScale*4-minScale))*100) || 0;
           applyCropTransform();
         });
       };
@@ -4120,6 +4177,7 @@ $('#flashSaleViewBtn').addEventListener('click', ()=>{
 
 /* ============ PRODUCT GRID ============ */
 let currentFilter = {catalogId:null, subcatalogId:null, search:'', sort:'mix', stockOnly:false, priceMin:null, priceMax:null, flashOnly:false, brands:[]};
+let aiSearchToken = 0; // растёт при каждом новом поиске — отменяет ещё не завершившиеся более старые ИИ-запросы
 let availableBrandsForFilter = [];
 function shuffleArray(arr){
   const a = arr.slice();
@@ -4127,6 +4185,8 @@ function shuffleArray(arr){
   return a;
 }
 function filterAndRenderGrid(f){
+  aiSearchToken++; // любое изменение фильтра отменяет ещё не завершённый предыдущий ИИ-поиск
+  const myAiToken = aiSearchToken;
   currentFilter = Object.assign(currentFilter, f);
   currentFilter.flashOnly = !!f.flashOnly; // not sticky: only applies to the call that explicitly asks for it
   let list = State.products.slice();
@@ -4142,6 +4202,7 @@ function filterAndRenderGrid(f){
   // narrowing) so the filter sheet always offers every brand relevant to what's being browsed.
   availableBrandsForFilter = Array.from(new Set(list.map(p=>(p.brand||'').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'ru'));
   if(currentFilter.brands && currentFilter.brands.length) list = list.filter(p=>currentFilter.brands.includes((p.brand||'').trim()));
+  const preSearchList = list.slice(); // каталог до текстового поиска — база для ИИ-поиска по смыслу
   if(currentFilter.search){
     const q = currentFilter.search.toLowerCase();
     list = list.filter(p=>(p.name||'').toLowerCase().includes(q) || (p.articul||'').toLowerCase().includes(q));
@@ -4181,6 +4242,12 @@ function filterAndRenderGrid(f){
   renderPopularProducts(isDefaultView && !currentFilter.search);
   renderRecentlyViewed(isDefaultView && !currentFilter.search);
   updateBrandFilterChip();
+  // Обычный поиск ищет по точному вхождению в название/артикул. Если он ничего не нашёл,
+  // пробуем ИИ-поиск по смыслу (например «тёплая куртка» → «пуховик») — но только если
+  // это ещё актуальный запрос (пользователь не успел ввести что-то другое) и настроен ключ ИИ.
+  if(list.length===0 && currentFilter.search && currentFilter.search.trim().length>=3 && (State.settings.aiApiKey || State.settings.geminiApiKey)){
+    triggerAiSemanticFallback(currentFilter.search.trim(), preSearchList, myAiToken);
+  }
 }
 $('#sortSelect').addEventListener('change', (e)=>{ filterAndRenderGrid({sort: e.target.value}); });
 $('#stockOnlyChip').addEventListener('click', ()=>{
@@ -8403,7 +8470,7 @@ $('#pfAddCharBtn').addEventListener('click', ()=>{ pfChars.push({key:'',value:''
    подставляются в форму. Каталог, цену, артикул, бренд и фото админ
    по-прежнему заполняет вручную. */
 const AI_PROVIDERS = {
-  openai:     {label:'OpenAI (ChatGPT)', model:'gpt-5-mini',           keyLink:'https://platform.openai.com/api-keys'},
+  openai:     {label:'OpenAI (ChatGPT)', model:'gpt-5-mini',           keyLink:'https://platform.openai.com/api-keys', noCors:true},
   openrouter: {label:'OpenRouter',       model:'openai/gpt-4o-mini',  keyLink:'https://openrouter.ai/keys'},
   gemini:     {label:'Google Gemini',    model:'gemini-3.8-flash',    keyLink:'https://aistudio.google.com/apikey'}
 };
@@ -8411,13 +8478,29 @@ function updateAiKeyHint(){
   const sel = $('#aiProviderInput'); const hint = $('#aiKeyHint');
   if(!sel || !hint) return;
   const p = AI_PROVIDERS[sel.value] || AI_PROVIDERS.openai;
-  hint.innerHTML = `Получить ключ: <a href="${p.keyLink}" target="_blank" rel="noopener">${p.keyLink.replace('https://','')}</a>`;
+  const keyLine = `Получить ключ: <a href="${p.keyLink}" target="_blank" rel="noopener">${p.keyLink.replace('https://','')}</a>`;
+  const corsWarning = p.noCors ? `<br><span style="color:var(--danger);font-weight:700;">⚠️ OpenAI не принимает запросы напрямую с сайта без сервера (блокировка CORS) — на этом сайте (чистый HTML/JS без бэкенда) он не заработает. Выберите OpenRouter — он создан именно для прямых запросов с сайта и обычно доступен там же, где и OpenAI.</span>` : '';
+  hint.innerHTML = keyLine + corsWarning;
 }
 $('#aiProviderInput')?.addEventListener('change', updateAiKeyHint);
 function buildAiPrompt(productName){
-  return `Ты — помощник интернет-магазина. Для товара с названием "${productName}" верни строго JSON без markdown-обёртки и без пояснений, в формате:
-{"description":"краткое привлекательное описание товара на русском языке, 2-3 предложения","characteristics":[{"key":"Название параметра","value":"Значение"}, ...]}
-В characteristics укажи от 5 до 10 реальных технических характеристик, типичных для этой категории товара (например для смартфона: экран, процессор, память, камера, батарея, ОС; для одежды: материал, состав, сезон и т.д.) — подбирай параметры под конкретный товар. Значения должны быть правдоподобными для этой модели/товара. Если это известная модель товара — используй её реальные характеристики. Отвечай только на русском языке.`;
+  return `Ты — опытный копирайтер интернет-магазина. Для товара с названием "${productName}" верни строго JSON без markdown-обёртки и без пояснений, в формате:
+{"description":"подробное продающее описание товара на русском языке","characteristics":[{"key":"Название параметра","value":"Значение"}, ...]}
+
+Требования к description:
+- Пиши развёрнуто, 4-6 предложений (не менее 400 знаков), в 2 смысловых части: сначала что это за товар и его ключевые преимущества, затем — для кого он подходит и в каких ситуациях пригодится.
+- Раскрой реальные особенности именно этой модели/товара (материалы, технологии, дизайн, функциональность), а не общие фразы.
+- Пиши живым, естественным языком уверенного продавца, без канцелярита и без markdown-разметки (**, #, списков) — просто связный текст абзацем.
+
+Требования к characteristics:
+- Дай от 8 до 15 характеристик — максимально полный набор параметров, реально важных для этой категории товара.
+- Для электроники: экран (диагональ, тип, разрешение), процессор, память (ОЗУ и накопитель), камеры, батарея и зарядка, ОС, материал корпуса, вес, габариты, защита (IP), сеть/связь, цвет и т.п. — что применимо.
+- Для одежды/обуви: материал и состав, сезонность, страна производства, размерная сетка, уход, особенности кроя, застёжка и т.п.
+- Для прочих категорий подбирай по аналогии максимально полный набор реальных технических/потребительских параметров.
+- Значения должны быть точными и правдоподобными для этой конкретной модели; если это известный товар — используй его реальные характеристики, а не выдумывай наугад.
+- Каждое значение — короткое и конкретное (без длинных пояснений внутри value).
+
+Отвечай только на русском языке.`;
 }
 function parseAiJsonResponse(text){
   const cleaned = (text||'').trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'');
@@ -8431,55 +8514,119 @@ function parseAiJsonResponse(text){
   return {description: parsed.description.trim(), characteristics: chars};
 }
 /* OpenAI и OpenRouter используют один и тот же формат Chat Completions —
-   OpenRouter полностью совместим с OpenAI API, отличается только адрес и ключ. */
-async function fetchAiOpenAiCompatible(baseUrl, model, apiKey, productName){
-  const res = await fetch(baseUrl, {
-    method:'POST',
-    headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}`},
-    body: JSON.stringify({
-      model,
-      messages:[{role:'user', content: buildAiPrompt(productName)}],
-      response_format:{type:'json_object'},
-      temperature:0.4
-    })
-  });
+   OpenRouter полностью совместим с OpenAI API, отличается только адрес и ключ.
+   imageDataUrl (опционально) — фото для запросов с распознаванием изображения (vision).
+   wantJson — просить ли строго JSON-ответ (для обычных текстовых ответов не нужно). */
+async function callAiOpenAiCompatible(baseUrl, model, apiKey, promptText, imageDataUrl, wantJson){
+  const content = imageDataUrl
+    ? [{type:'text', text: promptText}, {type:'image_url', image_url:{url: imageDataUrl}}]
+    : promptText;
+  const body = {model, messages:[{role:'user', content}], temperature: imageDataUrl ? 0.2 : 0.4};
+  if(wantJson) body.response_format = {type:'json_object'};
+  let res;
+  try{
+    res = await fetch(baseUrl, {method:'POST', headers:{'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}`}, body: JSON.stringify(body)});
+  }catch(networkErr){
+    // Браузер блокирует запрос ещё до получения ответа — почти всегда это CORS
+    // (сервер провайдера не разрешает прямые запросы с сайта без бэкенда).
+    console.warn('Сетевая ошибка при обращении к ИИ (вероятно CORS)', networkErr);
+    throw new Error('network-error');
+  }
   if(!res.ok){
     const errText = await res.text().catch(()=>'');
     console.warn('AI API error', res.status, errText);
     throw new Error('api-error-'+res.status);
   }
   const data = await res.json();
-  const text = data?.choices?.[0]?.message?.content || '';
-  return parseAiJsonResponse(text);
+  return data?.choices?.[0]?.message?.content || '';
 }
-async function fetchAiGemini(model, apiKey, productName){
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      contents:[{parts:[{text: buildAiPrompt(productName)}]}],
-      generationConfig:{responseMimeType:'application/json', temperature:0.4}
-    })
-  });
+async function callAiGemini(model, apiKey, promptText, imageDataUrl, wantJson){
+  const parts = [{text: promptText}];
+  if(imageDataUrl){
+    const m = /^data:([^;]+);base64,(.+)$/.exec(imageDataUrl);
+    if(m) parts.push({inline_data:{mime_type:m[1], data:m[2]}});
+  }
+  const body = {contents:[{parts}], generationConfig:{temperature: imageDataUrl ? 0.2 : 0.4}};
+  if(wantJson) body.generationConfig.responseMimeType = 'application/json';
+  let res;
+  try{
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+  }catch(networkErr){
+    console.warn('Сетевая ошибка при обращении к Gemini', networkErr);
+    throw new Error('network-error');
+  }
   if(!res.ok){
     const errText = await res.text().catch(()=>'');
     console.warn('Gemini API error', res.status, errText);
     throw new Error('api-error-'+res.status);
   }
   const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('') || '';
-  return parseAiJsonResponse(text);
+  return data?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('') || '';
 }
-async function fetchProductAiData(productName){
+/* Единая точка входа для любых обращений к ИИ (текст и/или фото), маршрутизирует
+   на выбранного в настройках провайдера. imageDataUrl — опционально (data:image/...;base64,...). */
+async function callAiRaw(promptText, imageDataUrl, wantJson=true){
   const apiKey = State.settings.aiApiKey || State.settings.geminiApiKey;
   if(!apiKey) throw new Error('no-api-key');
   const provider = State.settings.aiProvider || 'openai';
-  if(provider === 'openrouter'){
-    return fetchAiOpenAiCompatible('https://openrouter.ai/api/v1/chat/completions', AI_PROVIDERS.openrouter.model, apiKey, productName);
+  if(provider === 'openrouter') return callAiOpenAiCompatible('https://openrouter.ai/api/v1/chat/completions', AI_PROVIDERS.openrouter.model, apiKey, promptText, imageDataUrl, wantJson);
+  if(provider === 'gemini') return callAiGemini(AI_PROVIDERS.gemini.model, apiKey, promptText, imageDataUrl, wantJson);
+  return callAiOpenAiCompatible('https://api.openai.com/v1/chat/completions', AI_PROVIDERS.openai.model, apiKey, promptText, imageDataUrl, wantJson);
+}
+
+/* ============ УМНЫЙ ИИ-ПОИСК ПО СМЫСЛУ (fallback, если обычный поиск ничего не нашёл) ============
+   Например «тёплая куртка» найдёт «пуховик», хотя слова не совпадают буквально.
+   Кэш в рамках сессии — чтобы одинаковый запрос не тратил лишний вызов ИИ повторно. */
+const aiSemanticCache = {};
+async function aiSemanticProductIds(query, candidates){
+  const cacheKey = query.toLowerCase()+'|'+candidates.length;
+  if(aiSemanticCache[cacheKey]) return aiSemanticCache[cacheKey];
+  // Ограничиваем список, чтобы не раздувать запрос до огромного каталога — берём первые 300 товаров
+  // текущей области поиска (категория/подкатегория уже сужены до этого момента).
+  const capped = candidates.slice(0, 300).map(p=>`${p.id}: ${p.name}`).join('\n');
+  const prompt = `Пользователь ищет товар в интернет-магазине: "${query}".
+Вот список товаров (id: название):
+${capped}
+
+Верни строго JSON без пояснений в формате {"ids":["id1","id2"]} — перечисли id товаров (не больше 12), которые подходят по смыслу к запросу, даже если название не совпадает дословно (учитывай синонимы, назначение, категорию, а не только буквальные слова). Если ничего подходящего нет — верни {"ids":[]}.`;
+  const text = await callAiRaw(prompt, null, true);
+  const cleaned = (text||'').trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'');
+  let parsed;
+  try{ parsed = JSON.parse(cleaned); }catch(e){ return []; }
+  const ids = Array.isArray(parsed?.ids) ? parsed.ids.map(String) : [];
+  aiSemanticCache[cacheKey] = ids;
+  return ids;
+}
+async function triggerAiSemanticFallback(query, candidates, myAiToken){
+  const grid = $('#productGrid');
+  grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-wand-magic-sparkles fa-beat-fade"></i><div>Ищу по смыслу через ИИ…</div></div>`;
+  try{
+    const ids = await aiSemanticProductIds(query, candidates);
+    if(myAiToken !== aiSearchToken) return; // пользователь уже сменил запрос/фильтр — результат устарел
+    if(!ids.length){
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div></div>';
+      return;
+    }
+    const idSet = new Set(ids);
+    const found = candidates.filter(p=>idSet.has(p.id)).sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+    if(!found.length){
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div></div>';
+      return;
+    }
+    $('#gridTitle').innerHTML = `<i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent);"></i> ИИ нашёл по смыслу: "${query}"`;
+    renderGrid(found, '#productGrid');
+  }catch(e){
+    if(myAiToken !== aiSearchToken) return;
+    console.warn('Смысловой поиск через ИИ не удался', e);
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div></div>';
   }
-  if(provider === 'gemini'){
-    return fetchAiGemini(AI_PROVIDERS.gemini.model, apiKey, productName);
-  }
-  return fetchAiOpenAiCompatible('https://api.openai.com/v1/chat/completions', AI_PROVIDERS.openai.model, apiKey, productName);
+}
+
+async function fetchProductAiData(productName){
+  const text = await callAiRaw(buildAiPrompt(productName), null, true);
+  return parseAiJsonResponse(text);
 }
 $('#pfAiFillBtn').addEventListener('click', async ()=>{
   const btn = $('#pfAiFillBtn');
@@ -8505,8 +8652,17 @@ $('#pfAiFillBtn').addEventListener('click', async ()=>{
   }catch(e){
     console.warn('Не удалось получить данные от ИИ', e);
     btn.innerHTML = origHtml; btn.disabled = false;
-    const msg = e && e.message==='no-api-key' ? 'API ключ не настроен' : 'Не удалось получить данные';
-    toast(msg, 'Попробуйте ещё раз, проверьте ключ или смените провайдера', 'fa-triangle-exclamation');
+    const provider = State.settings.aiProvider || 'openai';
+    const code = e && e.message || '';
+    let title = 'Не удалось получить данные', detail = 'Попробуйте ещё раз, проверьте ключ или смените провайдера';
+    if(code === 'no-api-key'){ title = 'API ключ не настроен'; detail = 'Профиль → Telegram-бот → ИИ — автозаполнение товара'; }
+    else if(code === 'network-error' && provider === 'openai'){ title = 'OpenAI заблокировал запрос (CORS)'; detail = 'Сайт без сервера не может обращаться к OpenAI напрямую — переключитесь на OpenRouter в настройках'; }
+    else if(code === 'network-error'){ title = 'Нет соединения с сервером ИИ'; detail = 'Проверьте интернет — возможно, провайдер недоступен в этой сети/регионе'; }
+    else if(code === 'api-error-401' || code === 'api-error-403'){ title = 'Ключ отклонён'; detail = 'Проверьте, что API ключ правильно скопирован и активен'; }
+    else if(code === 'api-error-429'){ title = 'Превышен лимит запросов'; detail = 'Закончились кредиты/лимит у провайдера — проверьте баланс аккаунта'; }
+    else if(code === 'bad-json' || code === 'bad-shape'){ title = 'ИИ вернул неожиданный ответ'; detail = 'Попробуйте ещё раз или измените название товара'; }
+    else if(code === 'timeout'){ title = 'Провайдер долго не отвечает'; detail = 'Попробуйте ещё раз чуть позже'; }
+    toast(title, detail, 'fa-triangle-exclamation');
   }
 });
 
@@ -9382,7 +9538,13 @@ function renderFsBanners(){
   }));
 }
 
-/* ============ IMAGE SEARCH ("search by photo") ============ */
+/* ============ IMAGE SEARCH ("search by photo") ============
+   Два способа находить товары по фото, объединяются вместе:
+   1) ИИ-распознавание (если настроен ключ) — модель с поддержкой изображений определяет,
+      что за товар на фото, и мы ищем по смыслу/названию. Работает даже если ракурс/освещение
+      сильно отличаются от фото в каталоге — то самое "наведи камеру и найдёт".
+   2) Сравнение по перцептивному хэшу — подстраховка и режим "именно этот товар" (ищет
+      визуально то же самое фото, что уже загружено у какого-то товара в каталоге). */
 let imgSearchMode = 'similar';
 $('#photoSearchBtn').addEventListener('click', ()=>{ $('#imageSearchResults').innerHTML=''; openOv('ovImageSearch'); });
 document.addEventListener('click', (e)=>{
@@ -9390,30 +9552,77 @@ document.addEventListener('click', (e)=>{
   if(modeBtn){
     imgSearchMode = modeBtn.getAttribute('data-imgsearch-mode');
     $$('[data-imgsearch-mode]').forEach(b=>b.classList.toggle('active', b===modeBtn));
-    if($('#imageSearchInput').dataset.lastResult) runImageSearch($('#imageSearchInput').dataset.lastResult);
+    if($('#imageSearchInput').dataset.lastResultHash) runImageSearch($('#imageSearchInput').dataset.lastResultHash, $('#imageSearchInput').dataset.lastResultAi);
   }
 });
-async function runImageSearch(dataUrl){
-  $('#imageSearchResults').innerHTML = '<div class="spinner" style="grid-column:1/-1;"></div>';
-  const targetHash = await imageHash(dataUrl);
+async function aiDescribePhoto(dataUrlForAi){
+  const prompt = 'На фото — товар или предмет. Определи, что это, и ответь ТОЛЬКО коротким поисковым запросом на русском языке (2-5 слов: тип товара и ключевая характеристика, без вводных фраз, без кавычек и без точки в конце) — так, чтобы этот запрос можно было ввести в поиск интернет-магазина и найти такой же или похожий товар.';
+  const text = await callAiRaw(prompt, dataUrlForAi, false);
+  return (text||'').trim().replace(/^["'«]+|["'»]+$/g,'').replace(/\.$/,'').slice(0,80);
+}
+function computeHashMatches(targetHash){
   const maxDist = imgSearchMode==='exact' ? 12 : 64;
-  const scored = State.products.map(p=>{
+  return State.products.map(p=>{
     let best = 64;
     (p.imgHashes||[]).forEach(h=>{ const d = hammingDist(targetHash, h); if(d<best) best = d; });
     return {p, dist: best};
-  }).filter(s=>s.dist < maxDist).sort((a,b)=>a.dist-b.dist).slice(0,12).map(s=>s.p);
-  if(scored.length===0){
-    $('#imageSearchResults').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-magnifying-glass"></i><div>${imgSearchMode==='exact' ? 'Точное совпадение не найдено. Попробуйте режим «Похожие товары».' : 'Похожих товаров не найдено'}</div></div>`;
+  }).filter(s=>s.dist < maxDist).sort((a,b)=>a.dist-b.dist).map(s=>s.p);
+}
+async function runImageSearch(dataUrlForHash, dataUrlForAi){
+  const resultsEl = $('#imageSearchResults');
+  resultsEl.innerHTML = '<div class="spinner" style="grid-column:1/-1;"></div>';
+  const targetHash = await imageHash(dataUrlForHash);
+  let hashMatches = computeHashMatches(targetHash);
+  let aiMatches = [], aiPhrase = '';
+  const aiKeyReady = !!(State.settings.aiApiKey || State.settings.geminiApiKey);
+  if(aiKeyReady && dataUrlForAi){
+    try{
+      aiPhrase = await aiDescribePhoto(dataUrlForAi);
+      if(aiPhrase){
+        const q = aiPhrase.toLowerCase();
+        const words = q.split(/\s+/).filter(w=>w.length>2);
+        aiMatches = State.products.filter(p=>{
+          const name = (p.name||'').toLowerCase();
+          return name.includes(q) || words.some(w=>name.includes(w));
+        });
+        if(!aiMatches.length){
+          const ids = await aiSemanticProductIds(aiPhrase, State.products);
+          const idSet = new Set(ids);
+          aiMatches = State.products.filter(p=>idSet.has(p.id)).sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));
+        }
+      }
+    }catch(e){
+      console.warn('ИИ-распознавание фото не удалось, используем сравнение по хэшу', e);
+    }
+  }
+  // ИИ-результаты — первыми (обычно точнее для "живого" фото), затем хэш-совпадения, без повторов
+  const seen = new Set();
+  const merged = [];
+  aiMatches.forEach(p=>{ if(!seen.has(p.id)){ seen.add(p.id); merged.push(p); } });
+  hashMatches.forEach(p=>{ if(!seen.has(p.id)){ seen.add(p.id); merged.push(p); } });
+  const final = merged.slice(0,16);
+  if(final.length===0){
+    const emptyHint = imgSearchMode==='exact' ? 'Точное совпадение не найдено. Попробуйте режим «Похожие товары».' : 'Похожих товаров не найдено';
+    resultsEl.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-magnifying-glass"></i><div>${emptyHint}</div></div>`;
     return;
   }
-  renderGrid(scored, '#imageSearchResults');
+  renderGrid(final, '#imageSearchResults');
+  if(aiPhrase && aiMatches.length){
+    resultsEl.insertAdjacentHTML('beforebegin', `<p style="color:var(--text-dim);font-size:12px;margin:-4px 0 10px;"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent);"></i> ИИ распознал: «${aiPhrase}»</p>`);
+  }
 }
-$('#imageSearchInput').addEventListener('change', async (e)=>{
-  const f = e.target.files[0]; if(!f) return;
-  const dataUrl = await compressImage(f, 300, 0.7);
-  e.target.dataset.lastResult = dataUrl;
-  runImageSearch(dataUrl);
-});
+async function handleImageSearchFile(f){
+  if(!f) return;
+  const [hashSrc, aiSrc] = await Promise.all([
+    compressImage(f, 300, 0.7),
+    compressImage(f, 768, 0.8)
+  ]);
+  $('#imageSearchInput').dataset.lastResultHash = hashSrc;
+  $('#imageSearchInput').dataset.lastResultAi = aiSrc;
+  runImageSearch(hashSrc, aiSrc);
+}
+$('#imageSearchInput').addEventListener('change', (e)=>{ handleImageSearchFile(e.target.files[0]); e.target.value=''; });
+$('#imageSearchCameraInput').addEventListener('change', (e)=>{ handleImageSearchFile(e.target.files[0]); e.target.value=''; });
 
 
 /* ============ CONSULTANT BOT ============ */
