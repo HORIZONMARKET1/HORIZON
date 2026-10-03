@@ -162,16 +162,16 @@ a{color:inherit; text-decoration:none;}
   display:flex; align-items:center; justify-content:center; padding:0 3px;
 }
 .theme-switch{
-  width:48px; height:28px; border-radius:20px; background:var(--hz-tile-bg); position:relative; flex-shrink:0; border:1px solid var(--hz-glass-border);
+  width:42px; height:24px; border-radius:20px; background:var(--hz-tile-bg); position:relative; flex-shrink:0; border:1px solid var(--hz-glass-border);
   transition:background .2s ease, box-shadow .2s ease; padding:0;
 }
 .theme-switch .knob{
-  position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
+  position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
   background:#fff; transition:left .22s ease; display:block; box-shadow:0 2px 6px rgba(0,0,0,.35);
 }
 .theme-switch .knob i{display:none;}
 .theme-switch.on{background:var(--grad-main); border-color:transparent; box-shadow:var(--hz-btn-glow), inset 0 0 0 1px rgba(255,255,255,.12);}
-.theme-switch.on .knob{left:23px;}
+.theme-switch.on .knob{left:21px;}
 .topbar-row2{display:flex; gap:8px; margin-top:9px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
 .topbar-row2::-webkit-scrollbar{display:none;}
 .pillbtn{
@@ -202,6 +202,24 @@ body:not([data-theme="dark"]) .hz-logo-img{filter:drop-shadow(0 2px 6px rgba(94,
 .topbar.searching .searchwrap{flex:1 1 auto; width:auto; padding:0 12px; justify-content:flex-start; gap:8px; border-radius:999px; box-shadow:0 0 0 3px rgba(110,77,255,.18), 0 8px 24px rgba(70,40,200,.22);}
 .topbar.searching .searchwrap input{position:static; opacity:1; padding:0; height:auto; width:0; flex:1; z-index:auto;}
 .topbar.searching .searchwrap #photoSearchBtn{display:flex !important;}
+
+/* ===== ЧАТ: на весь экран, поверх нижней панели ===== */
+#ovChatThread.page-overlay .sheet{display:flex; flex-direction:column; padding:calc(10px + env(safe-area-inset-top)) 14px calc(8px + env(safe-area-inset-bottom));}
+#ovChatThread .sheet-title{margin-bottom:8px; gap:10px; justify-content:flex-start;}
+#ovChatThread .sheet-title .close-x{margin-left:auto;}
+#ovChatThread .chat-thread{flex:1; height:auto; min-height:0;}
+#ovChatThread .chat-input-row{padding-bottom:2px;}
+#ovChatThread .chat-input-row input#chatInputMsg{font-size:16px;}
+
+/* ===== ПОИСК ПО ТОВАРАМ (админ / продавец) ===== */
+.prod-search{position:relative; margin:4px 0 12px;}
+.prod-search i.fa-magnifying-glass{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-dim); font-size:14px; pointer-events:none;}
+.prod-search input{width:100%; padding:12px 40px 12px 40px; border-radius:14px; font-size:16px; outline:none; color:var(--text);
+  background:var(--hz-glass-bg); border:1px solid var(--hz-glass-border);}
+.prod-search input:focus{border-color:var(--violet); box-shadow:0 0 0 3px rgba(110,77,255,.18);}
+.prod-search .prod-search-clear{position:absolute; right:6px; top:50%; transform:translateY(-50%); width:32px; height:32px; display:none; align-items:center; justify-content:center; color:var(--text-dim);}
+.prod-search.has-text .prod-search-clear{display:flex;}
+.prod-count{font-size:12px; color:var(--text-dim); margin:-4px 2px 8px; font-weight:600;}
 
 /* ===== BANNER ===== */
 .banner{
@@ -751,16 +769,16 @@ body:not([data-theme="dark"]) .hz-logo-img{filter:drop-shadow(0 2px 6px rgba(94,
   background:rgba(255,255,255,.06); border:1px solid var(--hz-glass-border); color:var(--text);}
 .pf-status::before{content:''; width:9px; height:9px; border-radius:50%; background:#2FD27A; box-shadow:0 0 8px #2FD27A;}
 .pf-chev{position:relative; z-index:1; color:var(--text-dim); font-size:18px;}
-.pf-item{display:flex; align-items:center; gap:12px; padding:9px 13px; margin-bottom:9px; min-height:58px; border-radius:16px; cursor:pointer;
+.pf-item{display:flex; align-items:center; gap:10px; padding:6px 11px; margin-bottom:7px; min-height:48px; border-radius:14px; cursor:pointer;
   background:var(--hz-glass-bg); border:1px solid var(--hz-glass-border); box-shadow:inset 0 1px 0 rgba(255,255,255,.06); transition:transform .15s ease, filter .15s ease;}
 .pf-item:active{transform:scale(.98); filter:brightness(1.12);}
-.pf-ico{width:40px; height:40px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:16px;
+.pf-ico{width:34px; height:34px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:14px;
   background:var(--hz-tile-bg); color:var(--hz-tile-ico); box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 4px 14px rgba(70,40,200,.28);}
-.pf-txt{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;}
-.pf-txt b{font-size:15px; font-weight:700; line-height:1.2;}
-.pf-txt small{font-size:12px; line-height:1.25; color:var(--text-dim); font-weight:500;}
+.pf-txt{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px;}
+.pf-txt b{font-size:13.5px; font-weight:700; line-height:1.2;}
+.pf-txt small{font-size:11px; line-height:1.25; color:var(--text-dim); font-weight:500;}
 [data-theme="dark"] .pf-txt small{color:#8F84C8;}
-.pf-item .pf-arrow{color:var(--text-dim); font-size:13px; flex-shrink:0;}
+.pf-item .pf-arrow{color:var(--text-dim); font-size:11px; flex-shrink:0;}
 .pf-item.pf-note{min-height:0; padding:10px 16px; font-size:12.5px; color:var(--text-dim); cursor:default; gap:10px;}
 .pf-item.pf-danger{background:linear-gradient(180deg,rgba(120,28,48,.38),rgba(60,14,30,.55)); border-color:rgba(255,80,100,.35);}
 .pf-item.pf-danger .pf-ico{background:radial-gradient(circle at 30% 25%,#7A2238,#4A1223); color:#FF5A6E;}
@@ -839,6 +857,9 @@ body:not([data-theme="dark"]) .hz-logo-img{filter:drop-shadow(0 2px 6px rgba(94,
 .stars-input i{font-size:20px; color:var(--border); cursor:pointer;}
 .hz-btn-loading{opacity:.72; cursor:default;}
 .hz-btn-spinner{display:inline-block; width:14px; height:14px; margin-right:7px; border:2px solid rgba(255,255,255,.45); border-top-color:#fff; border-radius:50%; vertical-align:-2px; animation:hzBtnSpin .7s linear infinite;}
+.hz-btn-loading::before{content:''; display:inline-block; flex-shrink:0; width:14px; height:14px; margin-right:7px; border:2px solid rgba(255,255,255,.45); border-top-color:#fff; border-radius:50%; vertical-align:-2px; animation:hzBtnSpin .7s linear infinite;}
+.btn-outline.hz-btn-loading::before, .tiny-btn.hz-btn-loading::before{border-color:rgba(120,120,120,.35); border-top-color:var(--accent);}
+.hz-btn-loading .hz-btn-spinner{display:none;}
 .btn-outline.hz-btn-loading .hz-btn-spinner, .tiny-btn.hz-btn-loading .hz-btn-spinner{border-color:rgba(120,120,120,.35); border-top-color:var(--accent);}
 @keyframes hzBtnSpin{to{transform:rotate(360deg);}}
 
@@ -1349,7 +1370,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- PC BUILDER: PICK A PRODUCT FOR ONE SLOT -->
-<div class="overlay" id="ovPcPicker">
+<div class="overlay page-overlay" id="ovPcPicker">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="pcPickerTitle">Выбор комплектующего <button class="close-x" data-close="ovPcPicker"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1410,7 +1431,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- REGISTER -->
-<div class="overlay" id="ovRegister">
+<div class="overlay page-overlay" id="ovRegister">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Регистрация <button class="close-x" data-close="ovRegister"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1467,7 +1488,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- LOGIN -->
-<div class="overlay" id="ovLogin">
+<div class="overlay page-overlay" id="ovLogin">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Вход <button class="close-x" data-close="ovLogin"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1582,7 +1603,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- CART -->
-<div class="overlay" id="ovCart">
+<div class="overlay page-overlay" id="ovCart">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Корзина <button class="close-x" data-close="ovCart"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1594,7 +1615,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- CHECKOUT -->
-<div class="overlay" id="ovCheckout">
+<div class="overlay page-overlay" id="ovCheckout">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Оформление заказа <button class="close-x" data-close="ovCheckout"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1720,7 +1741,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- CHAT THREAD -->
-<div class="overlay" id="ovChatThread">
+<div class="overlay page-overlay" id="ovChatThread">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">
@@ -1788,7 +1809,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- EDIT PROFILE -->
-<div class="overlay" id="ovEditProfile">
+<div class="overlay page-overlay" id="ovEditProfile">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Редактировать профиль <button class="close-x" data-close="ovEditProfile"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1802,7 +1823,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- ORDER HISTORY -->
-<div class="overlay" id="ovOrders">
+<div class="overlay page-overlay" id="ovOrders">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">История заказов <button class="close-x" data-close="ovOrders"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1813,7 +1834,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- SELLER PAYMENT METHODS -->
-<div class="overlay" id="ovPaymentMethods">
+<div class="overlay page-overlay" id="ovPaymentMethods">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Способы оплаты <button class="close-x" data-close="ovPaymentMethods"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1825,7 +1846,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- PAY ORDER (client selects seller's card to pay) -->
-<div class="overlay" id="ovPayOrder">
+<div class="overlay page-overlay" id="ovPayOrder">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Оплата заказа <button class="close-x" data-close="ovPayOrder"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1909,7 +1930,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- ADD/EDIT PRODUCT -->
-<div class="overlay" id="ovProductForm">
+<div class="overlay page-overlay" id="ovProductForm">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="productFormTitle">Новый товар <button class="close-x" data-close="ovProductForm"><i class="fa-solid fa-xmark"></i></button></div>
@@ -1996,7 +2017,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- ADMIN PANEL -->
-<div class="overlay" id="ovAdmin">
+<div class="overlay page-overlay" id="ovAdmin">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Панель администратора <button class="close-x" data-close="ovAdmin"><i class="fa-solid fa-xmark"></i></button></div>
@@ -2022,7 +2043,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- MY CATALOGS (seller) -->
-<div class="overlay" id="ovMyCatalogs">
+<div class="overlay page-overlay" id="ovMyCatalogs">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Мои товары <button class="close-x" data-close="ovMyCatalogs"><i class="fa-solid fa-xmark"></i></button></div>
@@ -2032,12 +2053,13 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="btn btn-outline" style="width:auto;flex:1;min-width:140px;" id="sellerBulkPriceBtn"><i class="fa-solid fa-percent"></i> Изменить цены</button>
     </div>
     <a href="#" id="sellerCsvTemplateLink" style="display:block;font-size:12px;color:var(--violet);margin:-6px 0 12px;">Скачать шаблон CSV</a>
+    <div id="sellerProdSearchHost"><div class="prod-search" data-prodsearch="seller"><i class="fa-solid fa-magnifying-glass"></i><input type="search" placeholder="Поиск: название, артикул, бренд, цена…" data-prodsearch-input="seller" autocomplete="off"><button type="button" class="prod-search-clear" data-prodsearch-clear="seller"><i class="fa-solid fa-xmark"></i></button></div><div class="prod-count" id="sellerProdCount"></div></div>
     <div id="sellerProductsList"></div>
   </div>
 </div>
 
 <!-- SELLER ANALYTICS -->
-<div class="overlay" id="ovSellerAnalytics">
+<div class="overlay page-overlay" id="ovSellerAnalytics">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Аналитика <button class="close-x" data-close="ovSellerAnalytics"><i class="fa-solid fa-xmark"></i></button></div>
@@ -2046,7 +2068,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 </div>
 
 <!-- SELLER CRM -->
-<div class="overlay" id="ovSellerCRM">
+<div class="overlay page-overlay" id="ovSellerCRM">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Клиенты <button class="close-x" data-close="ovSellerCRM"><i class="fa-solid fa-xmark"></i></button></div>
@@ -2205,7 +2227,7 @@ Xiaomi Redmi Note 13"></textarea></div>
 </div>
 
 <!-- COURIER: APPLICATION FORM -->
-<div class="overlay" id="ovCourierApply">
+<div class="overlay page-overlay" id="ovCourierApply">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Анкета курьера <button class="close-x" data-close="ovCourierApply"><i class="fa-solid fa-xmark"></i></button></div>
@@ -2778,19 +2800,16 @@ async function adminSendWarrantyCertificate(orderId, btn){
 })();
 (function setupGlobalButtonLoadingSpinner(){
   const SELECTOR = '.btn, .tiny-btn';
-  const EXCLUDE_SELECTOR = '[data-close], .admin-tab, .theme-switch, [data-send-warranty]';
+  const EXCLUDE_SELECTOR = '[data-close], .admin-tab, .theme-switch, [data-send-warranty], #pfAiFillBtn, #bulkGenerateBtn';
   function showSpinner(btn){
     if(btn.classList.contains('hz-btn-loading')) return;
-    btn.dataset.hzOrigHtml = btn.innerHTML;
     btn.classList.add('hz-btn-loading');
-    if('disabled' in btn) btn.disabled = true;
-    btn.innerHTML = '<span class="hz-btn-spinner"></span>' + btn.dataset.hzOrigHtml;
+    if('disabled' in btn && !btn.disabled){ btn.disabled = true; btn.dataset.hzDisabledByUs = '1'; }
   }
   function hideSpinner(btn){
     if(!btn.classList.contains('hz-btn-loading')) return;
     btn.classList.remove('hz-btn-loading');
-    if('disabled' in btn) btn.disabled = false;
-    if(btn.dataset.hzOrigHtml!=null){ btn.innerHTML = btn.dataset.hzOrigHtml; delete btn.dataset.hzOrigHtml; }
+    if(btn.dataset.hzDisabledByUs){ delete btn.dataset.hzDisabledByUs; if('disabled' in btn) btn.disabled = false; }
   }
   document.addEventListener('click', (e)=>{
     const btn = e.target.closest(SELECTOR);
@@ -4678,7 +4697,45 @@ function renderGrid(list, sel){
     if(sel==='#productGrid' && State.firstProductsLoad){ grid.innerHTML = loadingStateHtml(); return; }
     grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div></div>'; return;
   }
-  grid.innerHTML = list.map(cardHtml).join('');
+  renderGridProgressive(grid, list);
+}
+
+/* ============ ПОСТЕПЕННАЯ ПОДГРУЗКА КАРТОЧЕК (для медленного интернета) ============
+   Сначала показываем 6 карточек, при прокрутке вниз дорисовываем по 6 следующих. */
+const GRID_BATCH = 6;
+const gridProgState = new WeakMap();
+function renderGridProgressive(grid, list){
+  const prev = gridProgState.get(grid);
+  if(prev && prev.io) prev.io.disconnect();
+  const key = list.slice(0,3).map(p=>p.id).join('|');
+  // если это то же самое представление (например, обновились данные) — не сбрасываем прокрутку
+  let count = (prev && prev.key===key) ? Math.max(prev.count, GRID_BATCH) : GRID_BATCH;
+  count = Math.min(count, list.length);
+  const st = {key, count, io:null};
+  gridProgState.set(grid, st);
+  grid.innerHTML = list.slice(0, count).map(cardHtml).join('');
+  if(count >= list.length || !('IntersectionObserver' in window)){
+    if(count < list.length){ grid.insertAdjacentHTML('beforeend', list.slice(count).map(cardHtml).join('')); st.count = list.length; }
+    return;
+  }
+  const sentinel = document.createElement('div');
+  sentinel.className = 'grid-sentinel';
+  sentinel.style.cssText = 'grid-column:1/-1; text-align:center; padding:18px 0 26px; color:var(--text-dim); font-size:18px;';
+  sentinel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+  grid.appendChild(sentinel);
+  const loadMore = ()=>{
+    if(gridProgState.get(grid)!==st) return;
+    const next = Math.min(st.count + GRID_BATCH, list.length);
+    sentinel.insertAdjacentHTML('beforebegin', list.slice(st.count, next).map(cardHtml).join(''));
+    st.count = next;
+    if(next >= list.length){ st.io.disconnect(); sentinel.remove(); return; }
+    // если sentinel всё ещё на экране (большой экран) — сразу подгружаем дальше
+    st.io.unobserve(sentinel); st.io.observe(sentinel);
+  };
+  st.io = new IntersectionObserver((entries)=>{
+    if(entries.some(e=>e.isIntersecting)) loadMore();
+  }, {rootMargin:'250px 0px'});
+  st.io.observe(sentinel);
 }
 
 /* ============ CARD PHOTO SWIPE (без открытия товара) ============ */
@@ -7986,6 +8043,15 @@ function presenceStatusLabel(lastActiveAtMs){
   const days = Math.round(hrs/24);
   return days===1 ? 'был(а) вчера' : `был(а) ${days} дн назад`;
 }
+function syncChatViewport(){
+  const ov = document.getElementById('ovChatThread'); if(!ov) return;
+  const vv = window.visualViewport;
+  if(vv && ov.classList.contains('open') && window.innerHeight - vv.height > 80){
+    ov.style.bottom = 'auto'; ov.style.height = vv.height + 'px'; ov.style.top = vv.offsetTop + 'px';
+    const m = document.getElementById('chatMessages'); if(m) m.scrollTop = m.scrollHeight;
+  } else { ov.style.height = ''; ov.style.top = ''; ov.style.bottom = ''; }
+}
+if(window.visualViewport){ visualViewport.addEventListener('resize', syncChatViewport); visualViewport.addEventListener('scroll', syncChatViewport); }
 let chatTypingCheckInterval = null;
 function openChatThread(otherId, otherName, productId, productName, otherPhoto){
   State.activeChatSellerId = otherId;
@@ -7998,7 +8064,7 @@ function openChatThread(otherId, otherName, productId, productName, otherPhoto){
   $('#chatMessages').innerHTML = '';
   $('#chatInputMsg').value = '';
   $('#chatSendBtn').disabled = true;
-  closeOv('ovChatList'); openOv('ovChatThread');
+  openOv('ovChatThread'); $('#ovChatThread').style.zIndex = 60; syncChatViewport();
   setTimeout(()=>$('#chatInputMsg').focus(), 300);
   const chatDocId = [State.user.docId, otherId].sort().join('_');
   State.activeOpenChatDocId = chatDocId;
@@ -8348,17 +8414,54 @@ function renderAbout(){
 }
 
 /* ============ SELLER: MY PRODUCTS ============ */
-function renderSellerProducts(){
-  const list = State.products.filter(p=>p.sellerId===State.user.docId);
-  const wrap = $('#sellerProductsList');
-  wrap.innerHTML = list.map(p=>`<div class="list-row">
+const prodSearchQ = {admin:'', seller:''};
+function prodSearchBoxHtml(kind){
+  const q = prodSearchQ[kind]||'';
+  return `<div class="prod-search${q?' has-text':''}" data-prodsearch="${kind}"><i class="fa-solid fa-magnifying-glass"></i><input type="search" placeholder="Поиск: название, артикул, бренд, цена…" value="${q.replace(/"/g,'&quot;')}" data-prodsearch-input="${kind}" autocomplete="off"><button type="button" class="prod-search-clear" data-prodsearch-clear="${kind}"><i class="fa-solid fa-xmark"></i></button></div><div class="prod-count" id="${kind}ProdCount"></div>`;
+}
+function productMatchesQuery(p, q){
+  q = (q||'').trim().toLowerCase();
+  if(!q) return true;
+  const hay = [p.name, p.articul, p.brand, p.price, p.description].map(v=>String(v==null?'':v).toLowerCase()).join(' ');
+  return q.split(/\s+/).every(w=>hay.includes(w));
+}
+function productRowHtml(p){
+  return `<div class="list-row">
     <div><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.stockQty!=null?`· Остаток: ${p.stockQty}`:''} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
     <div style="display:flex;gap:6px;">
       <button class="tiny-btn ${p.inStock===false?'primary':''}" data-togglestock="${p.id}">${p.inStock===false?'Вернуть в наличие':'Нет в наличии'}</button>
       <button class="tiny-btn" data-editprod="${p.id}">Изменить</button>
       <button class="tiny-btn danger" data-delprod="${p.id}">Удалить</button>
     </div>
-  </div>`).join('') || '<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>Товаров пока нет</div></div>';
+  </div>`;
+}
+function renderAdminProductList(){
+  const wrap = $('#adminProductList'); if(!wrap) return;
+  const all = State.products, list = all.filter(p=>productMatchesQuery(p, prodSearchQ.admin));
+  wrap.innerHTML = list.map(productRowHtml).join('') || `<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>${prodSearchQ.admin?'Ничего не найдено':'Товаров пока нет'}</div></div>`;
+  const c = $('#adminProdCount'); if(c) c.textContent = prodSearchQ.admin ? `Найдено: ${list.length} из ${all.length}` : `Всего товаров: ${all.length}`;
+}
+document.addEventListener('input', (e)=>{
+  const inp = e.target.closest('[data-prodsearch-input]'); if(!inp) return;
+  const kind = inp.getAttribute('data-prodsearch-input');
+  prodSearchQ[kind] = inp.value;
+  inp.closest('.prod-search').classList.toggle('has-text', !!inp.value);
+  if(kind==='admin') renderAdminProductList(); else renderSellerProducts();
+});
+document.addEventListener('click', (e)=>{
+  const clr = e.target.closest('[data-prodsearch-clear]'); if(!clr) return;
+  const kind = clr.getAttribute('data-prodsearch-clear');
+  prodSearchQ[kind] = '';
+  const box = clr.closest('.prod-search'); box.classList.remove('has-text');
+  const inp = box.querySelector('input'); inp.value=''; inp.focus();
+  if(kind==='admin') renderAdminProductList(); else renderSellerProducts();
+});
+function renderSellerProducts(){
+  const all = State.products.filter(p=>p.sellerId===State.user.docId);
+  const list = all.filter(p=>productMatchesQuery(p, prodSearchQ.seller));
+  const wrap = $('#sellerProductsList');
+  wrap.innerHTML = list.map(productRowHtml).join('') || `<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>${prodSearchQ.seller?'Ничего не найдено':'Товаров пока нет'}</div></div>`;
+  const c = $('#sellerProdCount'); if(c) c.textContent = prodSearchQ.seller ? `Найдено: ${list.length} из ${all.length}` : (all.length?`Всего товаров: ${all.length}`:'');
 }
 document.addEventListener('click', (e)=>{
   const toggle = e.target.closest('[data-togglestock]');
@@ -9400,6 +9503,7 @@ function renderAdminTab(){
         <button class="btn btn-outline" style="width:auto;flex:1;min-width:140px;" id="adminPublishProductsBtn"><i class="fa-brands fa-telegram"></i> Публикация товаров</button>
       </div>
       <a href="#" id="adminCsvTemplateLink" style="display:block;font-size:12px;color:var(--violet);margin:0 0 10px;">Скачать шаблон CSV</a>
+      ${prodSearchBoxHtml('admin')}
       <div id="adminProductList"></div>`;
     $('#adminAddProductBtn').addEventListener('click', ()=>openProductForm(null));
     $('#adminBulkCreateBtn').addEventListener('click', openBulkCreate);
@@ -9407,10 +9511,7 @@ function renderAdminTab(){
     $('#adminPublishProductsBtn').addEventListener('click', openPublishProducts);
     $('#adminCsvTemplateLink').addEventListener('click', (e)=>{ e.preventDefault(); downloadCsvTemplate(); });
     $('#adminCsvInput').addEventListener('change', (e)=>{ if(e.target.files[0]) importProductsFromCSV(e.target.files[0], 'admin'); e.target.value=''; });
-    $('#adminProductList').innerHTML = State.products.map(p=>`<div class="list-row">
-      <div><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.stockQty!=null?`· Остаток: ${p.stockQty}`:''} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
-      <div style="display:flex;gap:6px;"><button class="tiny-btn ${p.inStock===false?'primary':''}" data-togglestock="${p.id}">${p.inStock===false?'Вернуть в наличие':'Нет в наличии'}</button><button class="tiny-btn" data-editprod="${p.id}">Изменить</button><button class="tiny-btn danger" data-delprod="${p.id}">Удалить</button></div>
-    </div>`).join('') || '<div class="empty-state"><i class="fa-solid fa-box-open"></i></div>';
+    renderAdminProductList();
   } else if(adminActiveTab==='reviews'){
     renderAdminReviewsTab();
   } else if(adminActiveTab==='users'){
