@@ -3277,21 +3277,70 @@ $('#notifClearAllBtn').addEventListener('click', ()=>{
   renderNotifications();
 });
 
+/* ===== История браузера: «Назад» закрывает верхнее окно, а не уходит на главную ===== */
+const HzNav = (function(){
+  const stack = [];            // id открытых окон в порядке открытия
+  const queue = [];            // очередь операций с history: 'push' | 'back'
+  let busy = false, waitTimer = null;
+  function run(){
+    if(busy) return;
+    const op = queue.shift();
+    if(!op) return;
+    if(op==='push'){ try{ history.pushState({hzOv:1}, '', location.href); }catch(e){} run(); return; }
+    busy = true;
+    waitTimer = setTimeout(()=>{ busy = false; run(); }, 400);
+    try{ history.back(); }catch(e){ clearTimeout(waitTimer); busy = false; run(); }
+  }
+  window.addEventListener('popstate', ()=>{
+    if(busy){ clearTimeout(waitTimer); busy = false; run(); return; }   // это наш собственный history.back()
+    // пользователь нажал «Назад»: закрываем верхнее открытое окно
+    while(stack.length){
+      const id = stack.pop();
+      const el = document.getElementById(id);
+      if(el && el.classList.contains('open') && !el.classList.contains('closing')){ closeOv(id, true); return; }
+    }
+  });
+  return {
+    opened(id){ if(stack.includes(id)) return; stack.push(id); queue.push('push'); run(); },
+    closed(id, fromPop){
+      const k = stack.lastIndexOf(id);
+      if(k<0) return;
+      stack.splice(k,1);
+      if(!fromPop){ queue.push('back'); run(); }
+    }
+  };
+})();
+function hzTopZ(selector, base, except){
+  let m = base;
+  document.querySelectorAll(selector).forEach(o=>{
+    if(o===except) return;
+    const z = parseInt(getComputedStyle(o).zIndex)||0;
+    if(z>m) m = z;
+  });
+  return m;
+}
 function openOv(id){
   const el = document.getElementById(id);
   if(el){
+    const wasOpen = el.classList.contains('open') && !el.classList.contains('closing');
     el.classList.remove('closing'); el.classList.add('open');
     if(el.classList.contains('page-overlay')){
-      const openCount = document.querySelectorAll('.overlay.page-overlay.open').length;
-      el.style.zIndex = 45 + openCount;
+      // всегда поверх всех уже открытых страниц (раньше при равных z-index окно могло оказаться позади)
+      el.style.zIndex = hzTopZ('.overlay.page-overlay.open', 44, el) + 1;
+    } else if(!wasOpen){
+      const cur = parseInt(getComputedStyle(el).zIndex)||100;
+      const top = hzTopZ('.overlay:not(.page-overlay).open', 99, el);
+      if(top >= cur){ el.style.zIndex = top + 1; el.dataset.zset = '1'; }
     }
+    if(!wasOpen) HzNav.opened(id);
   }
   if(id==='ovAbout'){ $('#consultantFab').classList.add('show'); }
   if(id==='ovAdmin'){ refreshReviewModerationBadge(); }
 }
-function closeOv(id){
+function closeOv(id, fromPop){
   const el = document.getElementById(id);
   if(el){
+    HzNav.closed(id, fromPop);
     if(el.classList.contains('page-overlay')){
       el.classList.add('closing');
       setTimeout(()=>{
@@ -3299,6 +3348,7 @@ function closeOv(id){
       }, 260);
     } else {
       el.classList.remove('open');
+      if(el.dataset.zset){ el.style.zIndex = ''; delete el.dataset.zset; }
     }
   }
   if(id==='ovChatThread'){
@@ -3383,6 +3433,7 @@ document.addEventListener('click', (e)=>{
         sheet.classList.remove('dragging');
         sheet.style.transition = '';
         sheet.style.transform = '';
+        HzNav.closed(ov.id, false);
         ov.classList.remove('open');
         ov.classList.remove('closing');
         ov.style.zIndex = '';
@@ -5095,7 +5146,10 @@ const PC_BUILDER_SLOTS = [
   {key:'case',       label:'Корпус (кейс)',           icon:'fa-solid fa-box',             keywords:['корпус','кейс']},
   {key:'motherboard',label:'Материнская плата',       icon:'fa-solid fa-microchip',       keywords:['материнск']},
   {key:'cpu',        label:'Процессор',               icon:'fa-solid fa-microchip',       keywords:['процессор','cpu']},
-  {key:'ssd',        label:'SSD / накопитель',        icon:'fa-solid fa-hard-drive',      keywords:['ssd','ссд','накопитель']},
+  {key:'gpu',        label:'Видеокарта',              icon:'fa-solid fa-display',         keywords:['видеокарт','gpu','geforce','radeon']},
+  {key:'psu',        label:'Блок питания',            icon:'fa-solid fa-plug',            keywords:['блок питания','блок пит','psu']},
+  {key:'ssd',        label:'SSD накопитель',          icon:'fa-solid fa-hard-drive',      keywords:['ssd','ссд']},
+  {key:'hdd',        label:'HDD накопитель',          icon:'fa-solid fa-hard-drive',      keywords:['hdd','хдд','жесткий диск','жёсткий диск']},
   {key:'ram',        label:'Оперативная память',      icon:'fa-solid fa-memory',          keywords:['оперативн','озу','ram']},
   {key:'cpuCooler',  label:'Кулер процессора',        icon:'fa-solid fa-fan',             keywords:['кулер процессора','кулер cpu','процессорный кулер']},
   {key:'extraCooler',label:'Доп. охлаждение (кулеры)',icon:'fa-solid fa-wind',            keywords:['вентилятор','охлаждени','кулер корпуса']},
@@ -5187,15 +5241,18 @@ function renderPcPickerList(){
     wrap.innerHTML = `<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>Товары не найдены</div>${hint}</div>`;
     return;
   }
-  wrap.innerHTML = list.map(p=>`<div class="list-row" data-pcpick="${p.id}" style="cursor:pointer;">
+  wrap.innerHTML = list.map(p=>`<div class="list-row">
     <div style="display:flex;align-items:center;gap:10px;min-width:0;">
       <img src="${(p.images&&p.images[0])||''}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--surface-2);flex-shrink:0;">
       <div style="min-width:0;">
-        <div class="list-row-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px;">${p.name}</div>
+        <div class="list-row-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px;">${p.name}</div>
         <div class="list-row-sub">${fmt(getMinPrice(p))}</div>
       </div>
     </div>
-    <i class="fa-solid fa-chevron-right" style="color:var(--text-dim);flex-shrink:0;"></i>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+      <button type="button" class="btn btn-outline" data-pcview="${p.id}" style="width:auto;padding:8px 10px;font-size:12px;border-radius:10px;"><i class="fa-regular fa-eye"></i> Просмотр</button>
+      <button type="button" class="btn btn-primary" data-pcpick="${p.id}" style="width:auto;padding:8px 12px;font-size:12px;border-radius:10px;">Выбрать</button>
+    </div>
   </div>`).join('');
 }
 $('#pcPickerSearch').addEventListener('input', (e)=>{ pcPickerState.query = e.target.value; renderPcPickerList(); });
@@ -5206,6 +5263,8 @@ document.addEventListener('click', (e)=>{
   if(pcChangeBtn){ openPcPicker(pcChangeBtn.getAttribute('data-pcchange')); return; }
   const pcRemoveBtn = e.target.closest('[data-pcremove]');
   if(pcRemoveBtn){ e.stopPropagation(); pcBuild[pcRemoveBtn.getAttribute('data-pcremove')] = null; persistPcBuild(); renderPcBuilder(); return; }
+  const pcViewBtn = e.target.closest('[data-pcview]');
+  if(pcViewBtn){ e.stopPropagation(); openProductDetail(pcViewBtn.getAttribute('data-pcview')); return; }
   const pcPickRow = e.target.closest('[data-pcpick]');
   if(pcPickRow){ pcBuild[pcPickerState.slotKey] = pcPickRow.getAttribute('data-pcpick'); persistPcBuild(); closeOv('ovPcPicker'); renderPcBuilder(); return; }
 });
