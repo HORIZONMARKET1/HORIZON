@@ -624,6 +624,13 @@ body:not([data-theme="dark"]) .hz-logo-img{filter:drop-shadow(0 2px 6px rgba(94,
 .pd-price-row{display:flex; align-items:baseline; gap:10px; margin:8px 0;}
 .pd-price{font-size:26px; font-weight:900;}
 .pd-rating{display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--text-dim);}
+.pd-desc{font-size:15px; line-height:1.5; color:var(--text); display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; padding:0 4px;}
+.pd-about.open .pd-desc{display:block; -webkit-line-clamp:unset; overflow:visible;}
+.pd-about .char-table{display:none;}
+.pd-about.open .char-table{display:table;}
+.pd-about-toggle{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:6px; padding:10px; font-size:13px; font-weight:700; color:var(--violet);}
+.pd-about-toggle i{font-size:12px; transition:transform .25s ease;}
+.pd-about.open .pd-about-toggle i{transform:rotate(180deg);}
 .char-table{width:100%; border-collapse:collapse; margin-top:8px;}
 .char-table tr{border-bottom:1px solid var(--border);}
 .char-table td{padding:9px 4px; font-size:13px;}
@@ -1611,7 +1618,11 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div id="pdCartControls"></div>
     <div id="pdQuickBuyWrap" style="margin:-2px 0 10px;"></div>
     <div id="pdVariantInfo" style="margin-bottom:10px;"></div>
-    <table class="char-table" id="pdCharTable"></table>
+    <div class="pd-about" id="pdAbout">
+      <div class="pd-desc" id="pdDesc"></div>
+      <table class="char-table" id="pdCharTable"></table>
+      <button type="button" class="pd-about-toggle" id="pdAboutToggle"><span id="pdAboutToggleLabel">Показать больше</span><i class="fa-solid fa-chevron-down"></i></button>
+    </div>
     <div class="section-title" style="padding:14px 0 6px;display:flex;justify-content:space-between;align-items:center;">
       <span>Отзывы</span>
       <button class="tiny-btn primary" id="pdWriteReviewBtn"><i class="fa-solid fa-pen"></i> Оставить отзыв</button>
@@ -6411,8 +6422,15 @@ function openProductDetail(pid){
   $('#pdRating').innerHTML = `<i class="fa-solid fa-star" style="color:#FFA800"></i> ${(p.rating||5).toFixed(1)} · ${p.ratingCount||0} отзывов`;
   $('#pdArticul').textContent = p.articul ? `Артикул: ${p.articul}` : '';
   const chars = p.characteristics||[];
-  $('#pdCharTable').innerHTML = (p.desc ? `<tr><td colspan="2" style="color:var(--text)">${p.desc}</td></tr>` : '') +
-    chars.map(c=>`<tr><td>${c.key}</td><td>${c.value}</td></tr>`).join('');
+  $('#pdDesc').textContent = p.desc || '';
+  $('#pdCharTable').innerHTML = chars.map(c=>`<tr><td>${c.key}</td><td>${c.value}</td></tr>`).join('');
+  (function(){
+    const about = $('#pdAbout'), tg = $('#pdAboutToggle'), lbl = $('#pdAboutToggleLabel');
+    about.classList.remove('open'); lbl.textContent = 'Показать больше';
+    about.style.display = (p.desc || chars.length) ? '' : 'none';
+    tg.style.display = (chars.length || (p.desc||'').length > 120) ? '' : 'none';
+    tg.onclick = ()=>{ const o = about.classList.toggle('open'); lbl.textContent = o ? 'Свернуть' : 'Показать больше'; };
+  })();
   const effectiveSellerId = p.sellerId || 'admin';
   const seller = (effectiveSellerId!=='admin' && State.sellersCache) ? State.sellersCache[effectiveSellerId] : null;
   const sellerName = effectiveSellerId==='admin' ? 'HORIZON MARKET' : (seller ? seller.fio : 'Продавец');
