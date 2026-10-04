@@ -620,6 +620,7 @@ body:not([data-theme="dark"]) .hz-logo-img{filter:drop-shadow(0 2px 6px rgba(94,
 /* ===== PRODUCT DETAIL ===== */
 .pd-gallery{display:flex; gap:8px; overflow-x:auto; margin:-18px -18px 14px; padding:0 18px;}
 .pd-gallery img{width:260px; height:260px; object-fit:cover; border-radius:16px; flex-shrink:0; background:var(--surface-2);}
+.pd-title{font-size:18px; font-weight:800; line-height:1.3; margin:10px 0 2px; color:var(--text); word-break:break-word;}
 .pd-price-row{display:flex; align-items:baseline; gap:10px; margin:8px 0;}
 .pd-price{font-size:26px; font-weight:900;}
 .pd-rating{display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:13px; color:var(--text-dim);}
@@ -692,7 +693,7 @@ body:not([data-theme="dark"]) .hz-logo-img{filter:drop-shadow(0 2px 6px rgba(94,
 .notif-clear-btn{color:var(--danger); border-color:var(--danger);}
 
 /* ===== PRODUCT DETAIL: COLOR / SIZE PICKER ===== */
-.pd-variant-block{padding:12px 0 4px;}
+.pd-variant-block{padding:12px 0 10px;}
 .pd-variant-label{font-size:13px; font-weight:700; margin-bottom:8px;}
 .pd-variant-label span#pdColorSelectedName{font-weight:600; color:var(--text-dim);}
 .pd-sizechart-link{font-size:12.5px; font-weight:600; color:var(--violet); cursor:pointer; display:flex; align-items:center; gap:4px;}
@@ -708,10 +709,10 @@ body:not([data-theme="dark"]) .hz-logo-img{filter:drop-shadow(0 2px 6px rgba(94,
 .pd-color-chip.no-img{font-size:11px; font-weight:700; text-align:center; padding:4px; color:var(--text);}
 .pd-color-chip.active{border-color:var(--violet); box-shadow:0 0 0 1px var(--violet);}
 .pd-color-chip:active{transform:scale(.94);}
-.pd-size-chips{display:grid; grid-template-columns:repeat(auto-fill,minmax(52px,1fr)); gap:8px;}
+.pd-size-chips{display:flex; flex-wrap:wrap; gap:10px; padding-bottom:6px;}
 .pd-size-chip{
-  height:52px; border-radius:14px; background:var(--surface-2); border:2px solid transparent;
-  display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:var(--text);
+  min-width:52px; height:48px; padding:0 18px; border-radius:14px; background:var(--surface-2); border:2px solid transparent;
+  display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:var(--text); white-space:nowrap; flex:0 0 auto;
   transition:border-color .15s ease, transform .15s ease;
 }
 .pd-size-chip:active{transform:scale(.94);}
@@ -1595,10 +1596,14 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="pd-rating" id="pdRating"></div>
     <div id="pdArticul" style="color:var(--text-dim);font-size:12px;margin-top:-6px;"></div>
     <div class="seller-link-row" id="pdSellerLink"></div>
+    <h2 class="pd-title" id="pdTitle"></h2>
     <div class="pd-price-row">
       <div class="pd-price" id="pdPrice"></div>
       <div class="card-oldprice" id="pdOldPrice" style="font-size:14px;"></div>
-      <button class="mini-icon-btn" id="pdPriceWatchBtn" style="position:static;margin-left:auto;width:32px;height:32px;" title="Следить за ценой"><i class="fa-regular fa-bell"></i></button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+        <span id="pdChatSlot" style="display:flex;"></span>
+        <button class="mini-icon-btn" id="pdPriceWatchBtn" style="position:static;width:32px;height:32px;" title="Следить за ценой"><i class="fa-regular fa-bell"></i></button>
+      </div>
     </div>
     <div id="pdPromoLabel" style="margin:-4px 0 8px;"></div>
     <div id="pdLowStock" style="font-size:12px;font-weight:700;color:#FF7A00;margin:-4px 0 8px;"></div>
@@ -6385,6 +6390,7 @@ function openProductDetail(pid){
   $('#pdReviewsToggleLabel').textContent = 'Посмотреть отзывы';
   loadAndRenderReviews(pid); // kick off reviews fetch first so it's not delayed by the rest of the render
   $('#pdName').textContent = p.name;
+  $('#pdTitle').textContent = p.name;
   $('#pdStickyName').textContent = p.name;
   $('#pdStickyPrice').textContent = fmt(getVariantPrice(p, (p.sizes&&p.sizes[0])||null));
   $('#pdStickyBar').style.display = 'none';
@@ -6397,7 +6403,7 @@ function openProductDetail(pid){
   $('#pdLowStock').innerHTML = (p.inStock!==false && p.stockQty!=null && p.stockQty<=5)
     ? `<i class="fa-solid fa-triangle-exclamation"></i> Осталось всего ${p.stockQty} шт.` : '';
   $('#pdSocialProof').innerHTML = (p.totalSold>=5) ? `<i class="fa-solid fa-fire" style="color:#FF7A00;"></i> Уже куплено ${p.totalSold} раз` : '';
-  $('#pdQuickBuyWrap').innerHTML = (p.inStock!==false) ? `<button class="btn btn-outline" id="pdQuickBuyBtn" data-quickbuy="${pid}" style="border-color:var(--accent);color:var(--accent);"><i class="fa-solid fa-bolt"></i> Купить в 1 клик</button>` : '';
+  $('#pdQuickBuyWrap').innerHTML = '';
   rememberRecentlyViewed(pid);
   trackProductView(pid);
   $('#pdOldPrice').textContent = p.oldPrice ? fmt(p.oldPrice) : '';
@@ -6493,9 +6499,9 @@ function refreshPdCartControls(p){
       ? `<button class="btn btn-outline" disabled style="opacity:.6;"><i class="fa-solid fa-ban"></i> Нет в наличии</button><button class="btn ${isNotifySub?'btn-primary':'btn-outline'}" data-notifystock="${pid}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i> ${isNotifySub?'Вы будете уведомлены':'Уведомить о поступлении'}</button>`
       : (inCart
         ? `<div class="qty-stepper" style="width:fit-content;"><button data-qty="-1" data-id="${pid}"${sizeAttr}${colorAttr}>-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${pid}"${sizeAttr}${colorAttr}>+</button></div>`
-        : `<button class="btn btn-primary" data-addcart="${pid}"${sizeAttr}${colorAttr}><i class="fa-solid fa-cart-plus"></i> В корзину</button>`)}
+        : `<button class="btn btn-primary" data-addcart="${pid}"${sizeAttr}${colorAttr} style="width:auto;flex:1 1 0;min-width:0;padding:14px 8px;font-size:13px;"><i class="fa-solid fa-cart-plus"></i> В корзину</button>`)}
+    ${p.inStock!==false ? `<button class="btn btn-outline" id="pdQuickBuyBtn" data-quickbuy="${pid}" style="width:auto;flex:1 1 0;min-width:0;padding:14px 8px;font-size:13px;border-color:var(--accent);color:var(--accent);"><i class="fa-solid fa-bolt"></i> Купить в 1 клик</button>` : ''}
     ${(hasWholesale && p.inStock!==false) ? `<button class="btn btn-outline" data-toggle-wholesale="1"><i class="fa-solid fa-boxes-stacked"></i> Купить оптом</button>` : ''}
-    <button class="btn btn-outline" style="width:auto;padding:14px 16px;" data-chat-seller="${p.sellerId||'admin'}" data-seller-name="${(p.sellerId&&State.sellersCache&&State.sellersCache[p.sellerId]&&State.sellersCache[p.sellerId].fio)||'HORIZON MARKET'}" data-chat-product="${pid}" data-chat-product-name="${p.name}"><i class="fa-solid fa-comment-dots"></i></button>
   </div>
   ${(hasWholesale && p.inStock!==false) ? `<div id="pdWholesalePanel" style="display:none;margin-bottom:14px;padding:14px;background:var(--surface-2);border-radius:14px;">
       <div style="font-weight:700;font-size:13px;margin-bottom:6px;"><i class="fa-solid fa-boxes-stacked"></i> Характеристики опта</div>
@@ -6509,6 +6515,7 @@ function refreshPdCartControls(p){
       <div style="color:var(--text-dim);font-size:11.5px;margin-bottom:10px;">Минимальный заказ: ${wMin} пачек · Итого: <span id="pdWholesaleTotal">${fmt(p.wholesale.price*wStartQty)}</span></div>
       <button class="btn btn-primary" data-addwholesale="${pid}"><i class="fa-solid fa-cart-plus"></i> Добавить оптом в корзину</button>
     </div>` : ''}`;
+  $('#pdChatSlot').innerHTML = `<button class="mini-icon-btn" style="position:static;width:32px;height:32px;" title="Написать продавцу" data-chat-seller="${p.sellerId||'admin'}" data-seller-name="${(p.sellerId&&State.sellersCache&&State.sellersCache[p.sellerId]&&State.sellersCache[p.sellerId].fio)||'HORIZON MARKET'}" data-chat-product="${pid}" data-chat-product-name="${p.name}"><i class="fa-solid fa-comment-dots"></i></button>`;
   renderVariantCartInfo(pid);
 }
 $('#pdShareBtn').addEventListener('click', ()=>{ if(State.activeProductId) shareProduct(State.activeProductId); });
