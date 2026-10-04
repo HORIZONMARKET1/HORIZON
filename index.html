@@ -16,8 +16,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&amp;family=Petit+Formal+Script&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <!-- Генерация PDF гарантийного талона -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer=""></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -1308,6 +1308,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
   <button class="filter-chip" id="openPriceFilterBtn"><i class="fa-solid fa-sliders"></i> <span id="priceFilterChipLabel">Цена</span></button>
   <button class="filter-chip" id="openBrandFilterBtn" style="display:none;"><i class="fa-solid fa-tags"></i> <span id="brandFilterChipLabel">Бренд</span></button>
 </div>
+<div id="recentWrap" style="display:none;padding:4px 14px 10px;"></div>
 <main class="grid" id="productGrid">
   <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
   <div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>
@@ -1369,12 +1370,12 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 
 <!-- BOTTOM NAV -->
 <nav class="bottomnav">
-  <button class="navbtn active" data-page="home"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 3.1 3.7 9.9c-.4.3-.7.8-.7 1.4V19a2 2 0 0 0 2 2h2.7a.9.9 0 0 0 .9-.9v-4.4c0-.7.6-1.3 1.3-1.3h3.2c.7 0 1.3.6 1.3 1.3v4.4c0 .5.4.9.9.9H19a2 2 0 0 0 2-2v-7.7c0-.6-.3-1.1-.7-1.4L12 3.1z"/></svg></span><span class="nav-lbl">Главная</span></button>
-  <button class="navbtn" data-page="favorites"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.4S3.6 15.3 3.6 9.4C3.6 6.8 5.6 5 7.9 5c1.7 0 3.1.9 4.1 2.4C13 5.9 14.400 5 16.100 5c2.300 0 4.300 1.800 4.300 4.400 0 5.900-8.400 11-8.400 11z"/></svg></span><span class="nav-lbl">Избранное</span></button>
-  <button class="navbtn" data-page="chat"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" fill-rule="evenodd" d="M12 3C6.900 3 3 6.600 3 11.100c0 2.300 1 4.300 2.700 5.800-.1 1.200-.6 2.400-1.500 3.300-.2.200 0 .6.300.6 1.900-.1 3.400-.8 4.500-1.600.8.200 1.600.3 2.500.3 5.100 0 9-3.600 9-8.100S17.100 3 12 3zM8.300 10.150a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300z"/></svg><span class="badge hidden" id="chatBadge">0</span></span><span class="nav-lbl">Чат</span></button>
-  <button class="navbtn" id="openCartBtn" data-page="cart"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.800 3.700h1.900c.5 0 .9.300 1 .8L6.400 7" stroke-width="2"/><path fill="currentColor" stroke="none" d="M6 7h14.200a.8.8 0 0 1 .8 1l-1.600 6.200a1.600 1.600 0 0 1-1.550 1.200H8.900a1.600 1.600 0 0 1-1.550-1.200L6 7z"/><circle cx="9.200" cy="19.600" r="1.500" fill="currentColor" stroke="none"/><circle cx="16.400" cy="19.600" r="1.500" fill="currentColor" stroke="none"/></svg><span class="badge" id="cartBadge">0</span></span><span class="nav-lbl">Корзина</span></button>
-  <button class="navbtn" data-page="pcbuilder"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="4.500" width="17" height="11.500" rx="2.600"/><path d="M12 16v3.500M8.500 19.500h7"/></svg></span><span class="nav-lbl">Собрать ПК</span></button>
-  <button class="navbtn" data-page="profile"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.600"/><path d="M5 19.200c0-3.100 3-5 7-5s7 1.900 7 5c0 .5-.4.900-.9.900H5.900c-.5 0-.9-.4-.9-.9z"/></svg></span><span class="nav-lbl">Профиль</span></button>
+  <button class="navbtn active" data-page="home"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 3.1 3.7 9.9c-.4.3-.7.8-.7 1.4V19a2 2 0 0 0 2 2h2.7a.9.9 0 0 0 .9-.9v-4.4c0-.7.6-1.3 1.3-1.3h3.2c.7 0 1.3.6 1.3 1.3v4.4c0 .5.4.9.9.9H19a2 2 0 0 0 2-2v-7.7c0-.6-.3-1.1-.7-1.4L12 3.1z"></path></svg></span><span class="nav-lbl">Главная</span></button>
+  <button class="navbtn" data-page="favorites"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.4S3.6 15.3 3.6 9.4C3.6 6.8 5.6 5 7.9 5c1.7 0 3.1.9 4.1 2.4C13 5.9 14.400 5 16.100 5c2.300 0 4.300 1.800 4.300 4.400 0 5.900-8.400 11-8.400 11z"></path></svg></span><span class="nav-lbl">Избранное</span></button>
+  <button class="navbtn" data-page="chat"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" fill-rule="evenodd" d="M12 3C6.900 3 3 6.600 3 11.100c0 2.300 1 4.300 2.700 5.800-.1 1.200-.6 2.400-1.500 3.300-.2.200 0 .6.300.6 1.900-.1 3.400-.8 4.500-1.600.8.200 1.600.3 2.500.3 5.100 0 9-3.600 9-8.100S17.100 3 12 3zM8.300 10.150a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300z"></path></svg><span class="badge hidden" id="chatBadge">0</span></span><span class="nav-lbl">Чат</span></button>
+  <button class="navbtn" id="openCartBtn" data-page="cart"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.800 3.700h1.900c.5 0 .9.300 1 .8L6.400 7" stroke-width="2"></path><path fill="currentColor" stroke="none" d="M6 7h14.200a.8.8 0 0 1 .8 1l-1.600 6.200a1.600 1.600 0 0 1-1.550 1.200H8.900a1.600 1.600 0 0 1-1.550-1.200L6 7z"></path><circle cx="9.200" cy="19.600" r="1.500" fill="currentColor" stroke="none"></circle><circle cx="16.400" cy="19.600" r="1.500" fill="currentColor" stroke="none"></circle></svg><span class="badge" id="cartBadge">0</span></span><span class="nav-lbl">Корзина</span></button>
+  <button class="navbtn" data-page="pcbuilder"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="4.500" width="17" height="11.500" rx="2.600"></rect><path d="M12 16v3.500M8.500 19.500h7"></path></svg></span><span class="nav-lbl">Собрать ПК</span></button>
+  <button class="navbtn" data-page="profile"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.600"></circle><path d="M5 19.200c0-3.100 3-5 7-5s7 1.900 7 5c0 .5-.4.900-.9.900H5.900c-.5 0-.9-.4-.9-.9z"></path></svg></span><span class="nav-lbl">Профиль</span></button>
 </nav>
 
 <!-- COMPARE OVERLAY -->
@@ -1392,12 +1393,18 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="sheet-handle"></div>
     <div class="sheet-title">Собрать ПК <button class="close-x" data-close="ovPcBuilder"><i class="fa-solid fa-xmark"></i></button></div>
     <p style="color:var(--text-dim);font-size:12.5px;margin:-8px 0 14px;">Выберите комплектующие для своего компьютера — нажмите на каждую строку, чтобы открыть список товаров этой категории. Итоговая сумма пересчитывается автоматически.</p>
+    <div id="pcPresetBar" style="margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">Готовые сборки (потом можно изменить)</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;"><button class="filter-chip" data-pcpreset="office">Офис</button><button class="filter-chip" data-pcpreset="gaming">Игровой</button><button class="filter-chip" data-pcpreset="editing">Для монтажа</button></div>
+      <div style="display:flex;gap:8px;"><input id="pcBudget" type="number" inputmode="numeric" placeholder="Бюджет, TJS" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text);"><button class="btn btn-primary" id="pcBudgetBtn" style="width:auto;padding:10px 16px;">Подобрать</button></div>
+    </div>
     <div id="pcBuilderList"></div>
     <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <span style="font-weight:700;">Итого за сборку</span>
         <span style="font-weight:800;font-size:19px;" id="pcBuilderTotal">0 ₽</span>
       </div>
+      <button class="btn btn-outline" id="pcBuilderShareBtn" style="margin-bottom:10px;"><i class="fa-solid fa-share-nodes"></i> Поделиться сборкой</button>
       <button class="btn btn-primary" id="pcBuilderOrderBtn"><i class="fa-solid fa-cart-shopping"></i> Заказать сборку</button>
     </div>
   </div>
@@ -1412,9 +1419,21 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <i class="fa-solid fa-magnifying-glass"></i>
       <input id="pcPickerSearch" placeholder="Поиск по названию...">
     </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <select id="pcPickerSort" style="flex:1;min-width:0;padding:10px;border-radius:12px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);font-size:13px;"><option value="">Сортировка</option><option value="asc">Сначала дешёвые</option><option value="desc">Сначала дорогие</option></select>
+      <select id="pcPickerBrand" style="flex:1;min-width:0;padding:10px;border-radius:12px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);font-size:13px;"></select>
+    </div>
     <div id="pcPickerList"></div>
   </div>
 </div>
+
+<!-- COMPARE -->
+<div class="overlay page-overlay" id="ovCompare"><div class="sheet"><div class="sheet-handle"></div>
+  <div class="sheet-title">Сравнение товаров <button class="close-x" data-close="ovCompare"><i class="fa-solid fa-xmark"></i></button></div>
+  <div id="cmpBody" style="overflow-x:auto;"></div>
+  <button class="btn btn-outline" id="cmpClearBtn" style="margin-top:14px;">Очистить сравнение</button>
+</div></div>
+<button id="cmpFab" style="display:none;position:fixed;right:14px;bottom:calc(var(--tabbar-h) + 14px);z-index:44;padding:12px 16px;border-radius:24px;background:var(--violet);color:#fff;font-weight:800;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,.35);"><i class="fa-solid fa-scale-balanced"></i> Сравнить (<span id="cmpFabN">0</span>)</button>
 
 <!-- CONSULTANT -->
 <button class="consultant-fab" id="consultantFab"><i class="fa-solid fa-headset"></i></button>
@@ -1680,7 +1699,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <label>Способ получения</label>
       <div class="pay-option-row">
         <label class="pay-option active" id="coReceivePickupOption">
-          <input type="radio" name="coReceiveMethod" value="pickup" checked>
+          <input type="radio" name="coReceiveMethod" value="pickup" checked="">
           <div><div class="pay-option-title"><i class="fa-solid fa-store"></i> Самовывоз</div><div class="pay-option-sub">Забираете заказ самостоятельно</div></div>
         </label>
         <label class="pay-option" id="coReceiveDeliveryOption">
@@ -2082,6 +2101,8 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="admin-tab" data-tab="push">Push</button>
       <button class="admin-tab" data-tab="promocodes">Промокоды</button>
       <button class="admin-tab" data-tab="flashsale">Акция</button>
+      <button class="admin-tab" data-tab="stats">Статистика</button>
+      <button class="admin-tab" data-tab="massprice">Цены</button>
       <button class="admin-tab" data-tab="pcbuilder">Сборка ПК</button>
       <button class="admin-tab" data-tab="about">О нас</button>
       <button class="admin-tab" data-tab="security">Доступ</button>
@@ -5143,24 +5164,25 @@ document.addEventListener('click', (e)=>{
 /* ============ PC BUILDER («Собрать ПК») ============ */
 const PC_BUILDER_SLOTS = [
   {key:'monitor',    label:'Монитор',                 icon:'fa-solid fa-desktop',         keywords:['монитор']},
-  {key:'case',       label:'Корпус (кейс)',           icon:'fa-solid fa-box',             keywords:['корпус','кейс']},
-  {key:'motherboard',label:'Материнская плата',       icon:'fa-solid fa-microchip',       keywords:['материнск']},
-  {key:'cpu',        label:'Процессор',               icon:'fa-solid fa-microchip',       keywords:['процессор','cpu']},
+  {key:'case',       label:'Корпус (кейс)',           icon:'fa-solid fa-box',             req:true, keywords:['корпус','кейс']},
+  {key:'motherboard',label:'Материнская плата',       icon:'fa-solid fa-microchip',       req:true, keywords:['материнск']},
+  {key:'cpu',        label:'Процессор',               icon:'fa-solid fa-microchip',       req:true, keywords:['процессор','cpu']},
   {key:'gpu',        label:'Видеокарта',              icon:'fa-solid fa-display',         keywords:['видеокарт','gpu','geforce','radeon']},
-  {key:'psu',        label:'Блок питания',            icon:'fa-solid fa-plug',            keywords:['блок питания','блок пит','psu']},
-  {key:'ssd',        label:'SSD накопитель',          icon:'fa-solid fa-hard-drive',      keywords:['ssd','ссд']},
-  {key:'hdd',        label:'HDD накопитель',          icon:'fa-solid fa-hard-drive',      keywords:['hdd','хдд','жесткий диск','жёсткий диск']},
-  {key:'ram',        label:'Оперативная память',      icon:'fa-solid fa-memory',          keywords:['оперативн','озу','ram']},
+  {key:'psu',        label:'Блок питания',            icon:'fa-solid fa-plug',            req:true, keywords:['блок питания','блок пит','psu']},
+  {key:'ssd',        label:'SSD накопитель',          icon:'fa-solid fa-hard-drive',      multi:true, keywords:['ssd','ссд']},
+  {key:'hdd',        label:'HDD накопитель',          icon:'fa-solid fa-hard-drive',      multi:true, keywords:['hdd','хдд','жесткий диск','жёсткий диск']},
+  {key:'ram',        label:'Оперативная память',      icon:'fa-solid fa-memory',          req:true, multi:true, keywords:['оперативн','озу','ram']},
   {key:'cpuCooler',  label:'Кулер процессора',        icon:'fa-solid fa-fan',             keywords:['кулер процессора','кулер cpu','процессорный кулер']},
-  {key:'extraCooler',label:'Доп. охлаждение (кулеры)',icon:'fa-solid fa-wind',            keywords:['вентилятор','охлаждени','кулер корпуса']},
+  {key:'extraCooler',label:'Доп. охлаждение (кулеры)',icon:'fa-solid fa-wind',            multi:true, keywords:['вентилятор','охлаждени','кулер корпуса']},
   {key:'keyboard',   label:'Клавиатура',              icon:'fa-solid fa-keyboard',        keywords:['клавиатур']},
   {key:'mouse',      label:'Мышка',                   icon:'fa-solid fa-computer-mouse',  keywords:['мышь','мышка']},
   {key:'mousepad',   label:'Коврик для мыши',         icon:'fa-solid fa-square',          keywords:['коврик']},
 ];
 let pcBuild = {};
 let pcPickerState = {slotKey:null, query:''};
-function loadPcBuild(){ try{ pcBuild = JSON.parse(localStorage.getItem('hz_pcbuild')||'{}'); }catch(e){ pcBuild = {}; } }
-function persistPcBuild(){ localStorage.setItem('hz_pcbuild', JSON.stringify(pcBuild)); }
+let pcQty = {};
+function loadPcBuild(){ try{ pcBuild = JSON.parse(localStorage.getItem('hz_pcbuild')||'{}'); }catch(e){ pcBuild = {}; } try{ pcQty = JSON.parse(localStorage.getItem('hz_pcqty')||'{}'); }catch(e){ pcQty = {}; } }
+function persistPcBuild(){ localStorage.setItem('hz_pcbuild', JSON.stringify(pcBuild)); localStorage.setItem('hz_pcqty', JSON.stringify(pcQty)); }
 function pcCatalogNamesForProduct(p){
   const cat = (State.catalogs||[]).find(c=>c.id===p.catalogId);
   const sub = (State.subcatalogs||[]).find(s=>s.id===p.subcatalogId);
@@ -5186,36 +5208,71 @@ function openPcBuilder(){
   renderPcBuilder();
   openOv('ovPcBuilder');
 }
+function pcSlotQty(slot){ return slot.multi ? Math.max(1, pcQty[slot.key]||1) : 1; }
 function pcBuilderTotal(){
   return PC_BUILDER_SLOTS.reduce((sum,slot)=>{
     const p = pcBuild[slot.key] ? State.products.find(pp=>pp.id===pcBuild[slot.key]) : null;
-    return sum + (p ? getMinPrice(p) : 0);
+    return sum + (p ? getMinPrice(p)*pcSlotQty(slot) : 0);
   },0);
 }
+/* --- проверка совместимости: данные берём из названия, бренда, описания и характеристик товара --- */
+function pcTxt(p){ return p ? [p.name,p.brand,p.description,...(p.characteristics||[]).map(c=>c.key+' '+c.value)].join(' ').toLowerCase() : ''; }
+function pcSocket(t){ const m = t.match(/lga\s?-?\s?(\d{3,4})|\bam([3-5])\+?\b/); return m ? (m[1]?'LGA'+m[1]:'AM'+m[2]) : null; }
+function pcDdr(t){ const m = t.match(/ddr\s?-?([345])/); return m ? 'DDR'+m[1] : null; }
+function pcCheckCompat(){
+  const g = k=>pcBuild[k] ? State.products.find(pp=>pp.id===pcBuild[k]) : null;
+  const warns=[]; let checks=0;
+  const cpu=pcTxt(g('cpu')), mb=pcTxt(g('motherboard')), ram=pcTxt(g('ram')), gpu=pcTxt(g('gpu')), psu=pcTxt(g('psu'));
+  const sc=pcSocket(cpu), sm=pcSocket(mb);
+  if(sc && sm){ checks++; if(sc!==sm) warns.push(`Сокет процессора (${sc}) не подходит к материнской плате (${sm})`); }
+  const dm=pcDdr(mb), dr=pcDdr(ram);
+  if(dm && dr){ checks++; if(dm!==dr) warns.push(`Память ${dr} не подходит: плата работает с ${dm}`); }
+  const need=gpu.match(/(?:рекомендуем|минимальн|мощност)[^.\d]{0,45}?(\d{3,4})\s?(?:вт|w)\b/);
+  const have=[...psu.matchAll(/(\d{3,4})\s?(?:вт|w)\b/g)].map(m=>+m[1]).sort((a,b)=>b-a)[0];
+  if(need && have){ checks++; if(have<+need[1]) warns.push(`Блок питания ${have} Вт слабоват: видеокарте нужно от ${need[1]} Вт`); }
+  return {warns, checks};
+}
+function pcStatusHtml(){
+  const total=PC_BUILDER_SLOTS.length, done=PC_BUILDER_SLOTS.filter(sl=>pcBuild[sl.key]).length;
+  const missing=PC_BUILDER_SLOTS.filter(sl=>sl.req && !pcBuild[sl.key]).map(sl=>sl.label);
+  const c=pcCheckCompat();
+  let h=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px;"><span>Выбрано ${done} из ${total}</span><span style="color:var(--text-dim);">${Math.round(done/total*100)}%</span></div>
+    <div style="height:8px;border-radius:6px;background:var(--surface-2);overflow:hidden;"><div style="height:100%;width:${done/total*100}%;background:linear-gradient(90deg,#7B2FF7,#9b6bff);transition:width .3s;"></div></div>
+    ${missing.length?`<div style="font-size:12px;color:var(--text-dim);margin-top:6px;">Обязательно ещё: ${missing.join(', ')}</div>`:''}</div>`;
+  const est=pcPsuEstimate();
+  if(est){ const have=[...pcTxt(State.products.find(pp=>pp.id===pcBuild.psu)).matchAll(/(\d{3,4})\s?(?:вт|w)\b/g)].map(m=>+m[1]).sort((a,b)=>b-a)[0];
+    h+=`<div style="font-size:12.5px;margin-bottom:8px;padding:9px 12px;border-radius:12px;background:var(--surface-2);"><i class="fa-solid fa-bolt" style="color:var(--violet);"></i> Рекомендуемый блок питания: от <b>${est.w} Вт</b> <span style="color:var(--text-dim);">(${est.note})</span>${pcBuild.psu&&have&&have<est.w?'<div style="color:#ff5a5a;font-weight:700;margin-top:4px;">Выбранный блок питания ('+have+' Вт) слабее рекомендуемого</div>':''}</div>`; }
+  h+=c.warns.map(w=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;margin-bottom:8px;border-radius:12px;background:rgba(255,90,90,.12);border:1px solid rgba(255,90,90,.4);font-size:12.5px;font-weight:600;"><i class="fa-solid fa-triangle-exclamation" style="color:#ff5a5a;margin-top:2px;"></i><span>${w}</span></div>`).join('');
+  if(c.checks && !c.warns.length) h+=`<div style="padding:9px 12px;margin-bottom:8px;border-radius:12px;background:rgba(40,200,120,.12);border:1px solid rgba(40,200,120,.4);font-size:12.5px;font-weight:600;"><i class="fa-solid fa-circle-check" style="color:#28c878;"></i> Совместимость проверена: проблем не найдено</div>`;
+  return h;
+}
 function renderPcBuilder(){
-  $('#pcBuilderList').innerHTML = PC_BUILDER_SLOTS.map(slot=>{
+  $('#pcBuilderList').innerHTML = pcStatusHtml() + PC_BUILDER_SLOTS.map(slot=>{
     const p = pcBuild[slot.key] ? State.products.find(pp=>pp.id===pcBuild[slot.key]) : null;
+    const q = pcSlotQty(slot);
     return `<div class="list-row">
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
         <div style="width:38px;height:38px;border-radius:10px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--violet);flex-shrink:0;"><i class="${slot.icon}"></i></div>
         <div style="min-width:0;">
-          <div class="list-row-title">${slot.label}</div>
-          <div class="list-row-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;">${p ? p.name : 'Не выбрано'}</div>
+          <div class="list-row-title">${slot.label}${slot.req?' <span style="color:#ff5a5a;font-size:11px;">обязательно</span>':''}</div>
+          <div class="list-row-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;">${p ? p.name : 'Не выбрано'}</div>
         </div>
       </div>
       ${p
-        ? `<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-            <span style="font-weight:700;font-size:13px;">${fmt(getMinPrice(p))}</span>
-            <button class="tiny-btn" data-pcchange="${slot.key}">Изменить</button>
-            <button class="tiny-btn danger" data-pcremove="${slot.key}"><i class="fa-solid fa-xmark"></i></button>
-          </div>`
+        ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+            <span style="font-weight:700;font-size:13px;">${fmt(getMinPrice(p)*q)}</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              ${slot.multi?`<button class="tiny-btn" data-pcqty="${slot.key}:-1">−</button><b style="min-width:16px;text-align:center;">${q}</b><button class="tiny-btn" data-pcqty="${slot.key}:1">+</button>`:''}
+              <button class="tiny-btn" data-pcchange="${slot.key}">Изменить</button>
+              <button class="tiny-btn danger" data-pcremove="${slot.key}"><i class="fa-solid fa-xmark"></i></button>
+            </div></div>`
         : `<button class="tiny-btn primary" data-pcslot="${slot.key}">Выбрать</button>`}
     </div>`;
   }).join('');
   $('#pcBuilderTotal').textContent = fmt(pcBuilderTotal());
 }
 function openPcPicker(slotKey){
-  pcPickerState = {slotKey, query:''};
+  pcPickerState = {slotKey, query:'', sort:'', brand:''}; $('#pcPickerSort').value='';
   const slot = PC_BUILDER_SLOTS.find(s=>s.key===slotKey);
   $('#pcPickerTitle').childNodes[0].textContent = 'Выбор: ' + slot.label + ' ';
   $('#pcPickerSearch').value = '';
@@ -5230,6 +5287,14 @@ function renderPcPickerList(){
     ? State.products.filter(p=>(p.name||'').toLowerCase().includes(q))
     : pcProductsForSlot(slot);
   list = list.filter(p=>p.inStock!==false);
+  const brands=[...new Set(list.map(p=>(p.brand||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
+  if(pcPickerState.brand && !brands.includes(pcPickerState.brand)) pcPickerState.brand='';
+  const bs=$('#pcPickerBrand');
+  bs.innerHTML='<option value="">Все бренды</option>'+brands.map(b=>`<option ${b===pcPickerState.brand?'selected':''}>${b}</option>`).join('');
+  bs.style.display = brands.length?'':'none';
+  if(pcPickerState.brand) list=list.filter(p=>(p.brand||'').trim()===pcPickerState.brand);
+  if(pcPickerState.sort==='asc') list.sort((a,b)=>getMinPrice(a)-getMinPrice(b));
+  else if(pcPickerState.sort==='desc') list.sort((a,b)=>getMinPrice(b)-getMinPrice(a));
   const wrap = $('#pcPickerList');
   if(!list.length){
     let hint = '';
@@ -5255,6 +5320,8 @@ function renderPcPickerList(){
     </div>
   </div>`).join('');
 }
+$('#pcPickerSort').addEventListener('change', e=>{ pcPickerState.sort=e.target.value; renderPcPickerList(); });
+$('#pcPickerBrand').addEventListener('change', e=>{ pcPickerState.brand=e.target.value; renderPcPickerList(); });
 $('#pcPickerSearch').addEventListener('input', (e)=>{ pcPickerState.query = e.target.value; renderPcPickerList(); });
 document.addEventListener('click', (e)=>{
   const pcSlotBtn = e.target.closest('[data-pcslot]');
@@ -5262,26 +5329,213 @@ document.addEventListener('click', (e)=>{
   const pcChangeBtn = e.target.closest('[data-pcchange]');
   if(pcChangeBtn){ openPcPicker(pcChangeBtn.getAttribute('data-pcchange')); return; }
   const pcRemoveBtn = e.target.closest('[data-pcremove]');
-  if(pcRemoveBtn){ e.stopPropagation(); pcBuild[pcRemoveBtn.getAttribute('data-pcremove')] = null; persistPcBuild(); renderPcBuilder(); return; }
+  if(pcRemoveBtn){ e.stopPropagation(); pcBuild[pcRemoveBtn.getAttribute('data-pcremove')] = null; delete pcQty[pcRemoveBtn.getAttribute('data-pcremove')]; persistPcBuild(); renderPcBuilder(); return; }
+  const pcQtyBtn = e.target.closest('[data-pcqty]');
+  if(pcQtyBtn){ const [k,d]=pcQtyBtn.getAttribute('data-pcqty').split(':'); pcQty[k]=Math.min(10,Math.max(1,(pcQty[k]||1)+(+d))); persistPcBuild(); renderPcBuilder(); return; }
   const pcViewBtn = e.target.closest('[data-pcview]');
   if(pcViewBtn){ e.stopPropagation(); openProductDetail(pcViewBtn.getAttribute('data-pcview')); return; }
   const pcPickRow = e.target.closest('[data-pcpick]');
-  if(pcPickRow){ pcBuild[pcPickerState.slotKey] = pcPickRow.getAttribute('data-pcpick'); persistPcBuild(); closeOv('ovPcPicker'); renderPcBuilder(); return; }
+  if(pcPickRow){ pcBuild[pcPickerState.slotKey] = pcPickRow.getAttribute('data-pcpick'); pcQty[pcPickerState.slotKey]=1; persistPcBuild(); closeOv('ovPcPicker'); renderPcBuilder(); return; }
 });
 $('#pcBuilderOrderBtn').addEventListener('click', ()=>{
   if(!State.user){ openOv('ovAuthChoice'); return; }
-  const chosen = PC_BUILDER_SLOTS.map(slot=>pcBuild[slot.key]).filter(Boolean);
+  const chosenSlots = PC_BUILDER_SLOTS.filter(sl=>pcBuild[sl.key]); const chosen = chosenSlots.map(sl=>pcBuild[sl.key]);
   if(!chosen.length){ toast('Выберите хотя бы одно комплектующее','','fa-circle-exclamation'); return; }
-  chosen.forEach(pid=>{
+  chosenSlots.forEach(sl=>{
+    const pid = pcBuild[sl.key], q = pcSlotQty(sl);
     const p = State.products.find(pp=>pp.id===pid);
     if(!p || p.inStock===false) return;
     const existing = State.cart.find(c=>c.productId===pid && !c.wholesale && !c.size && !c.color);
-    if(existing) existing.qty++; else State.cart.push({productId:pid, qty:1, size:null, color:null});
+    if(existing) existing.qty+=q; else State.cart.push({productId:pid, qty:q, size:null, color:null});
   });
   persistCart(); updateCartBadge(); filterAndRenderGrid({});
   toast('Комплектующие добавлены в корзину', 'Оформите заказ в корзине', 'fa-cart-shopping');
   closeOv('ovPcBuilder');
   renderCart(); openOv('ovCart');
+});
+
+
+
+/* ============ ГОТОВЫЕ СБОРКИ, ПОДБОР ПОД БЮДЖЕТ, МОЩНОСТЬ БП ============ */
+function pcPsuEstimate(){
+  const cpu=pcBuild.cpu&&State.products.find(p=>p.id===pcBuild.cpu), gpu=pcBuild.gpu&&State.products.find(p=>p.id===pcBuild.gpu);
+  if(!cpu && !gpu) return null;
+  const tdp=(t,re)=>{ const m=t.match(re); return m?+m[1]:0; };
+  const ct=pcTxt(cpu), gt=pcTxt(gpu);
+  const cw=tdp(ct,/(?:tdp|тдп|тепловыделение|потребляем\w*)[^\d]{0,30}(\d{2,3})\s?(?:вт|w)/);
+  const gw=tdp(gt,/(?:tdp|tgp|тдп|энергопотреблен\w*|потребляем\w*)[^\d]{0,30}(\d{2,3})\s?(?:вт|w)/);
+  const rec=tdp(gt,/(?:рекомендуем|минимальн)[^.\d]{0,45}?(\d{3,4})\s?(?:вт|w)\b/);
+  if(rec) return {w:rec, note:'по данным видеокарты'};
+  if((cpu&&!cw)||(gpu&&!gw)) return null;
+  const w=Math.ceil(((cw+gw+100)*1.3)/50)*50;
+  return {w, note:`процессор ${cw} + видеокарта ${gw} + остальное 100, запас 30%`};
+}
+const PC_PRESETS = {
+  office:  {cpu:.26,motherboard:.2,ram:.12,ssd:.14,psu:.1,case:.1},
+  gaming:  {cpu:.2,gpu:.36,motherboard:.12,ram:.08,ssd:.08,psu:.08,case:.06},
+  editing: {cpu:.26,gpu:.22,motherboard:.13,ram:.14,ssd:.12,psu:.07,case:.06}
+};
+function pcAutoBuild(shares, budget){
+  const chosen={};
+  const cand=k=>{ const sl=PC_BUILDER_SLOTS.find(x=>x.key===k); return sl?pcProductsForSlot(sl).filter(p=>p.inStock!==false).sort((a,b)=>getMinPrice(a)-getMinPrice(b)):[]; };
+  const pick=(k,filter)=>{
+    let list=cand(k); if(!list.length) return;
+    const f=filter?list.filter(filter):[]; if(f.length) list=f;
+    const target=budget?budget*shares[k]:null;
+    let best;
+    if(target!=null){ const ok=list.filter(p=>getMinPrice(p)<=target); best=ok.length?ok[ok.length-1]:list[0]; }
+    else best=list[Math.floor(list.length*0.4)];
+    chosen[k]=best.id;
+  };
+  const byId=id=>State.products.find(p=>p.id===id);
+  ['cpu','gpu'].forEach(k=>{ if(shares[k]) pick(k); });
+  const sc=chosen.cpu&&pcSocket(pcTxt(byId(chosen.cpu)));
+  if(shares.motherboard) pick('motherboard', sc?(p=>pcSocket(pcTxt(p))===sc):null);
+  const dd=chosen.motherboard&&pcDdr(pcTxt(byId(chosen.motherboard)));
+  if(shares.ram) pick('ram', dd?(p=>pcDdr(pcTxt(p))===dd):null);
+  ['ssd','case'].forEach(k=>{ if(shares[k]) pick(k); });
+  const saved=pcBuild; pcBuild=Object.assign({},chosen); const est=pcPsuEstimate(); pcBuild=saved;
+  if(shares.psu) pick('psu', est?(p=>{ const w=[...pcTxt(p).matchAll(/(\d{3,4})\s?(?:вт|w)\b/g)].map(m=>+m[1]).sort((a,b)=>b-a)[0]; return w&&w>=est.w; }):null);
+  return chosen;
+}
+function pcApplyBuild(chosen, label){
+  if(!Object.keys(chosen).length){ toast('Не нашлось подходящих товаров','Проверьте каталоги в админке «Сборка ПК»','fa-circle-exclamation'); return; }
+  pcBuild={}; pcQty={}; Object.assign(pcBuild,chosen); persistPcBuild(); renderPcBuilder();
+  toast(label,'Итого: '+fmt(pcBuilderTotal()),'fa-microchip');
+}
+document.addEventListener('click',(e)=>{
+  const pr=e.target.closest('[data-pcpreset]');
+  if(pr){ const b=Number($('#pcBudget').value)||null; pcApplyBuild(pcAutoBuild(PC_PRESETS[pr.getAttribute('data-pcpreset')], b), 'Сборка «'+pr.textContent+'» готова'); return; }
+  if(e.target.closest('#pcBudgetBtn')){
+    const b=Number($('#pcBudget').value); if(!(b>0)){ toast('Введите бюджет','','fa-circle-exclamation'); return; }
+    const c=pcAutoBuild(PC_PRESETS.gaming,b); const had=pcBuilderTotal; 
+    pcApplyBuild(c,'Сборка под бюджет готова');
+    if(pcBuilderTotal()>b) toast('Бюджет немного превышен','Минимальные цены в каталоге выше','fa-circle-info');
+  }
+});
+
+/* ============ ШЕРИНГ СБОРКИ ПК ============ */
+$('#pcBuilderShareBtn').addEventListener('click', async ()=>{
+  const lines=[]; PC_BUILDER_SLOTS.forEach(sl=>{ const p=pcBuild[sl.key]&&State.products.find(pp=>pp.id===pcBuild[sl.key]); if(p){ const q=pcSlotQty(sl); lines.push(`• ${sl.label}: ${p.name}${q>1?' ×'+q:''} — ${fmt(getMinPrice(p)*q)}`); } });
+  if(!lines.length){ toast('Сначала выберите комплектующие','','fa-circle-exclamation'); return; }
+  const text = 'Моя сборка ПК в HORIZON MARKET:\n'+lines.join('\n')+'\n\nИтого: '+fmt(pcBuilderTotal());
+  try{ if(navigator.share){ await navigator.share({title:'Сборка ПК', text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(text); toast('Сборка скопирована','Отправьте её другу или продавцу','fa-copy'); }catch(e){ prompt('Скопируйте сборку:', text); }
+});
+
+/* ============ НЕДАВНО ПРОСМОТРЕННЫЕ ============ */
+function hzRecentIds(){ try{ return JSON.parse(localStorage.getItem('hz_recent')||'[]'); }catch(e){ return []; } }
+function renderRecent(){
+  const w=$('#recentWrap'); if(!w) return;
+  const f = (typeof currentFilter!=='undefined'&&currentFilter)||{};
+  const list = hzRecentIds().map(id=>State.products.find(p=>p.id===id)).filter(Boolean);
+  if(!list.length || f.search || f.catalogId || f.subcatalogId || f.flashOnly){ w.style.display='none'; return; }
+  w.style.display='';
+  w.innerHTML = `<div style="font-weight:800;font-size:15px;margin:6px 0 8px;">Недавно просмотренные</div><div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;">`+
+    list.map(p=>`<div data-recent="${p.id}" style="flex:0 0 96px;cursor:pointer;"><img src="${(p.images&&p.images[0])||''}" style="width:96px;height:96px;object-fit:cover;border-radius:14px;background:var(--surface-2);"><div style="font-size:11.5px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div><div style="font-size:12px;font-weight:800;">${fmt(getMinPrice(p))}</div></div>`).join('')+'</div>';
+}
+
+/* ============ СРАВНЕНИЕ ============ */
+let cmpIds = [];
+function cmpUpdateUi(){
+  $('#cmpFabN').textContent = cmpIds.length;
+  $('#cmpFab').style.display = cmpIds.length>=2 ? 'block' : 'none';
+  document.querySelectorAll('[data-cmp]').forEach(b=>{ const on=cmpIds.includes(b.getAttribute('data-cmp')); b.style.color = on?'var(--violet)':''; b.style.boxShadow = on?'0 0 0 2px var(--violet)':''; });
+}
+function renderCompare(){
+  const ps = cmpIds.map(id=>State.products.find(p=>p.id===id)).filter(Boolean);
+  const keys=[]; ps.forEach(p=>(p.characteristics||[]).forEach(c=>{ if(!keys.includes(c.key)) keys.push(c.key); }));
+  const td='style="padding:8px 6px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:top;min-width:110px;"';
+  $('#cmpBody').innerHTML = `<table style="border-collapse:collapse;width:100%;"><tr><td ${td}></td>${ps.map(p=>`<td ${td}><img src="${(p.images&&p.images[0])||''}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;"><div style="font-weight:700;margin-top:4px;">${p.name}</div><button class="tiny-btn danger" data-cmp="${p.id}" style="margin-top:4px;">Убрать</button></td>`).join('')}</tr>
+   <tr><td ${td}>Цена</td>${ps.map(p=>`<td ${td}><b>${fmt(getMinPrice(p))}</b></td>`).join('')}</tr>
+   ${keys.map(k=>`<tr><td ${td} class="cmpk"><span style="color:var(--text-dim);">${k}</span></td>${ps.map(p=>{const c=(p.characteristics||[]).find(x=>x.key===k);return `<td ${td}>${c?c.value:'—'}</td>`;}).join('')}</tr>`).join('')}</table>`;
+}
+document.addEventListener('click', (e)=>{
+  const rc=e.target.closest('[data-recent]'); if(rc){ openProductDetail(rc.getAttribute('data-recent')); return; }
+  const cb=e.target.closest('[data-cmp]');
+  if(cb){ e.stopPropagation(); const id=cb.getAttribute('data-cmp'); const k=cmpIds.indexOf(id);
+    if(k>=0) cmpIds.splice(k,1); else if(cmpIds.length>=3){ toast('Максимум 3 товара','Уберите один, чтобы добавить новый','fa-circle-exclamation'); return; } else { cmpIds.push(id); toast('Добавлено к сравнению','Выбрано: '+cmpIds.length,'fa-scale-balanced'); }
+    cmpUpdateUi(); if($('#ovCompare').classList.contains('open')){ if(cmpIds.length<2){ closeOv('ovCompare'); } else renderCompare(); } return; }
+  if(e.target.closest('#cmpFab')){ renderCompare(); openOv('ovCompare'); }
+  if(e.target.closest('#cmpClearBtn')){ cmpIds=[]; cmpUpdateUi(); closeOv('ovCompare'); }
+});
+
+/* ============ ДОПОЛНЕНИЯ К КАРТОЧКЕ ТОВАРА И ГЛАВНОЙ ============ */
+(function(){
+  const _open = openProductDetail;
+  openProductDetail = function(pid){
+    const r = _open.apply(this, arguments);
+    try{
+      const p = State.products.find(pp=>pp.id===pid); if(!p) return r;
+      const ids = [pid, ...hzRecentIds().filter(x=>x!==pid)].slice(0,10);
+      localStorage.setItem('hz_recent', JSON.stringify(ids)); renderRecent();
+      const slot = $('#pdChatSlot');
+      if(slot) slot.insertAdjacentHTML('afterbegin', `<button class="mini-icon-btn" style="position:static;width:32px;height:32px;" title="Сравнить" data-cmp="${pid}"><i class="fa-solid fa-scale-balanced"></i></button>`);
+      let st = $('#pdStockLeft');
+      if(!st){ st = document.createElement('div'); st.id='pdStockLeft'; $('#pdTitle').insertAdjacentElement('afterend', st); }
+      const low = p.inStock!==false && p.stockQty!=null && p.stockQty<=10;
+      st.style.cssText = low ? 'font-size:13px;font-weight:700;color:#FF7A00;margin:2px 0 4px;' : 'display:none;';
+      st.innerHTML = low ? `<i class="fa-solid fa-fire"></i> Осталось ${p.stockQty} шт.` : '';
+      cmpUpdateUi();
+    }catch(e){ console.error(e); }
+    return r;
+  };
+  const _gal = renderPdGalleryViewer;
+  renderPdGalleryViewer = function(){
+    const r = _gal.apply(this, arguments);
+    try{
+      const host = $('#pdGalleryDots').parentElement; let c = $('#pdGalleryCount');
+      if(!c){ c = document.createElement('div'); c.id='pdGalleryCount'; c.style.cssText='position:absolute;bottom:10px;right:12px;z-index:3;background:rgba(0,0,0,.5);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:10px;'; host.appendChild(c); }
+      const n = pdGalleryState.images.length; c.style.display = n>1?'block':'none'; c.textContent = (pdGalleryState.idx+1)+'/'+n;
+    }catch(e){}
+    return r;
+  };
+  const _grid = filterAndRenderGrid;
+  filterAndRenderGrid = function(){ const r=_grid.apply(this, arguments); try{ renderRecent(); }catch(e){} return r; };
+})();
+
+
+/* ============ НАПИСАТЬ В WHATSAPP / TELEGRAM ИЗ КАРТОЧКИ ТОВАРА ============ */
+function hzMsgText(p){
+  const url = location.origin + location.pathname + '?product=' + p.id;
+  return `Здравствуйте! Меня интересует товар:\n${p.name}\nЦена: ${fmt(getMinPrice(p))}${p.articul?'\nАртикул: '+p.articul:''}\n${url}`;
+}
+function hzWaNumber(){
+  const soc=(State.settings&&State.settings.social)||{}, ab=(State.settings&&State.settings.about)||{};
+  const m=(soc.whatsapp||'').match(/wa\.me\/\+?(\d{7,15})|phone=\+?(\d{7,15})/);
+  if(m) return m[1]||m[2];
+  const raw=(soc.whatsapp||'').replace(/[^\d]/g,'');
+  if(raw.length>=9 && !/[a-z]/i.test(soc.whatsapp||'')) return raw;
+  const ph=(ab.phone1||'').replace(/[^\d]/g,''); return ph.length>=9 ? ph : null;
+}
+function hzTgUser(){
+  const t=((State.settings&&State.settings.social&&State.settings.social.telegram)||'').trim(); if(!t) return null;
+  const m=t.match(/t\.me\/([A-Za-z0-9_]+)/i)||t.match(/^@?([A-Za-z0-9_]{4,})$/); return m?m[1]:null;
+}
+(function(){
+  const _open = openProductDetail;
+  openProductDetail = function(pid){
+    const r=_open.apply(this, arguments);
+    try{
+      const p=State.products.find(pp=>pp.id===pid); if(!p) return r;
+      const wa=hzWaNumber(), tg=hzTgUser();
+      let box=$('#pdMessengers');
+      if(!box){ box=document.createElement('div'); box.id='pdMessengers'; box.style.cssText='display:flex;gap:10px;margin:0 0 14px;'; $('#pdQuickBuyWrap').insertAdjacentElement('afterend', box); }
+      const bs='flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;font-weight:700;font-size:13px;color:#fff;';
+      box.style.display = (wa||tg)?'flex':'none';
+      box.innerHTML = (wa?`<button type="button" data-hzmsg="wa" data-pid="${pid}" style="${bs}background:#25D366;"><i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> WhatsApp</button>`:'')+
+                      (tg?`<button type="button" data-hzmsg="tg" data-pid="${pid}" style="${bs}background:#229ED9;"><i class="fa-brands fa-telegram" style="font-size:18px;"></i> Telegram</button>`:'');
+    }catch(e){ console.error(e); }
+    return r;
+  };
+})();
+document.addEventListener('click', async (e)=>{
+  const b=e.target.closest('[data-hzmsg]'); if(!b) return;
+  const p=State.products.find(pp=>pp.id===b.getAttribute('data-pid')); if(!p) return;
+  const text=hzMsgText(p);
+  if(b.getAttribute('data-hzmsg')==='wa'){ window.open(`https://wa.me/${hzWaNumber()}?text=${encodeURIComponent(text)}`,'_blank'); return; }
+  try{ await navigator.clipboard.writeText(text); toast('Сообщение скопировано','Если в чате пусто, просто вставьте его','fa-copy'); }catch(err){}
+  window.open(`https://t.me/${hzTgUser()}?text=${encodeURIComponent(text)}`,'_blank');
 });
 
 /* ============ PRICE WATCH ============ */
@@ -5362,6 +5616,7 @@ function renderFavorites(){
 /* ============ CART ============ */
 function addToCart(pid, size, color){
   if(!State.user){ openOv('ovAuthChoice'); return; }
+  try{ db.collection('products').doc(pid).update({cartCount: firebase.firestore.FieldValue.increment(1)}).catch(()=>{}); }catch(e){}
   const prod = State.products.find(pp=>pp.id===pid);
   if(prod && prod.inStock===false){ toast('Товара нет в наличии','','fa-circle-exclamation'); return; }
   size = size||null; color = color||null;
@@ -9882,6 +10137,53 @@ function renderAdminTab(){
       renderFlashSaleBanner();
       toast('Акция сохранена','','fa-circle-check');
     });
+  } else if(adminActiveTab==='stats'){
+    const sorts={viewCount:'Просмотры',cartCount:'В корзину',totalSold:'Продано'}; window._stSort = window._stSort||'viewCount';
+    const rows = State.products.slice().sort((a,b)=>(b[window._stSort]||0)-(a[window._stSort]||0));
+    body.innerHTML = `<div style="display:flex;gap:8px;margin-bottom:10px;">${Object.entries(sorts).map(([k,l])=>`<button class="filter-chip ${k===window._stSort?'active':''}" data-stsort="${k}">${l}</button>`).join('')}</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">Всего: просмотров ${rows.reduce((a,p)=>a+(p.viewCount||0),0)}, в корзину ${rows.reduce((a,p)=>a+(p.cartCount||0),0)}, продано ${rows.reduce((a,p)=>a+(p.totalSold||0),0)} шт.</div>
+      ${rows.map(p=>{ const v=p.viewCount||0, c=p.cartCount||0, so=p.totalSold||0; const dead = v>=20 && so===0;
+        return `<div class="list-row"><div style="min-width:0;"><div class="list-row-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">${p.name}</div><div class="list-row-sub">${v?('конверсия '+(so/v*100).toFixed(1)+'%'):'нет просмотров'}${dead?' · <span style="color:#ff7a00;">смотрят, но не покупают</span>':''}</div></div>
+        <div style="display:flex;gap:10px;font-size:12.5px;font-weight:700;flex-shrink:0;"><span title="Просмотры">👁 ${v}</span><span title="В корзину">🛒 ${c}</span><span title="Продано">✅ ${so}</span></div></div>`; }).join('')}`;
+    body.querySelectorAll('[data-stsort]').forEach(b=>b.onclick=()=>{ window._stSort=b.getAttribute('data-stsort'); renderAdminTab(); });
+  } else if(adminActiveTab==='massprice'){
+    const inp='style="width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text);margin-bottom:10px;"';
+    body.innerHTML = `<p style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;">Изменение цен сразу у нескольких товаров. Для скидки старая цена сохраняется зачёркнутой.</p>
+      <select id="mpScope" ${inp}><option value="">Весь магазин</option>${State.catalogs.map(c=>`<option value="${c.id}">Каталог: ${c.name}</option>`).join('')}</select>
+      <select id="mpMode" ${inp}><option value="discount">Скидка, %</option><option value="raise">Повышение цены, %</option><option value="reset">Снять скидку (вернуть старую цену)</option></select>
+      <input id="mpPercent" type="number" min="1" max="90" placeholder="Процент, например 10" ${inp}>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><b style="font-size:13px;">Товары</b><button class="tiny-btn" id="mpToggleAll">Снять/выбрать все</button></div>
+      <div id="mpList" style="max-height:300px;overflow-y:auto;margin-bottom:12px;"></div>
+      <button class="btn btn-primary" id="mpApply"><i class="fa-solid fa-tags"></i> Применить</button>`;
+    const drawList=()=>{ const sc=$('#mpScope').value; const list=State.products.filter(p=>!sc||p.catalogId===sc);
+      $('#mpList').innerHTML=list.map(p=>`<label class="list-row" style="cursor:pointer;"><span style="display:flex;gap:8px;align-items:center;min-width:0;"><input type="checkbox" class="mpChk" value="${p.id}" checked><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:210px;">${p.name}</span></span><b style="font-size:12.5px;">${Number(p.price)}${p.oldPrice&&p.oldPrice>p.price?' <s style="color:var(--text-dim);font-weight:400;">'+p.oldPrice+'</s>':''}</b></label>`).join('')||'<div class="empty-state">Нет товаров</div>'; };
+    drawList(); $('#mpScope').onchange=drawList;
+    $('#mpToggleAll').onclick=()=>{ const cs=[...document.querySelectorAll('.mpChk')]; const all=cs.every(c=>c.checked); cs.forEach(c=>c.checked=!all); };
+    $('#mpApply').onclick=async()=>{
+      const mode=$('#mpMode').value, pct=Number($('#mpPercent').value);
+      const ids=[...document.querySelectorAll('.mpChk:checked')].map(c=>c.value);
+      if(!ids.length){ toast('Выберите товары','','fa-circle-exclamation'); return; }
+      if(mode!=='reset' && !(pct>0 && pct<=90)){ toast('Введите процент от 1 до 90','','fa-circle-exclamation'); return; }
+      if(!confirm('Изменить цены у '+ids.length+' товаров?')) return;
+      const f = mode==='discount' ? 1-pct/100 : 1+pct/100;
+      const upd={};
+      ids.forEach(id=>{ const p=State.products.find(x=>x.id===id); if(!p) return; const u={};
+        if(mode==='reset'){ if(p.oldPrice && p.oldPrice>p.price){ u.price=Number(p.oldPrice); u.oldPrice=firebase.firestore.FieldValue.delete(); } }
+        else {
+          const base = (mode==='discount' && p.oldPrice>p.price) ? Number(p.oldPrice) : Number(p.price);
+          const sc = mode==='discount' && p.oldPrice>p.price ? base/Number(p.price) : 1;
+          u.price=Math.round(base*f);
+          if(mode==='discount') u.oldPrice=base; else if(p.oldPrice) u.oldPrice=Math.round(Number(p.oldPrice)*f);
+          if(p.sizePrices){ u.sizePrices={}; Object.keys(p.sizePrices).forEach(k=>{ u.sizePrices[k]=Math.round(Number(p.sizePrices[k])*sc*f); }); }
+        }
+        if(Object.keys(u).length) upd[id]=u; });
+      const entries=Object.entries(upd); if(!entries.length){ toast('Нечего менять','','fa-circle-info'); return; }
+      try{
+        for(let i=0;i<entries.length;i+=400){ const b=db.batch(); entries.slice(i,i+400).forEach(([id,u])=>b.update(db.collection('products').doc(id),u)); await b.commit(); }
+        entries.forEach(([id,u])=>{ const p=State.products.find(x=>x.id===id); Object.keys(u).forEach(k=>{ if(u[k] && u[k].constructor && /Delete/.test(u[k].constructor.name||'')) delete p[k]; else p[k]=u[k]; }); });
+        toast('Цены обновлены','Товаров: '+entries.length,'fa-circle-check'); drawList();
+      }catch(e){ console.error(e); toast('Не удалось обновить цены','','fa-circle-exclamation'); }
+    };
   } else if(adminActiveTab==='pcbuilder'){
     const map = State.settings.pcBuilderMap || {};
     const catalogOptionsHtml = (selected)=>{
@@ -10915,3 +11217,4 @@ boot();
 
 
 
+</body></html>
