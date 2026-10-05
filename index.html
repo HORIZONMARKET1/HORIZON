@@ -16,8 +16,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&amp;family=Petit+Formal+Script&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <!-- Генерация PDF гарантийного талона -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer=""></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -1370,12 +1370,12 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 
 <!-- BOTTOM NAV -->
 <nav class="bottomnav">
-  <button class="navbtn active" data-page="home"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 3.1 3.7 9.9c-.4.3-.7.8-.7 1.4V19a2 2 0 0 0 2 2h2.7a.9.9 0 0 0 .9-.9v-4.4c0-.7.6-1.3 1.3-1.3h3.2c.7 0 1.3.6 1.3 1.3v4.4c0 .5.4.9.9.9H19a2 2 0 0 0 2-2v-7.7c0-.6-.3-1.1-.7-1.4L12 3.1z"/></svg></span><span class="nav-lbl">Главная</span></button>
-  <button class="navbtn" data-page="favorites"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.4S3.6 15.3 3.6 9.4C3.6 6.8 5.6 5 7.9 5c1.7 0 3.1.9 4.1 2.4C13 5.9 14.400 5 16.100 5c2.300 0 4.300 1.800 4.300 4.400 0 5.900-8.400 11-8.400 11z"/></svg></span><span class="nav-lbl">Избранное</span></button>
-  <button class="navbtn" data-page="chat"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" fill-rule="evenodd" d="M12 3C6.900 3 3 6.600 3 11.100c0 2.300 1 4.300 2.700 5.800-.1 1.200-.6 2.400-1.500 3.300-.2.200 0 .6.300.6 1.900-.1 3.400-.8 4.500-1.600.8.200 1.600.3 2.500.3 5.100 0 9-3.600 9-8.100S17.100 3 12 3zM8.300 10.150a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300z"/></svg><span class="badge hidden" id="chatBadge">0</span></span><span class="nav-lbl">Чат</span></button>
-  <button class="navbtn" id="openCartBtn" data-page="cart"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.800 3.700h1.900c.5 0 .9.300 1 .8L6.400 7" stroke-width="2"/><path fill="currentColor" stroke="none" d="M6 7h14.200a.8.8 0 0 1 .8 1l-1.600 6.200a1.600 1.600 0 0 1-1.550 1.200H8.900a1.600 1.600 0 0 1-1.550-1.200L6 7z"/><circle cx="9.200" cy="19.600" r="1.500" fill="currentColor" stroke="none"/><circle cx="16.400" cy="19.600" r="1.500" fill="currentColor" stroke="none"/></svg><span class="badge" id="cartBadge">0</span></span><span class="nav-lbl">Корзина</span></button>
-  <button class="navbtn" data-page="pcbuilder"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="4.500" width="17" height="11.500" rx="2.600"/><path d="M12 16v3.500M8.500 19.500h7"/></svg></span><span class="nav-lbl">Собрать ПК</span></button>
-  <button class="navbtn" data-page="profile"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.600"/><path d="M5 19.200c0-3.100 3-5 7-5s7 1.900 7 5c0 .5-.4.900-.9.900H5.900c-.5 0-.9-.4-.9-.9z"/></svg></span><span class="nav-lbl">Профиль</span></button>
+  <button class="navbtn active" data-page="home"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 3.1 3.7 9.9c-.4.3-.7.8-.7 1.4V19a2 2 0 0 0 2 2h2.7a.9.9 0 0 0 .9-.9v-4.4c0-.7.6-1.3 1.3-1.3h3.2c.7 0 1.3.6 1.3 1.3v4.4c0 .5.4.9.9.9H19a2 2 0 0 0 2-2v-7.7c0-.6-.3-1.1-.7-1.4L12 3.1z"></path></svg></span><span class="nav-lbl">Главная</span></button>
+  <button class="navbtn" data-page="favorites"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.4S3.6 15.3 3.6 9.4C3.6 6.8 5.6 5 7.9 5c1.7 0 3.1.9 4.1 2.4C13 5.9 14.400 5 16.100 5c2.300 0 4.300 1.800 4.300 4.400 0 5.900-8.400 11-8.400 11z"></path></svg></span><span class="nav-lbl">Избранное</span></button>
+  <button class="navbtn" data-page="chat"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" fill-rule="evenodd" d="M12 3C6.900 3 3 6.600 3 11.100c0 2.300 1 4.300 2.700 5.800-.1 1.200-.6 2.400-1.500 3.300-.2.200 0 .6.300.6 1.900-.1 3.400-.8 4.500-1.600.8.200 1.600.3 2.500.3 5.100 0 9-3.600 9-8.100S17.100 3 12 3zM8.300 10.150a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300zm3.700 0a1.150 1.150 0 1 0 0 2.300 1.150 1.150 0 0 0 0-2.300z"></path></svg><span class="badge hidden" id="chatBadge">0</span></span><span class="nav-lbl">Чат</span></button>
+  <button class="navbtn" id="openCartBtn" data-page="cart"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.800 3.700h1.900c.5 0 .9.300 1 .8L6.400 7" stroke-width="2"></path><path fill="currentColor" stroke="none" d="M6 7h14.200a.8.8 0 0 1 .8 1l-1.600 6.200a1.600 1.600 0 0 1-1.550 1.200H8.900a1.600 1.600 0 0 1-1.550-1.200L6 7z"></path><circle cx="9.200" cy="19.600" r="1.500" fill="currentColor" stroke="none"></circle><circle cx="16.400" cy="19.600" r="1.500" fill="currentColor" stroke="none"></circle></svg><span class="badge" id="cartBadge">0</span></span><span class="nav-lbl">Корзина</span></button>
+  <button class="navbtn" data-page="pcbuilder"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.500" y="4.500" width="17" height="11.500" rx="2.600"></rect><path d="M12 16v3.500M8.500 19.500h7"></path></svg></span><span class="nav-lbl">Собрать ПК</span></button>
+  <button class="navbtn" data-page="profile"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.600"></circle><path d="M5 19.200c0-3.100 3-5 7-5s7 1.900 7 5c0 .5-.4.900-.9.900H5.900c-.5 0-.9-.4-.9-.9z"></path></svg></span><span class="nav-lbl">Профиль</span></button>
 </nav>
 
 <!-- COMPARE OVERLAY -->
@@ -1507,6 +1507,11 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
         </select>
       </div>
       <div class="field"><label>Номер телефона</label><input id="regPhone" placeholder="901234567" inputmode="numeric"></div>
+    </div>
+    <div class="field"><label>Домашний адрес <span style="color:var(--text-dim);font-weight:400;">(по нему считаем срок доставки)</span></label>
+      <textarea id="regAddress" rows="2" placeholder="Введите адрес вручную или определите автоматически"></textarea>
+      <button type="button" class="btn btn-outline" id="regGeoBtn" style="margin-top:8px;"><i class="fa-solid fa-location-crosshairs"></i> Определить местоположение автоматически</button>
+      <div id="regGeoStatus" style="display:none;font-size:12px;color:var(--text-dim);margin-top:6px;"></div>
     </div>
     <div class="field"><label>Пароль</label><div class="pw-field"><input id="regPassword" type="password" placeholder="Придумайте пароль"><button type="button" class="pw-toggle" data-pwtoggle="regPassword"><i class="fa-regular fa-eye"></i></button></div></div>
     <div class="field"><label>Реферальный код <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label><input id="regReferralCode" placeholder="Код друга, который вас пригласил"></div>
@@ -1699,7 +1704,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <label>Способ получения</label>
       <div class="pay-option-row">
         <label class="pay-option active" id="coReceivePickupOption">
-          <input type="radio" name="coReceiveMethod" value="pickup" checked>
+          <input type="radio" name="coReceiveMethod" value="pickup" checked="">
           <div><div class="pay-option-title"><i class="fa-solid fa-store"></i> Самовывоз</div><div class="pay-option-sub">Забираете заказ самостоятельно</div></div>
         </label>
         <label class="pay-option" id="coReceiveDeliveryOption">
@@ -1734,10 +1739,20 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <div class="field" id="coInstallmentProviderField" style="display:none;margin-top:8px;">
         <label>Сервис рассрочки</label>
         <select id="coInstallmentProvider">
+          <option value="Alif Корти Салом">Alif Корти Салом</option>
+          <option value="HORIZON кредит">HORIZON кредит</option>
           <option value="Alif Mustaqbal">Alif Mustaqbal</option>
           <option value="Emofid">Emofid</option>
           <option value="Другое">Другое</option>
         </select>
+        <div id="coHzCreditBox" style="display:none;margin-top:10px;padding:12px;border-radius:14px;background:var(--surface-2);border:1.5px solid var(--border);">
+          <label style="display:block;margin-bottom:6px;">Срок рассрочки HORIZON кредит</label>
+          <select id="coHzTerm"></select>
+          <div id="coHzCreditInfo" style="font-size:12.5px;font-weight:600;margin-top:8px;"></div>
+          <div id="coHzLimit" style="font-size:12.5px;margin-top:6px;"></div>
+          <div style="font-size:11.5px;color:var(--text-dim);margin-top:6px;">Рассрочка оформляется только по паспорту. До 500 TJS — без процентов на 1 неделю. Наценка: 1 месяц 6%, 3 месяца 10%, 6 месяцев 15%.</div>
+          <label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12.5px;"><input type="checkbox" id="coHzPassport"> У меня есть паспорт, готов предоставить его</label>
+        </div>
         <div style="font-size:11.5px;color:var(--text-dim);margin-top:6px;">После оформления заказа продавец свяжется с вами в чате, чтобы помочь оформить рассрочку через выбранный сервис.</div>
       </div>
     </div>
@@ -1762,6 +1777,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="cart-total-row" id="coFirstOrderRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Скидка на первый заказ</span><span id="coFirstOrderDiscount">0 ₽</span></div>
     <div class="cart-total-row" id="coBonusRow" style="padding:0 0 4px;font-size:13px;font-weight:600;color:var(--success);display:none;"><span>Списание бонусов</span><span id="coBonusApplied">0 ₽</span></div>
     <div class="cart-total-row" id="coDeliveryFeeRow" style="padding:0 0 10px;font-size:13px;font-weight:600;color:var(--text-dim);"><span>Доставка</span><span id="coDeliveryFee">Бесплатно</span></div>
+    <div class="cart-total-row" id="coInstallRow" style="padding:0 0 4px;font-size:13px;font-weight:600;display:none;"><span id="coInstallLabel">Наценка рассрочки</span><span id="coInstallAmount">0</span></div>
     <div class="cart-total-row" style="border-top:1.5px solid var(--border);padding-top:12px;"><span>Итого к оплате</span><span id="coTotal">0 ₽</span></div>
     <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;">
       <div style="flex:1;min-width:100px;text-align:center;padding:8px 6px;border-radius:10px;background:var(--surface-2);font-size:10.5px;color:var(--text-dim);font-weight:600;"><i class="fa-solid fa-shield-halved" style="display:block;font-size:16px;margin-bottom:4px;color:var(--accent);"></i>Оплата защищена</div>
@@ -1950,6 +1966,8 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <p style="color:var(--text-dim);font-size:11.5px;margin:2px 0 10px;">Один бот для двух задач: подтверждение номера при регистрации и подписка клиента на уведомления о новых товарах и акциях. Создайте бота через @BotFather, укажите токен и его юзернейм (без @, например HorizonVerifyBot). Если не заполнено — регистрация проходит без подтверждения, а окно с уведомлениями не показывается.</p>
       <div class="field"><label>Bot Token</label><input id="regBotTokenInput" placeholder="Токен от @BotFather"></div>
       <div class="field"><label>Юзернейм бота</label><input id="regBotUsernameInput" placeholder="Например: HorizonVerifyBot"></div>
+      <div class="field"><label>Иконка чата HORIZON BANK</label>
+        <div style="display:flex;align-items:center;gap:10px;"><img id="bankIconPreview" style="width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--surface-2);display:none;"><input id="bankIconFile" type="file" accept="image/*"></div></div>
       <div class="field"><label>Ссылка на Telegram-канал <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label><input id="telegramChannelLinkInput" placeholder="https://t.me/mychannel"></div>
       <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Эту ссылку с кнопкой «Подписаться» бот присылает клиенту сразу после включения уведомлений.</p>
       <div style="height:1px;background:var(--border);margin:16px 0;"></div>
@@ -1957,6 +1975,10 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <p style="color:var(--text-dim);font-size:11.5px;margin:2px 0 10px;">Реквизиты, на которые курьеры еженедельно переводят налог, и процент от суммы, заработанной курьером за неделю.</p>
       <div class="field"><label>Банковские реквизиты для оплаты налога курьерами</label><textarea id="courierBankReqInput" rows="2" placeholder="Например: Карта Т-Банк 2200 1234 5678 9012, Иванов И.И."></textarea></div>
       <div class="field"><label>Налог, % от заработка за неделю</label><input id="courierTaxPercentInput" type="number" min="0" max="100" step="0.1" placeholder="1"></div>
+      <div class="field"><label>Координаты офиса HORIZON (для расчёта срока доставки)</label>
+        <div style="display:flex;gap:8px;"><input id="officeLatInput" placeholder="Широта" inputmode="decimal"><input id="officeLngInput" placeholder="Долгота" inputmode="decimal"></div>
+        <button type="button" class="btn btn-outline" id="officeGeoBtn" style="margin-top:8px;"><i class="fa-solid fa-location-crosshairs"></i> Взять мои текущие координаты</button>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-top:6px;">Если оставить пустыми, координаты найдутся по адресу самовывоза ниже. Без координат срок доставки на карточках не показывается.</div></div>
       <div class="field"><label>Адрес самовывоза / склада</label><textarea id="pickupAddressInput" rows="2" placeholder="Например: г. Душанбе, ул. Рудаки 12, магазин HORIZON"></textarea></div>
       <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Этот адрес видит клиент при выборе «Самовывоз» и курьер — как место, откуда забирать товар для доставки.</p>
       <div class="field"><label>Время работы для самовывоза</label><input id="pickupHoursInput" placeholder="Например: ежедневно с 9:00 до 20:00"></div>
@@ -3422,25 +3444,27 @@ document.addEventListener('click', (e)=>{
     const sheet = ov.querySelector('.sheet');
     if(!sheet) return;
     sw = { ov, sheet, startX:t.clientX, startY:t.clientY, startT:Date.now(), dx:0, active:false, width:window.innerWidth };
+    document.addEventListener('touchmove', swMove, {passive:false});
   }, {passive:true});
 
-  document.addEventListener('touchmove', (e)=>{
+  function swMove(e){
     if(!sw) return;
     const t = e.touches[0];
     const dx = t.clientX - sw.startX;
     const dy = t.clientY - sw.startY;
     if(!sw.active){
       if(Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-      if(Math.abs(dy) > Math.abs(dx)){ sw = null; return; }
+      if(Math.abs(dy) > Math.abs(dx)){ sw = null; document.removeEventListener('touchmove', swMove); return; }
       sw.active = true;
       sw.sheet.classList.add('dragging');
     }
     if(dx < 0){ sw.dx = 0; } else { sw.dx = Math.min(dx, sw.width); }
     sw.sheet.style.transform = `translateX(${sw.dx}px)`;
     e.preventDefault();
-  }, {passive:false});
+  }
 
   function finishSwipe(){
+    document.removeEventListener('touchmove', swMove);
     if(!sw) return;
     const { ov, sheet, dx, width, startT } = sw;
     if(!sw.active){ sw = null; return; }
@@ -4694,6 +4718,7 @@ function cardHtml(p){
     </div>
     <div class="card-body">
       <div class="card-prices"><span class="card-price">${priceVariesBySize(p)?'от ':''}${fmt(getMinPrice(p))}</span>${p.oldPrice?`<span class="card-oldprice">${fmt(p.oldPrice)}</span>`:''}</div>
+      ${hzDeliveryHtml()}
       ${lowStockHtml}
       <div class="card-seller"><i class="fa-solid fa-circle-check"></i>${sellerName}</div>
       <div class="card-name" data-openpd="${p.id}">${p.name}</div>
@@ -4883,7 +4908,7 @@ document.addEventListener('pointermove', (e)=>{
   const dy = e.clientY - cardSwipe.startY;
   if(!cardSwipe.horizontal && (Math.abs(dx)>6 || Math.abs(dy)>6)){
     cardSwipe.horizontal = Math.abs(dx) > Math.abs(dy);
-    if(!cardSwipe.horizontal){ cardSwipe = null; return; }
+    if(!cardSwipe.horizontal){ cardSwipe.track.style.transition = ''; cardSwipe = null; return; }
   }
   if(cardSwipe && cardSwipe.horizontal){
     cardSwipe.moved = true;
@@ -4936,8 +4961,9 @@ document.addEventListener('touchstart', (e)=>{
   const dx = e.touches[0].clientX - e.touches[1].clientX;
   const dy = e.touches[0].clientY - e.touches[1].clientY;
   cardPinch = { img, startDist: Math.hypot(dx, dy) };
+  document.addEventListener('touchmove', pinchMove, {passive:false});
 }, {passive:true});
-document.addEventListener('touchmove', (e)=>{
+function pinchMove(e){
   if(!cardPinch || e.touches.length !== 2) return;
   const dx = e.touches[0].clientX - e.touches[1].clientX;
   const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -4946,8 +4972,9 @@ document.addEventListener('touchmove', (e)=>{
   scale = Math.max(1, Math.min(scale, 2.2));
   cardPinch.img.style.transform = `scale(${scale})`;
   e.preventDefault();
-}, {passive:false});
+}
 function endCardPinch(){
+  document.removeEventListener('touchmove', pinchMove);
   if(!cardPinch) return;
   const img = cardPinch.img;
   img.style.transition = 'transform .25s ease';
@@ -5476,6 +5503,8 @@ document.addEventListener('click', (e)=>{
       const low = p.inStock!==false && p.stockQty!=null && p.stockQty<=10;
       st.style.cssText = low ? 'font-size:13px;font-weight:700;color:#FF7A00;margin:2px 0 4px;' : 'display:none;';
       st.innerHTML = low ? `<i class="fa-solid fa-fire"></i> Осталось ${p.stockQty} шт.` : '';
+      let dl = $('#pdDeliveryLine'); if(!dl){ dl = document.createElement('div'); dl.id='pdDeliveryLine'; st.insertAdjacentElement('afterend', dl); }
+      dl.innerHTML = hzDeliveryHtml().replace('margin-top:3px','margin:2px 0 6px;font-size:13px');
       cmpUpdateUi();
     }catch(e){ console.error(e); }
     return r;
@@ -5809,6 +5838,7 @@ function updateCoPayOptionsVisibility(){
   $('#coPayCardOption').classList.add('active');
   $('#coPayInstallmentOption').classList.remove('active');
   $('#coInstallmentProviderField').style.display = 'none';
+  if($('#coHzCreditBox')){ $('#coHzCreditBox').style.display='none'; $('#coHzPassport').checked=false; }
   const cardRadio = document.querySelector('input[name="coPayMethod"][value="card"]');
   if(cardRadio) cardRadio.checked = true;
 }
@@ -5819,6 +5849,94 @@ document.querySelectorAll('input[name="coPayMethod"]').forEach(inp=>{
     $('#coInstallmentProviderField').style.display = (inp.value==='installment' && inp.checked) ? 'block' : 'none';
   });
 });
+/* ============ HORIZON КРЕДИТ: рассрочка только по паспорту ============ */
+const HZ_CREDIT_TERMS = [
+  {id:'w', label:'1 неделя (без процентов, до 500 TJS)', short:'1 неделя', rate:0, parts:1, maxBase:500},
+  {id:'1', label:'1 месяц — 6%',  short:'1 месяц',   rate:6,  parts:1},
+  {id:'3', label:'3 месяца — 10%', short:'3 месяца',  rate:10, parts:3},
+  {id:'6', label:'6 месяцев — 15%', short:'6 месяцев', rate:15, parts:6}
+];
+function hzCreditLimit(){ const v = Number(State.user && State.user.creditLimit); return v>0 ? v : 500; }
+function hzCreditActive(){
+  const m = document.querySelector('input[name="coPayMethod"]:checked');
+  return !!m && m.value==='installment' && $('#coInstallmentProvider').value==='HORIZON кредит';
+}
+function hzCreditCalc(base){
+  if(!hzCreditActive()) return null;
+  const t = HZ_CREDIT_TERMS.find(x=>x.id===$('#coHzTerm').value) || HZ_CREDIT_TERMS[1];
+  const markup = Math.round(base * t.rate / 100);
+  const total = base + markup;
+  return {term:t, rate:t.rate, markup, total, parts:t.parts, perPart: Math.round(total / t.parts * 100)/100};
+}
+function hzCreditRefreshUi(base, hz){
+  const box = $('#coHzCreditBox'); if(!box) return;
+  box.style.display = hzCreditActive() ? 'block' : 'none';
+  if(!hzCreditActive()) return;
+  const sel = $('#coHzTerm'); const prev = sel.value;
+  sel.innerHTML = HZ_CREDIT_TERMS.map(t=>`<option value="${t.id}" ${t.maxBase&&base>t.maxBase?'disabled':''}>${t.label}</option>`).join('');
+  let v = prev || '1'; const tt = HZ_CREDIT_TERMS.find(t=>t.id===v);
+  if(!tt || (tt.maxBase && base>tt.maxBase)) v = '1';
+  sel.value = v;
+  const h = hz && hz.term.id===v ? hz : hzCreditCalc(base);
+  const lim = hzCreditLimit();
+  $('#coHzLimit').innerHTML = `Ваш кредитный лимит: <b>${fmt(lim)}</b>` + (base>lim ? ' <span style="color:#ff5a5a;">— сумма заказа превышает лимит</span>' : '');
+  if(h) $('#coHzCreditInfo').innerHTML = h.parts>1 ? `${h.parts} платежа по <b>${fmt(h.perPart)}</b> в месяц · всего ${fmt(h.total)}` : `Один платёж: <b>${fmt(h.total)}</b>`;
+}
+$('#coHzTerm').addEventListener('change', recalcCheckoutTotals);
+$('#coInstallmentProvider').addEventListener('change', recalcCheckoutTotals);
+document.querySelectorAll('input[name="coPayMethod"]').forEach(i=>i.addEventListener('change', recalcCheckoutTotals));
+
+document.addEventListener('change', (e)=>{
+  if(e.target.id!=='bankIconFile' || !e.target.files[0]) return;
+  const r = new FileReader();
+  r.onload = ()=>{ const im = new Image(); im.onload = ()=>{ const c=document.createElement('canvas'); c.width=c.height=160; const x=c.getContext('2d'); const sc=Math.max(160/im.width,160/im.height); x.drawImage(im,(160-im.width*sc)/2,(160-im.height*sc)/2,im.width*sc,im.height*sc); window._bankIconData=c.toDataURL('image/jpeg',.85); $('#bankIconPreview').src=window._bankIconData; $('#bankIconPreview').style.display='block'; toast('Иконка выбрана','Нажмите «Сохранить» в настройках','fa-image'); }; im.src=r.result; };
+  r.readAsDataURL(e.target.files[0]);
+});
+/* ============ АДРЕС ПРИ РЕГИСТРАЦИИ, ГЕОЛОКАЦИЯ И СРОК ДОСТАВКИ ============ */
+let regAddrCoords = null;
+async function hzGeocode(q){
+  try{ const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=ru&q='+encodeURIComponent(q)); const j = await r.json(); if(j && j[0]) return {lat:+j[0].lat, lng:+j[0].lon}; }catch(e){}
+  return null;
+}
+function hzGetPosition(){
+  return new Promise((res,rej)=>{ if(!('geolocation' in navigator)) return rej(new Error('nogeo')); navigator.geolocation.getCurrentPosition(p=>res(p.coords), rej, {enableHighAccuracy:true, timeout:10000}); });
+}
+document.addEventListener('input', (e)=>{ if(e.target.id==='regAddress') regAddrCoords = null; });
+document.addEventListener('click', async (e)=>{
+  if(e.target.closest('#regGeoBtn')){
+    const st = $('#regGeoStatus'); st.style.display='block'; st.textContent='Определяем местоположение…';
+    try{
+      const c = await hzGetPosition(); regAddrCoords = {lat:c.latitude, lng:c.longitude};
+      let addr = `${c.latitude.toFixed(5)}, ${c.longitude.toFixed(5)}`;
+      try{ const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.latitude}&lon=${c.longitude}&accept-language=ru`); const j = await r.json(); if(j && j.display_name) addr = j.display_name; }catch(err){}
+      $('#regAddress').value = addr; regAddrCoords = {lat:c.latitude, lng:c.longitude};
+      st.textContent = 'Адрес определён и будет сохранён как основной (дом). При необходимости поправьте вручную.';
+    }catch(err){ st.textContent = 'Не удалось определить местоположение. Введите адрес вручную.'; }
+  }
+  if(e.target.closest('#officeGeoBtn')){
+    try{ const c = await hzGetPosition(); $('#officeLatInput').value = c.latitude.toFixed(6); $('#officeLngInput').value = c.longitude.toFixed(6); toast('Координаты взяты','Нажмите «Сохранить» в настройках','fa-location-dot'); }
+    catch(err){ toast('Не удалось получить координаты','','fa-circle-exclamation'); }
+  }
+});
+function hzKm(a,b){ const r=x=>x*Math.PI/180, dLa=r(b.lat-a.lat), dLn=r(b.lng-a.lng); const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLn/2)**2; return 2*6371*Math.asin(Math.sqrt(h)); }
+/* До 50 км от офиса — завтра, каждые следующие +50 км — ещё +1 день */
+function hzDeliveryInfo(){
+  const u = State.user, la = Number(State.settings.officeLat), ln = Number(State.settings.officeLng);
+  if(!u || u.role!=='client' || !la || !ln || !Number(u.addressLat) || !Number(u.addressLng)) return null;
+  const km = hzKm({lat:la,lng:ln},{lat:+u.addressLat,lng:+u.addressLng});
+  const days = 1 + Math.floor(Math.max(0, km-0.001)/50);
+  const text = days===1 ? 'Получите товар завтра' : (days===2 ? 'Получите товар послезавтра' : `Получите товар через ${days} дн.`);
+  return {km:Math.round(km), days, text};
+}
+function hzDeliveryHtml(){ const d = hzDeliveryInfo(); return d ? `<div class="card-delivery" style="font-size:11.5px;font-weight:700;color:var(--success,#28c878);margin-top:3px;"><i class="fa-solid fa-truck-fast"></i> ${d.text}</div>` : ''; }
+/* ============ СТРАНА ДОСТАВКИ ПО КОДУ ТЕЛЕФОНА ============ */
+function syncCountryFromCode(){
+  const map = {'+992':'Таджикистан','+7':'Россия','+998':'Узбекистан'};
+  const c = map[$('#coCountryCode').value]; if(!c) return;
+  $('#coCountry').value = c;
+  renderDeliveryMethodOptions();
+}
+$('#coCountryCode').addEventListener('change', syncCountryFromCode);
 /* ============ PROMO CODE & BONUS POINTS ============ */
 let appliedPromo = null; // {id, code, type, value, discount}
 let firstOrderDiscountAmount = 0;
@@ -5888,7 +6006,12 @@ function recalcCheckoutTotals(){
   } else {
     $('#coBonusRow').style.display = 'none';
   }
-  $('#coTotal').textContent = fmt(Math.max(0, afterPromo - bonusUsed) + fee);
+  const baseTotal = Math.max(0, afterPromo - bonusUsed) + fee;
+  const hz = hzCreditCalc(baseTotal);
+  if(hz){ $('#coInstallRow').style.display='flex'; $('#coInstallLabel').textContent = hz.rate? `Наценка рассрочки (${hz.rate}%)` : 'Рассрочка без процентов'; $('#coInstallAmount').textContent = '+'+fmt(hz.markup); }
+  else $('#coInstallRow').style.display='none';
+  $('#coTotal').textContent = fmt(hz ? hz.total : baseTotal);
+  hzCreditRefreshUi(baseTotal, hz);
 }
 $('#coBonusInput').addEventListener('input', recalcCheckoutTotals);
 $('#coBonusMaxBtn').addEventListener('click', ()=>{
@@ -5944,6 +6067,8 @@ $('#checkoutOpenBtn').addEventListener('click', ()=>{
   $('#coName').value = State.user.fio||'';
   $('#coPhone').value = State.user.phone||'';
   $('#coCountryCode').value = State.user.countryCode||'+7';
+  syncCountryFromCode();
+  if(State.user.docId) db.collection('users').doc(State.user.docId).get().then(d=>{ if(d.exists){ State.user.creditLimit = d.data().creditLimit; recalcCheckoutTotals(); } }).catch(()=>{});
   $('#coAddress').value = State.user.address||'';
   coAddressCoords = null;
   $('#coGeoStatus').style.display = 'none';
@@ -6057,12 +6182,16 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const firstOrderDiscount = firstOrderDiscountAmount;
   const afterPromo = Math.max(0, subtotal - promoDiscount - firstOrderDiscount);
   const bonusUsed = getBonusToRedeem(afterPromo);
-  const total = Math.max(0, afterPromo - bonusUsed) + deliveryFee;
+  const baseTotalOrder = Math.max(0, afterPromo - bonusUsed) + deliveryFee;
+  const hzc = hzCreditCalc(baseTotalOrder);
+  if(hzc){ try{ const ud = await db.collection('users').doc(State.user.docId).get(); if(ud.exists){ State.user.creditLimit = ud.data().creditLimit; } }catch(e){} if(baseTotalOrder > hzCreditLimit()){ toast('Сумма превышает ваш кредитный лимит', 'Лимит: '+fmt(hzCreditLimit())+'. Выберите другой способ оплаты', 'fa-circle-exclamation'); return; } }
+  if(hzc && !$('#coHzPassport').checked){ toast('Рассрочка HORIZON кредит только по паспорту','Подтвердите, что паспорт у вас есть','fa-circle-exclamation'); return; }
+  const total = hzc ? hzc.total : baseTotalOrder;
   const payMethodInput = document.querySelector('input[name="coPayMethod"]:checked');
   const paymentMethod = payMethodInput ? payMethodInput.value : 'card';
   const installmentProvider = paymentMethod==='installment' ? $('#coInstallmentProvider').value : null;
   const initialStatus = paymentMethod==='installment' ? 'Ожидает оформления рассрочки' : 'Ожидает оплаты';
-  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, receiveMethod, receiveMethodLabel, pickupAddress: receiveMethod==='pickup' ? (State.settings.pickupAddress||null) : null, needsCourier:false, deliveryMethod, deliveryMethodLabel, address, addressLat: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lat : null, addressLng: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lng : null, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, installmentProvider, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, receiveMethod, receiveMethodLabel, pickupAddress: receiveMethod==='pickup' ? (State.settings.pickupAddress||null) : null, needsCourier:false, deliveryMethod, deliveryMethodLabel, address, addressLat: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lat : null, addressLng: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lng : null, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, installmentProvider, installmentTerm: hzc?hzc.term.short:null, installmentRate: hzc?hzc.rate:null, installmentMarkup: hzc?hzc.markup:null, installmentParts: hzc?hzc.parts:null, installmentPerPayment: hzc?hzc.perPart:null, passportRequired: hzc?true:null, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
   const orderRef = db.collection('orders').doc();
   try{
     // Reserve stock atomically: aggregate quantity per product (a product can appear in
@@ -6101,7 +6230,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
       State.user.bonusBalance = Math.max(0, (Number(State.user.bonusBalance)||0) - bonusUsed);
       saveLocalUser(State.user);
     }
-    if(State.user.docId) db.collection('users').doc(State.user.docId).set({address}, {merge:true}).catch(()=>{});
+    if(State.user.docId) { const upd = {address}; if(coAddressCoords){ upd.addressLat = coAddressCoords.lat; upd.addressLng = coAddressCoords.lng; State.user.addressLat = coAddressCoords.lat; State.user.addressLng = coAddressCoords.lng; } State.user.address = address; db.collection('users').doc(State.user.docId).set(upd, {merge:true}).catch(()=>{}); }
     State.user.address = address;
   }catch(e){
     console.warn(e);
@@ -6124,7 +6253,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     }).join('\n');
     const promoLine = appliedPromo ? `\n🏷️ Промокод ${appliedPromo.code}: -${fmt(promoDiscount)}` : '';
     const bonusLine = bonusUsed>0 ? `\n🪙 Списано бонусов: -${fmt(bonusUsed)}` : '';
-    const installmentLine = paymentMethod==='installment' ? `\n📆 Оплата в рассрочку: ${installmentProvider}` : '';
+    const installmentLine = paymentMethod==='installment' ? `\n📆 Оплата в рассрочку: ${installmentProvider}${hzc?' · '+hzc.term.short+' · '+hzc.rate+'% · по паспорту':''}` : '';
     const text = `🛍️ <b>Новый заказ HORIZON MARKET</b>\n👤 ${name}\n📞 ${code}${phone}\n🌍 ${country}\n${receiveMethod==='delivery'?'🛵':'🏬'} Способ получения: ${receiveMethodLabel}${deliveryMethodLabel?`\n🚚 Способ доставки: ${deliveryMethodLabel}`:''}${address?`\n📍 ${address}`:''}\n\n${list}\n\n💵 Сумма заказа: ${fmt(subtotal)}${promoLine}${bonusLine}${installmentLine}\n🚚 Доставка: ${receiveMethod==='delivery'?'договорная':'самовывоз'}\n💰 Итого: ${fmt(total)}`;
     if(seller && seller.botToken && seller.botChatId) sendTelegram(seller.botToken, seller.botChatId, text);
     if(State.settings.adminBotToken && State.settings.adminBotChatId) sendTelegram(State.settings.adminBotToken, State.settings.adminBotChatId, text);
@@ -7018,7 +7147,7 @@ document.addEventListener('click', (e)=>{
   if(e.target.closest('#ovRegVerify [data-close]')) stopRegVerifyFlow();
 });
 async function finalizeRegistration(payload, verifiedTelegramChatId){
-  const {fio, gender, code, phone, fullPhone, pass, referralCode} = payload;
+  const {fio, gender, code, phone, fullPhone, pass, referralCode, address, addressLat, addressLng} = payload;
   // referral: award both sides bonus points, once, only if the referrer exists and isn't self
   let referredBy = null, welcomeBonus = 0;
   const referralBonus = Number(State.settings.referralBonusPoints) || 0;
@@ -7032,7 +7161,7 @@ async function finalizeRegistration(payload, verifiedTelegramChatId){
     }catch(e){}
   }
   const docRef = await db.collection('users').add(stripUndefinedDeep({
-    fio, gender, countryCode:code, phone, fullPhone, password: pass, photo: regPhotoData||'',
+    fio, gender, countryCode:code, phone, fullPhone, password: pass, photo: regPhotoData||'', address: address||'', homeAddress: address||'', addressLat: addressLat||null, addressLng: addressLng||null,
     role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, referredBy,
     telegramChatId: verifiedTelegramChatId || null,
     telegramNotifyEnabled: !!verifiedTelegramChatId,
@@ -7041,7 +7170,7 @@ async function finalizeRegistration(payload, verifiedTelegramChatId){
   if(referredBy && referralBonus>0){
     db.collection('users').doc(referredBy).update({bonusBalance: firebase.firestore.FieldValue.increment(referralBonus)}).catch(()=>{});
   }
-  const userObj = {docId:docRef.id, fio, gender, countryCode:code, phone, fullPhone, role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, photo:regPhotoData||'', telegramChatId: verifiedTelegramChatId||null, telegramNotifyEnabled: !!verifiedTelegramChatId};
+  const userObj = {docId:docRef.id, address:address||'', addressLat:addressLat||null, addressLng:addressLng||null, fio, gender, countryCode:code, phone, fullPhone, role:'client', favorites:[], stockNotify:[], priceWatch:[], bonusBalance: welcomeBonus, photo:regPhotoData||'', telegramChatId: verifiedTelegramChatId||null, telegramNotifyEnabled: !!verifiedTelegramChatId};
   State.user = userObj; saveLocalUser(userObj);
   closeOv('ovRegister'); loadCart(); refreshUserUI(); refreshPricesForGeo();
   toast('Добро пожаловать!', welcomeBonus>0 ? `Начислено ${welcomeBonus} бонусов за приглашение` : fio, 'fa-circle-check');
@@ -7062,7 +7191,10 @@ $('#regSubmitBtn').addEventListener('click', async ()=>{
   const fullPhone = code+phone;
   const existing = await db.collection('users').where('fullPhone','==',fullPhone).limit(1).get();
   if(!existing.empty){ toast('Этот номер уже зарегистрирован','Попробуйте войти','fa-circle-exclamation'); return; }
-  const payload = {fio, gender, code, phone, fullPhone, pass, referralCode};
+  const address = $('#regAddress').value.trim();
+  let coords = regAddrCoords;
+  if(address && !coords){ coords = await hzGeocode(address); }
+  const payload = {fio, gender, code, phone, fullPhone, pass, referralCode, address, addressLat: coords?coords.lat:null, addressLng: coords?coords.lng:null};
   if(!regBotConfigured()){
     // Бот верификации не настроен админом — регистрируем сразу, без подтверждения по Telegram
     await finalizeRegistration(payload, null);
@@ -7288,10 +7420,12 @@ function renderProfile(){
       $('#productsBotChatIdInput').value = State.settings.productsBotChatId||'';
       $('#regBotTokenInput').value = State.settings.regBotToken||'';
       $('#regBotUsernameInput').value = State.settings.regBotUsername||'';
+      window._bankIconData = State.settings.bankIcon||''; if(window._bankIconData){ $('#bankIconPreview').src = window._bankIconData; $('#bankIconPreview').style.display='block'; }
       $('#telegramChannelLinkInput').value = State.settings.telegramChannelLink||'';
       $('#courierBankReqInput').value = State.settings.courierBankRequisites||'';
       $('#courierTaxPercentInput').value = State.settings.courierTaxPercent!=null ? State.settings.courierTaxPercent : 1;
       $('#pickupAddressInput').value = State.settings.pickupAddress||'';
+      $('#officeLatInput').value = State.settings.officeLat||''; $('#officeLngInput').value = State.settings.officeLng||'';
       $('#pickupHoursInput').value = State.settings.pickupHours||'';
       $('#aiProviderInput').value = State.settings.aiProvider || 'openai';
       $('#aiApiKeyInput').value = State.settings.aiApiKey || State.settings.geminiApiKey || '';
@@ -7335,6 +7469,10 @@ $('#botSettingsSaveBtn').addEventListener('click', async ()=>{
     State.settings.adminBotToken = token; State.settings.adminBotChatId = chatId;
     State.settings.productsBotToken = productsBotToken; State.settings.productsChannelId = productsChannelId; State.settings.productsBotChatId = productsBotChatId;
     State.settings.regBotToken = regBotToken; State.settings.regBotUsername = regBotUsername; State.settings.telegramChannelLink = telegramChannelLink;
+    { let oLat = parseFloat($('#officeLatInput').value), oLng = parseFloat($('#officeLngInput').value);
+      if(!(oLat && oLng) && pickupAddress){ const g = await hzGeocode(pickupAddress); if(g){ oLat = g.lat; oLng = g.lng; $('#officeLatInput').value = oLat; $('#officeLngInput').value = oLng; } }
+      if(oLat && oLng){ await db.collection('settings').doc('main').set({officeLat:oLat, officeLng:oLng},{merge:true}); State.settings.officeLat = oLat; State.settings.officeLng = oLng; try{ filterAndRenderGrid({}); }catch(e){} } }
+    if(window._bankIconData!==undefined){ await db.collection('settings').doc('main').set({bankIcon: window._bankIconData||''},{merge:true}); State.settings.bankIcon = window._bankIconData||''; }
     State.settings.courierBankRequisites = courierBankRequisites; State.settings.courierTaxPercent = courierTaxPercent;
     State.settings.pickupAddress = pickupAddress; State.settings.pickupHours = pickupHours;
     State.settings.aiProvider = aiProvider; State.settings.aiApiKey = aiApiKey;
@@ -8267,6 +8405,7 @@ async function renderChatList(){
     const otherId = (State.user.role==='seller'||State.user.role==='admin') ? c.clientId : c.sellerId;
     let otherDoc = null;
     if(otherId==='admin'){ otherDoc = {fio:'HORIZON MARKET'}; }
+    else if(otherId==='horizon_bank'){ otherDoc = {fio:'HORIZON BANK', photo: State.settings.bankIcon||''}; }
     else { try{ otherDoc = (await db.collection('users').doc(otherId).get()).data(); }catch(e){} }
     rows.push({
       chatDocId:d.id, otherId, otherName: otherDoc?otherDoc.fio:'Пользователь', otherPhoto: (otherDoc&&otherDoc.photo)||'', lastProductName: c.lastProductName||'',
@@ -8527,6 +8666,7 @@ document.addEventListener('click', async (e)=>{
   const msgId = btn.getAttribute('data-msg-action-msgid');
   let payload = {};
   try{ payload = JSON.parse(decodeURIComponent(btn.getAttribute('data-msg-action-payload')||'{}')); }catch(err){}
+  if(type==='kyc' || type==='link'){ if(payload.url) window.open(payload.url, '_blank'); return; }
   if(type==='pay'){
     markChatActionUsed(chatDocId, msgId, '✅ Способ оплаты выбран');
     closeOv('ovChatThread');
@@ -8681,7 +8821,7 @@ $('#chatInputMsg').addEventListener('input', (e)=>{
   }, 250);
 });
 async function maybeTriggerSellerAutoReply(chatDocId, sellerId){
-  if(!sellerId || sellerId==='admin') return;
+  if(!sellerId || sellerId==='admin' || sellerId==='horizon_bank') return;
   try{
     const metaDoc = await db.collection('chats').doc(chatDocId).get();
     if(metaDoc.exists && metaDoc.data().autoReplySent) return;
@@ -8701,7 +8841,7 @@ async function maybeTriggerSellerAutoReply(chatDocId, sellerId){
    как чек об оплате (см. подсказку у кнопки-скрепки "Отправить чек/фото"), поэтому сразу
    отвечаем автоматическим статусом обработки платежа, не дожидаясь продавца/админа. */
 function maybeAutoReplyReceiptPhoto(chatDocId, sellerId){
-  if(!sellerId) return;
+  if(!sellerId || sellerId==='horizon_bank') return;
   setTimeout(()=>{
     db.collection('chats').doc(chatDocId).collection('messages').add({
       senderId: sellerId, text: '✅ Чек получен! Ваш платёж обрабатывается, ждите 5 минут.', isAutoReply:true, read:false,
@@ -9970,11 +10110,17 @@ function renderAdminTab(){
         return `<div class="list-row">
           <div><div class="list-row-title">${u.fio} ${u.verified?'<i class="fa-solid fa-circle-check" style="color:#3AA0FF;font-size:12px;" title="Проверенный продавец"></i>':''}</div><div class="list-row-sub">${u.fullPhone||''} · пароль: ${u.password||''} · ${u.role==='seller'?'Продавец':'Клиент'}</div></div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+            ${u.role==='client' ? `<button class="tiny-btn" data-creditlimit="${d.id}" data-cl="${u.creditLimit||500}">Лимит ${u.creditLimit||500} TJS</button>` : ''}
             ${u.role==='seller' ? `<button class="tiny-btn ${u.verified?'':'primary'}" data-toggleverify="${d.id}">${u.verified?'Снять проверку':'Проверить'}</button>` : ''}
             ${u.role==='seller' ? `<button class="tiny-btn danger" data-unassign="${d.id}">Снять</button>` : `<button class="tiny-btn primary" data-assign="${d.id}">Сделать продавцом</button>`}
           </div>
         </div>`;
       }).join('') || '<div class="empty-state"><i class="fa-solid fa-users"></i></div>';
+      body.querySelectorAll('[data-creditlimit]').forEach(b=>b.addEventListener('click', async ()=>{
+        const v = prompt('Кредитный лимит HORIZON кредит (TJS):', b.getAttribute('data-cl')); if(v===null) return;
+        const n = Math.round(Number(v)); if(!(n>=0)){ toast('Введите число','','fa-circle-exclamation'); return; }
+        await db.collection('users').doc(b.getAttribute('data-creditlimit')).update({creditLimit:n}); toast('Лимит обновлён', n+' TJS', 'fa-circle-check'); renderAdminTab();
+      }));
       body.querySelectorAll('[data-assign]').forEach(b=>b.addEventListener('click', async ()=>{
         await db.collection('users').doc(b.getAttribute('data-assign')).update({role:'seller'}); renderAdminTab();
       }));
@@ -11192,3 +11338,4 @@ boot();
 
 
 
+</body></html>
