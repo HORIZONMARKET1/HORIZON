@@ -1,0 +1,2 @@
+requests>=2.31
+firebase-admin>=6.5
