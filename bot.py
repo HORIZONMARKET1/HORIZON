@@ -35,7 +35,11 @@ PHONE = os.environ.get("PAY_PHONE", "+992 978 11 78 11").strip()
 CUR = os.environ.get("CURRENCY", "TJS")
 AI_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 AI_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5").strip()
-PUBLIC_URL = os.environ.get("PUBLIC_URL", "").strip().rstrip("/")
+PUBLIC_URL = (os.environ.get("PUBLIC_URL", "") or os.environ.get("RAILWAY_PUBLIC_DOMAIN", "")).strip().rstrip("/")
+if PUBLIC_URL:
+    # Telegram принимает для кнопки Mini App только https://. Без схемы или с http:// кнопка отклоняется,
+    # и бот после 7-го шага «молчит» — поэтому приводим адрес к https:// принудительно.
+    PUBLIC_URL = "https://" + re.sub(r"^https?://", "", PUBLIC_URL, flags=re.I).rstrip("/")
 BANK = "horizon_bank"
 DEFAULT_LIMIT = 500
 POOL = ThreadPoolExecutor(max_workers=6)
@@ -314,10 +318,25 @@ KYC_Q = {
 }
 
 
+def selfie_markup():
+    return {"inline_keyboard": [[{"text": "✅ Пройти аутентификацию", "web_app": {"url": PUBLIC_URL + "/selfie"}}]]}
+
+
 def kyc_ask(chat, step):
     if step == "selfie":
-        return say(chat, "8️⃣ Последний шаг — <b>селфи в реальном времени</b>.\nНажмите кнопку: откроется камера. Фото из галереи загрузить нельзя.",
-                   reply_markup={"inline_keyboard": [[{"text": "📸 Сделать селфи", "web_app": {"url": PUBLIC_URL + "/selfie"}}]]})
+        r = say(chat, "✅ Паспорт принят.\n\n8️⃣ Последний шаг — <b>аутентификация</b>.\n"
+                      "Нажмите кнопку «Пройти аутентификацию»: откроется камера прямо в Telegram. "
+                      "Сделайте фото лица, проверьте его и нажмите «Отправить» — фото сразу придёт в бот.\n"
+                      "Фото из галереи загрузить нельзя.", reply_markup=selfie_markup())
+        if not r:
+            # Telegram не принял кнопку (чаще всего PUBLIC_URL пустой/не https/не открывается) — не молчим
+            log.error("Не удалось отправить кнопку Mini App. PUBLIC_URL=%r — проверьте переменную PUBLIC_URL (https://ваш-домен) в Railway", PUBLIC_URL)
+            say(chat, "⚠️ Не удалось открыть камеру для аутентификации. Мы уже сообщили администратору — попробуйте ещё раз чуть позже "
+                      "(напишите любое сообщение, и кнопка отправится снова).")
+            for a in kyc_admins():
+                say(a, "⚠️ <b>Верификация не может открыть камеру</b>: Telegram отклонил кнопку Mini App.\nPUBLIC_URL = <code>%s</code>\n"
+                       "Проверьте, что в Railway задан PUBLIC_URL вида https://ваш-домен.up.railway.app и у сервиса включён публичный домен." % esc(PUBLIC_URL or "не задан"))
+        return r
     say(chat, KYC_Q[step])
 
 
@@ -343,8 +362,8 @@ def kyc_message(m, sess):
     data = sess.get("data") or {}
     ref = db.collection("kycSessions").document(str(chat))
     if step == "selfie":
-        return say(chat, "Нужно селфи с камеры — нажмите кнопку ниже. Фото из галереи не принимается.",
-                   reply_markup={"inline_keyboard": [[{"text": "📸 Сделать селфи", "web_app": {"url": PUBLIC_URL + "/selfie"}}]]})
+        return say(chat, "Остался последний шаг — нажмите «Пройти аутентификацию» ниже, откроется камера. Фото из галереи не принимается.",
+                   reply_markup=selfie_markup())
     if step in ("pass_front", "pass_back"):
         fid = None
         if m.get("photo"):
@@ -529,16 +548,36 @@ def on_orders(docs, changes, read_time):
 
 
 # ---------- веб-сервер: страница селфи (Telegram Mini App) ----------
-SELFIE_HTML = """<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<script src="https://telegram.org/js/telegram-web-app.js"></script><title>Селфи</title>
-<style>body{margin:0;background:#0f0b1f;color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:16px}video{width:100%;max-width:420px;border-radius:18px;background:#000;transform:scaleX(-1)}
-button{margin-top:16px;width:100%;max-width:420px;padding:16px;border:0;border-radius:14px;background:#7b2ff7;color:#fff;font-size:17px;font-weight:700}p{opacity:.8}</style></head>
-<body><h3>Селфи для верификации</h3><p id="m">Разрешите доступ к камере и держите лицо в кадре</p><video id="v" autoplay playsinline muted></video><br><button id="b" disabled>Сделать фото</button>
+SELFIE_HTML = """<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<script src="https://telegram.org/js/telegram-web-app.js"></script><title>Аутентификация</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0f0b1f;color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:16px}
+h3{margin:4px 0 8px}p{opacity:.85;min-height:20px;margin:6px 0 12px}
+.box{position:relative;width:100%;max-width:420px;margin:0 auto;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#000}
+.box video,.box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}.box img{display:none}
+.row{display:flex;gap:10px;max-width:420px;margin:16px auto 0}
+button{flex:1;padding:16px;border:0;border-radius:14px;background:#7b2ff7;color:#fff;font-size:17px;font-weight:700}
+button.sec{background:#2a2358}button:disabled{opacity:.5}
+</style></head>
+<body><h3>Аутентификация</h3><p id="m">Разрешите доступ к камере и держите лицо в кадре</p>
+<div class="box"><video id="v" autoplay playsinline muted></video><img id="p" alt=""></div>
+<div class="row"><button id="shot" disabled>Сделать фото</button><button id="retake" class="sec" style="display:none">Переснять</button><button id="send" style="display:none">Отправить</button></div>
 <script>
-const tgw=window.Telegram.WebApp;tgw.ready();tgw.expand();const v=document.getElementById('v'),b=document.getElementById('b'),m=document.getElementById('m');
-navigator.mediaDevices&&navigator.mediaDevices.getUserMedia?navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(s=>{v.srcObject=s;b.disabled=false}).catch(()=>{m.textContent='Нет доступа к камере. Разрешите камеру в настройках и откройте снова.'}):m.textContent='Камера недоступна. Обновите Telegram.';
-b.onclick=async()=>{b.disabled=true;m.textContent='Отправка…';const c=document.createElement('canvas'),k=Math.min(1,900/Math.max(v.videoWidth,v.videoHeight));c.width=v.videoWidth*k;c.height=v.videoHeight*k;c.getContext('2d').drawImage(v,0,0,c.width,c.height);
-try{const r=await fetch('/selfie',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tgw.initData,image:c.toDataURL('image/jpeg',.85)})});const j=await r.json();if(j.ok){tgw.close()}else{m.textContent=j.error||'Ошибка';b.disabled=false}}catch(e){m.textContent='Нет связи, попробуйте ещё раз';b.disabled=false}};
+const tgw=window.Telegram.WebApp;tgw.ready();tgw.expand();
+const v=document.getElementById('v'),p=document.getElementById('p'),m=document.getElementById('m'),shot=document.getElementById('shot'),retake=document.getElementById('retake'),send=document.getElementById('send');
+let data=null;
+function mode(captured){v.style.display=captured?'none':'block';p.style.display=captured?'block':'none';shot.style.display=captured?'none':'';retake.style.display=captured?'':'none';send.style.display=captured?'':'none';}
+if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(s=>{v.srcObject=s;shot.disabled=false;m.textContent='Держите лицо в кадре и нажмите «Сделать фото»'}).catch(()=>{m.textContent='Нет доступа к камере. Разрешите камеру в настройках Telegram и откройте снова.'});
+}else{m.textContent='Камера недоступна. Обновите Telegram.'}
+shot.onclick=()=>{if(!v.videoWidth){m.textContent='Камера ещё не готова, подождите секунду';return}
+const c=document.createElement('canvas'),k=Math.min(1,900/Math.max(v.videoWidth,v.videoHeight));c.width=v.videoWidth*k;c.height=v.videoHeight*k;c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+data=c.toDataURL('image/jpeg',.85);p.src=data;mode(true);m.textContent='Проверьте фото и нажмите «Отправить»'};
+retake.onclick=()=>{data=null;mode(false);m.textContent='Держите лицо в кадре и нажмите «Сделать фото»'};
+send.onclick=async()=>{if(!data)return;send.disabled=true;retake.disabled=true;m.textContent='Отправка…';
+try{const r=await fetch('/selfie',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tgw.initData,image:data})});const j=await r.json();
+if(j.ok){m.textContent='✅ Отправлено';setTimeout(()=>tgw.close(),700)}else{m.textContent=j.error||'Ошибка';send.disabled=false;retake.disabled=false}}
+catch(e){m.textContent='Нет связи, попробуйте ещё раз';send.disabled=false;retake.disabled=false}};
 </script></body></html>"""
 
 
@@ -563,6 +602,7 @@ class Web(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", ctype + "; charset=utf-8")
         self.send_header("Content-Length", str(len(b)))
+        self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(b)
 
