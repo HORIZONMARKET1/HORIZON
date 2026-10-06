@@ -1233,6 +1233,258 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 .wc-sign-cap b{color:#0B1F4D;}
 .wc-footer-strip{position:relative; z-index:1; text-align:center; font-family:'Manrope',sans-serif; font-size:9.5px; color:#A3ADC7; margin-top:24px; letter-spacing:.4px;}
 </style>
+<style id="hzPhotoStyle">
+/* ===== ДИЗАЙН КНОПОК ПРОФИЛЯ — как на фото ===== */
+.pf-h1{font-size:34px; letter-spacing:-.6px;}
+.pf-sub{font-size:15px; line-height:1.3; color:#8F8FC0;}
+.pf-gear{width:56px; height:56px; border-radius:18px; font-size:22px; background:linear-gradient(180deg,rgba(30,24,70,.9),rgba(14,11,38,.95)); border:1px solid rgba(140,110,255,.35);}
+.pf-hero{padding:18px; gap:16px; border-radius:26px; margin-bottom:14px; border:1px solid rgba(120,90,255,.45); background:linear-gradient(180deg,rgba(28,22,70,.85),rgba(12,10,36,.92)); box-shadow:0 0 0 1px rgba(100,70,255,.12) inset, 0 14px 40px rgba(40,20,140,.35);}
+.pf-avatar-wrap{width:100px; height:100px; padding:5px; box-shadow:0 0 30px rgba(110,77,255,.6);}
+.pf-av-badge{position:absolute; right:-4px; bottom:-2px; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; background:linear-gradient(145deg,#8A5CFF,#5B2EEA); border:3px solid #0E0B26; box-shadow:0 0 14px rgba(110,77,255,.7);}
+.pf-name{font-size:26px; font-weight:800;}
+.pf-role{display:inline-flex; margin-top:8px; padding:6px 14px 6px 12px; border-radius:20px; font-size:15px; font-weight:600; color:#A58BFF; background:rgba(110,80,255,.18); border:1px solid rgba(140,110,255,.45);}
+.pf-status{display:flex; width:max-content; margin-top:8px; padding:7px 16px 7px 12px; font-size:15px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);}
+.pf-status::before{width:12px; height:12px; background:#22D36B; box-shadow:0 0 10px #22D36B;}
+.pf-chev{font-size:22px; color:#E8E4FF;}
+/* карточки: бонусы + приглашение */
+.pf-cards{display:flex; gap:12px; margin-bottom:14px; align-items:stretch;}
+.pf-bonus{flex:1.05; position:relative; border-radius:24px; padding:16px; color:#fff; min-height:144px; overflow:hidden; background:linear-gradient(135deg,#B04CF0 0%,#7A3BFF 55%,#5B3DF0 100%); box-shadow:0 10px 28px rgba(120,60,255,.45), inset 0 1px 0 rgba(255,255,255,.3);}
+.pf-bonus-ico{position:absolute; left:16px; top:14px; width:46px; height:46px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:20px; background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.25);}
+.pf-bonus-t{position:absolute; left:74px; top:30px; font-size:15px; font-weight:600; opacity:.95;}
+.pf-bonus-n{position:absolute; left:16px; bottom:14px; display:flex; align-items:center; gap:12px; font-size:40px; font-weight:800; line-height:1;}
+.pf-bonus-n i{font-size:26px; opacity:.85;}
+.pf-bonus-arr{position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:16px; opacity:.8;}
+.pf-invite{flex:1.2; border-radius:24px; padding:12px; display:flex; flex-direction:column; justify-content:space-between; gap:8px; background:linear-gradient(180deg,rgba(28,22,70,.85),rgba(12,10,36,.92)); border:1px solid rgba(120,90,255,.4);}
+.pf-invite-top{display:flex; align-items:center; gap:10px;}
+.pf-invite-ico{width:46px; height:46px; border-radius:15px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:19px; color:#CFC2FF; background:linear-gradient(145deg,#4B3CC4,#2C2380); border:1px solid rgba(140,110,255,.4);}
+.pf-invite-t{flex:1; min-width:0;} .pf-invite-t b{display:block; font-size:15px; font-weight:700; line-height:1.15;} .pf-invite-t small{display:block; margin-top:3px; font-size:12.5px; line-height:1.25; color:#8F8FC0;}
+.pf-invite-arr{font-size:13px; color:#A9A3D6;}
+.pf-share{width:100%; height:46px; border-radius:23px; border:0; color:#fff; font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:9px; font-family:inherit; background:linear-gradient(135deg,#5B4BFF 0%,#4A33F0 100%); box-shadow:0 8px 20px rgba(80,60,255,.45), inset 0 1px 0 rgba(255,255,255,.25);}
+.pf-share:active{transform:scale(.97);}
+/* строки меню */
+.pf-item{gap:14px; padding:10px 14px 10px 12px; min-height:72px; margin-bottom:10px; border-radius:20px; background:linear-gradient(180deg,rgba(26,21,64,.9),rgba(13,11,36,.95)); border:1px solid rgba(110,85,230,.35); box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
+.pf-ico{width:52px; height:52px; border-radius:16px; font-size:21px; color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 6px 16px rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.12);}
+.pf-ico.t-violet{background:linear-gradient(145deg,#6A4BF0,#2E2290);}
+.pf-ico.t-blue{background:linear-gradient(145deg,#3E5BFF,#1F2E9E);}
+.pf-ico.t-blue2{background:linear-gradient(145deg,#1E7BFF,#0F3FA8);}
+.pf-ico.t-pink{background:linear-gradient(145deg,#E040C8,#8A1E9E);}
+.pf-ico.t-green{background:linear-gradient(145deg,#1FBF7A,#0B6B4A);}
+.pf-ico.t-orange{background:linear-gradient(145deg,#FF9A1F,#C2560A);}
+.pf-txt b{font-size:17px; font-weight:700;}
+.pf-txt small{font-size:13.5px; color:#8F8FC0; margin-top:2px;}
+.pf-item .pf-arrow{font-size:15px; color:#D5D0F5;}
+.pf-item.pf-danger{background:linear-gradient(180deg,rgba(110,24,52,.5),rgba(48,12,30,.7)); border-color:rgba(255,70,110,.4);}
+.pf-item.pf-danger .pf-ico{background:linear-gradient(145deg,#6E1A30,#3A0E1C); color:#FF4D6A; border-color:rgba(255,80,110,.3);}
+.pf-item.pf-danger .pf-txt b{color:#FF3F66;} .pf-item.pf-danger .pf-txt small{color:#C27C92;}
+.pf-item.pf-note{min-height:0; padding:10px 16px; border-radius:16px;}
+/* переключатели */
+.pf-item .theme-switch{width:74px; height:42px; border-radius:21px; background:linear-gradient(180deg,#2A2360,#181440); border:1px solid rgba(140,110,255,.35);}
+.pf-item .theme-switch .knob{top:4px; left:4px; width:32px; height:32px;}
+.pf-item .theme-switch.on{background:linear-gradient(135deg,#7A55FF,#4B30F0); box-shadow:0 0 18px rgba(99,60,255,.55), inset 0 1px 0 rgba(255,255,255,.3);}
+.pf-item .theme-switch.on .knob{left:36px;}
+/* нижнее меню */
+.bottomnav{border-radius:28px 28px 0 0; height:calc(84px + env(safe-area-inset-bottom));}
+[data-theme="dark"] .bottomnav{--nav-bar-bg:rgba(13,11,36,.92); --nav-bar-border:rgba(130,100,255,.25); --nav-tile-bg:transparent;}
+.nav-ico{width:46px; height:46px; border-radius:50%; background:transparent;}
+.navbtn.active{color:#8B6CFF;}
+.navbtn.active .nav-ico{background:linear-gradient(145deg,#8A5CFF,#4B2BF5); box-shadow:0 0 22px rgba(120,80,255,.7), inset 0 1px 0 rgba(255,255,255,.35);}
+</style>
+<style id="hzVerifyStyle">
+/* ===== КОД ПОДТВЕРЖДЕНИЯ — анимация как на видео ===== */
+#ovRegVerify{--g:#2EE58A; --g2:rgba(46,229,138,.55);}
+.vf-card{position:relative; max-width:360px; width:92%; padding:14px 24px 20px; border-radius:30px; text-align:center; color:#fff; overflow:hidden;
+  background:linear-gradient(180deg,#171a20,#111318); border:1px solid rgba(255,255,255,.07); box-shadow:0 30px 70px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05); transition:border-color .5s, box-shadow .5s;}
+.vf-card.ok{border-color:rgba(46,229,138,.28); box-shadow:0 30px 70px rgba(0,0,0,.6), 0 0 40px rgba(46,229,138,.10);}
+.vf-x{position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.05); color:#8b8f9a; font-size:13px; border:0; transition:opacity .3s;}
+.vf-card.busy .vf-x{opacity:0; pointer-events:none;}
+.vf-handle{width:34px; height:4px; border-radius:3px; background:rgba(255,255,255,.14); margin:0 auto 22px;}
+.vf-lock{position:relative; width:56px; height:56px; margin:0 auto 18px; border-radius:18px; display:flex; align-items:center; justify-content:center; background:rgba(46,229,138,.10);}
+.vf-lock::before{content:''; position:absolute; inset:-7px; border-radius:24px; border:1.5px solid var(--g2); opacity:0; transform:scale(.88); transition:opacity .3s, transform .4s;}
+.vf-card.open .vf-lock::before{opacity:1; transform:scale(1); animation:vfHalo 1.8s ease-in-out infinite;}
+.vf-lock-in{width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:rgba(46,229,138,.12); color:var(--g);}
+.vf-lock-in svg{width:21px; height:21px;}
+.vf-shk{transition:transform .35s cubic-bezier(.3,1.6,.5,1);}
+.vf-card.open .vf-shk{transform:translateY(-2.6px);}
+.vf-title{margin:0; font-size:21px; font-weight:800; letter-spacing:-.2px; transition:color .4s, text-shadow .4s, opacity .2s;}
+.vf-card.ok .vf-title{color:var(--g); text-shadow:0 0 18px rgba(46,229,138,.45);}
+.vf-sub{margin:9px 0 26px; font-size:13.5px; line-height:1.45; color:#8b8f9a; transition:opacity .2s;}
+.vf-boxes{position:relative; display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:16px;}
+.vf-box{width:44px; height:52px; flex:0 0 44px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:#1b1e26; border:1.5px solid #2a2e38; font-size:24px; font-weight:700; color:#fff;
+  transition:border-color .25s, box-shadow .25s, background .25s, color .25s, transform .25s;}
+.vf-link{position:relative; width:9px; height:2px; flex:0 0 9px; background:#2a2e38; opacity:.5; transition:background .3s, opacity .3s;}
+.vf-link::after{content:''; position:absolute; left:50%; top:50%; width:4px; height:4px; margin:-2px 0 0 -2px; border-radius:50%; background:var(--g); box-shadow:0 0 6px var(--g); transform:scale(0); transition:transform .3s;}
+.vf-box.f + .vf-link{background:rgba(46,229,138,.5); opacity:1;}
+.vf-box.f + .vf-link::after{transform:scale(1);}
+.vf-box.on{border-color:var(--g); background:#1a2a26; box-shadow:0 0 0 3px rgba(46,229,138,.10), 0 0 20px rgba(46,229,138,.35);}
+.vf-box.on:not(.f) .vf-d::after{content:''; display:block; width:2px; height:24px; border-radius:2px; background:var(--g); animation:vfBlink 1s steps(1) infinite;}
+.vf-box.pop{animation:vfPop .4s cubic-bezier(.3,1.5,.5,1);}
+.vf-input{position:absolute; inset:0; width:100%; height:100%; opacity:0; font-size:16px; border:0; background:transparent; color:transparent; caret-color:transparent; z-index:2;}
+.vf-bar{width:58%; height:3px; margin:0 auto; border-radius:3px; background:rgba(255,255,255,.07); overflow:hidden; transition:opacity .4s, max-height .4s, margin .4s; max-height:3px;}
+.vf-bar i{display:block; height:100%; width:0; border-radius:3px; background:var(--g); box-shadow:0 0 10px var(--g); transition:width .35s cubic-bezier(.3,.9,.4,1);}
+.vf-card.ok .vf-bar{opacity:0; max-height:0; margin:0 auto;}
+/* успех */
+.vf-card.ok .vf-box{border-color:var(--g); background:#14241f; color:var(--g); box-shadow:0 0 18px rgba(46,229,138,.45), inset 0 0 10px rgba(46,229,138,.10); transform:scale(1.02);}
+.vf-card.ok .vf-box.on{transform:scale(1.02);}
+.vf-card.ok .vf-link{background:rgba(46,229,138,.6); opacity:1;}
+.vf-done{max-height:0; opacity:0; overflow:hidden; transition:max-height .5s ease, opacity .4s ease;}
+.vf-card.ok .vf-done{max-height:130px; opacity:1;}
+.vf-ring{position:relative; width:68px; height:68px; margin:6px auto 8px; color:var(--g);}
+.vf-spin{position:absolute; inset:2px; border-radius:50%; border:2.4px solid transparent; border-top-color:var(--g); border-right-color:rgba(46,229,138,.35); animation:vfSpin .8s linear infinite; transition:opacity .25s, transform .25s;}
+.vf-spin::after{content:''; position:absolute; inset:-9px; border-radius:50%; border:1.5px solid rgba(46,229,138,.25); animation:vfPulse 1.4s ease-in-out infinite;}
+.vf-chk{position:absolute; inset:0; width:100%; height:100%; opacity:0;}
+.vf-chk circle{stroke-dasharray:183; stroke-dashoffset:183;}
+.vf-chk path{stroke-dasharray:44; stroke-dashoffset:44;}
+.vf-card.chk .vf-spin{opacity:0; transform:scale(.6); animation-play-state:paused;}
+.vf-card.chk .vf-chk{opacity:1;}
+.vf-card.chk .vf-chk circle{animation:vfDraw .55s ease forwards;}
+.vf-card.chk .vf-chk path{animation:vfDraw .4s ease .4s forwards;}
+.vf-secure{font-size:12.5px; font-weight:700; color:var(--g); opacity:0; transform:translateY(4px); transition:opacity .4s .5s, transform .4s .5s; padding-bottom:10px;}
+.vf-card.chk .vf-secure{opacity:1; transform:none;}
+/* ошибка */
+.vf-card.bad .vf-boxes{animation:vfShake .5s;}
+.vf-card.bad .vf-box{border-color:#FF4D6A; background:#2a1a20; box-shadow:0 0 16px rgba(255,77,106,.35);}
+.vf-card.bad .vf-bar i{background:#FF4D6A; box-shadow:0 0 10px #FF4D6A;}
+/* низ */
+.vf-status{min-height:16px; margin:14px 0 8px; font-size:12.5px; color:#8b8f9a;}
+.vf-tg{display:inline-flex; align-items:center; gap:8px; padding:9px 16px; margin-bottom:16px; border-radius:20px; font-size:13px; font-weight:700; font-family:inherit; color:var(--g); background:rgba(46,229,138,.08); border:1px solid rgba(46,229,138,.3);}
+.vf-resend{font-size:13px; color:#8b8f9a; margin-bottom:16px;}
+.vf-rbtn{background:none; border:0; padding:0; font:inherit; font-weight:700; color:#C9CCD6; transition:opacity .2s;}
+.vf-rbtn:disabled{opacity:.35;}
+.vf-resend #regVerifyTimer{color:#5d616d;}
+.vf-foot{font-size:11.5px; color:#6b6f7b;}
+.vf-foot i{margin-right:5px;}
+@keyframes vfBlink{50%{opacity:0;}}
+@keyframes vfPop{0%{transform:scale(.72);} 55%{transform:scale(1.16); box-shadow:0 0 26px rgba(46,229,138,.6);} 100%{transform:scale(1);}}
+@keyframes vfHalo{0%,100%{transform:scale(1); opacity:.9;} 50%{transform:scale(1.07); opacity:.45;}}
+@keyframes vfSpin{to{transform:rotate(360deg);}}
+@keyframes vfPulse{0%,100%{transform:scale(.96); opacity:.9;} 50%{transform:scale(1.08); opacity:.3;}}
+@keyframes vfDraw{to{stroke-dashoffset:0;}}
+@keyframes vfShake{0%,100%{transform:translateX(0);} 20%{transform:translateX(-9px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(4px);}}
+@media(max-width:360px){.vf-box{width:38px; flex-basis:38px; height:46px; font-size:21px;} .vf-card{padding-left:16px; padding-right:16px;}}
+</style>
+<style id="hzOrderStyle">
+/* ===== АНИМАЦИЯ КНОПКИ «ЗАКАЗ» ===== */
+#coSubmitBtn{transition:width .55s cubic-bezier(.3,1.25,.5,1), border-radius .55s ease, background .4s ease, box-shadow .4s ease, transform .15s ease, filter .15s ease;}
+#coSubmitBtn.oa-run{position:relative; overflow:hidden; pointer-events:none; padding:0;}
+#coSubmitBtn.oa-ok{border-radius:999px !important; background:linear-gradient(135deg,#34E08F,#12B76A) !important; box-shadow:0 8px 26px rgba(30,210,120,.5), inset 0 1px 0 rgba(255,255,255,.35) !important;}
+.oa-lbl{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:8px;}
+.oa-stage{position:absolute; inset:0; pointer-events:none;}
+.oa-box{position:absolute; left:50%; top:50%; width:30px; height:26px; margin:-13px 0 0 -15px; opacity:0; z-index:2;}
+.oa-body{position:absolute; left:0; right:0; bottom:0; height:20px; border-radius:3px 3px 4px 4px; background:linear-gradient(180deg,#EDBB72,#DDA250); z-index:2; box-shadow:0 2px 6px rgba(20,10,80,.35);}
+.oa-tape{position:absolute; left:50%; top:0; bottom:0; width:6px; margin-left:-3px; background:rgba(255,255,255,.55); opacity:0;}
+.oa-flap{position:absolute; top:0; width:15px; height:7px; background:#F6D398; z-index:0; border-radius:2px;}
+.oa-flap.l{left:0; transform-origin:0 100%; transform:rotate(-115deg);}
+.oa-flap.r{right:0; transform-origin:100% 100%; transform:rotate(115deg);}
+.oa-it{position:absolute; left:50%; top:2px; opacity:0; z-index:1;}
+.oa-it.i1{width:8px; height:13px; margin-left:-4px; border-radius:2px; background:#fff; box-shadow:inset 0 0 0 1.5px #CFC5FF;}
+.oa-it.i2{width:10px; height:10px; margin-left:-5px; border-radius:50%; background:#6FE3FF;}
+.oa-it.i3{width:9px; height:9px; margin-left:-4.5px; border-radius:2px; background:#FFD166;}
+.oa-truck{position:absolute; left:50%; top:50%; width:56px; height:32px; margin:-16px 0 0 -28px; opacity:0; z-index:3;}
+.oa-truck svg{width:100%; height:100%; display:block; overflow:visible;}
+.oa-wh{transform-box:fill-box; transform-origin:center; animation:oaSpin .3s linear infinite;}
+.oa-check{position:absolute; left:50%; top:50%; width:26px; height:26px; margin:-13px 0 0 -13px; opacity:0; z-index:4; fill:none; stroke:#fff; stroke-width:3; stroke-linecap:round; stroke-linejoin:round;}
+.oa-check path{stroke-dasharray:24; stroke-dashoffset:24;}
+@keyframes oaSpin{to{transform:rotate(360deg);}}
+</style>
+<style id="hzDelStyle">
+/* ===== КНОПКА «УДАЛИТЬ» — как на видео ===== */
+.hz-del{position:relative; display:inline-flex; align-items:center; justify-content:center; gap:0 !important; overflow:visible !important; cursor:pointer;
+  padding:9px 20px !important; min-height:34px; border-radius:999px !important; border:0 !important; color:#fff !important; font-weight:800 !important; font-size:13.5px; line-height:1; white-space:nowrap; font-family:inherit; text-align:center;
+  background:linear-gradient(135deg,#7C33F6 0%,#5F2CE8 100%) !important; box-shadow:0 8px 22px rgba(110,50,235,.45), inset 0 1px 0 rgba(255,255,255,.25) !important;
+  transition:width .55s cubic-bezier(.3,1.25,.5,1), padding .55s ease, box-shadow .5s ease, transform .15s ease;}
+.hz-del:active{transform:scale(.96);}
+.hz-del.btn{display:flex; width:100%; min-height:46px;}
+.hz-del.tiny-btn{padding:7px 14px !important; min-height:30px; font-size:12px;}
+.hz-del.hz-del-icon{padding:9px 13px !important;}
+.hz-del.tiny-btn.hz-del-icon{padding:7px 11px !important;}
+.hz-del.remove-x{padding:6px 13px !important; min-height:28px; font-size:12px; margin-top:6px;}
+.hz-del-ico{display:inline-flex; width:18px; height:18px; flex-shrink:0;}
+.hz-del-ico svg{width:100%; height:100%; overflow:visible; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;}
+.hz-lid{transform-origin:4px 7px;}
+.hz-del-t{margin-left:8px; display:inline-block; white-space:nowrap;}
+.hz-ch{display:inline-block; will-change:transform;}
+.hz-del-run{pointer-events:none;}
+.hz-del-done{box-shadow:0 0 30px rgba(150,90,255,.95), 0 0 60px rgba(120,60,255,.55), inset 0 1px 0 rgba(255,255,255,.35) !important;}
+.hz-ring{position:absolute; left:50%; top:50%; pointer-events:none;}
+.hz-ring svg{display:block; overflow:visible;}
+.hz-ring circle{fill:none; stroke:rgba(205,175,255,.9); stroke-width:2.2; stroke-linecap:round;}
+.hz-chk{position:absolute; left:50%; top:50%; width:20px; height:20px; margin:-10px 0 0 -10px; opacity:0; fill:none; stroke:#fff; stroke-width:2.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
+.hz-chk path{stroke-dasharray:24; stroke-dashoffset:24;}
+</style>
+<style id="hzPdStyle">
+/* ===== СТРАНИЦА ТОВАРА — как на фото ===== */
+.pd-gallery-viewer{min-height:220px; border-radius:0 0 28px 28px;}
+.pd-gallery-header{justify-content:space-between; align-items:center; background:linear-gradient(to bottom, rgba(8,6,24,.55), rgba(8,6,24,0)); padding-bottom:30px;}
+.pd-gallery-name{display:none;}
+.pd-hb{width:42px; height:42px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:17px; background:rgba(18,14,46,.62); border:1px solid rgba(255,255,255,.14); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); transition:transform .15s ease;}
+.pd-hb:active{transform:scale(.92);}
+.pd-hb.on{color:#FF4D7E;}
+.pd-gallery-dots{bottom:14px;}
+.pd-gallery-dots span.active{background:#61C2FF; width:22px;}
+.pd-count{position:absolute; right:14px; bottom:12px; z-index:3; padding:6px 12px; border-radius:16px; font-size:13px; font-weight:700; color:#fff; background:rgba(14,12,38,.75); border:1px solid rgba(255,255,255,.1);}
+.pd-seller-wrap{display:flex; align-items:center; gap:10px; margin:18px 0 12px;}
+#ovProduct #pdSellerLink{flex:1; min-width:0; padding:0; margin:0;}
+.pd-seller{display:flex; align-items:center; gap:12px; width:100%; cursor:pointer;}
+.pd-seller-av{width:44px; height:44px; border-radius:50%; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#fff; font-size:19px; font-weight:800; background:linear-gradient(145deg,#7A55FF,#4B30F0); box-shadow:0 0 0 2px rgba(130,100,255,.25);}
+.pd-seller-av img{width:100%; height:100%; object-fit:cover;}
+.pd-seller-info{min-width:0; display:flex; flex-direction:column; gap:3px;}
+.pd-seller-name{font-size:15px; font-weight:700; line-height:1.15;}
+.pd-seller-meta{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden;}
+.pd-seller-meta i.fa-star{color:#FFB020; font-size:13px;}
+.pd-seller-meta b{color:var(--text); font-weight:700;}
+.pd-sep{width:1px; height:14px; background:var(--text-dim); opacity:.4; display:inline-block;}
+.pd-top-actions{display:flex; gap:8px; flex-shrink:0;}
+.pd-top-actions .mini-icon-btn{width:38px !important; height:38px !important; border-radius:50% !important; background:var(--hz-glass-bg); border:1px solid var(--hz-glass-border); color:var(--text);}
+.pd-title{font-size:26px; font-weight:800; line-height:1.18; letter-spacing:-.4px; margin:6px 0 8px;}
+.pd-subtitle{font-size:16px; line-height:1.35; color:var(--text-dim); margin-bottom:16px;}
+.pd-subtitle:empty{display:none;}
+.pd-specs{display:grid; margin-bottom:18px; padding:14px 4px; border-radius:20px; background:var(--hz-glass-bg); border:1px solid var(--hz-glass-border);}
+.pd-specs:empty{display:none;}
+.pd-spec{display:flex; align-items:center; gap:10px; padding:0 10px; min-width:0;}
+.pd-spec + .pd-spec{border-left:1px solid rgba(140,120,230,.22);}
+.pd-spec-ico{width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:16px; color:#C4B4FF; background:radial-gradient(circle at 30% 25%,#3E3194,#221A58);}
+.pd-spec-t{min-width:0; display:flex; flex-direction:column; gap:2px;}
+.pd-spec-t b{font-size:14px; font-weight:600; line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.pd-spec-t small{font-size:12px; color:var(--text-dim); line-height:1.15; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.pd-price-row{align-items:center; flex-wrap:wrap; gap:12px; margin:6px 0 8px;}
+.pd-price{font-size:34px; font-weight:800; letter-spacing:-.6px; line-height:1;}
+#pdOldPrice{font-size:18px !important; color:var(--text-dim); font-weight:600;}
+.pd-disc{padding:6px 14px; border-radius:16px; font-size:16px; font-weight:700; color:#fff; background:linear-gradient(135deg,#F0457A,#D12A5E); box-shadow:0 4px 14px rgba(240,69,122,.35);}
+.pd-disc:empty{display:none;}
+#pdLowStock{margin:2px 0 14px; font-size:16px; font-weight:700; color:#FF9A1F;}
+#pdLowStock:empty{display:none;}
+#pdLowStock i{margin-right:6px;}
+#pdCartControls>div:first-child{gap:12px !important; margin-bottom:12px !important;}
+#pdCartControls .btn{border-radius:18px; min-height:58px; font-size:16px; font-weight:700; padding:14px 8px !important;}
+#pdCartControls .btn i{font-size:20px;}
+#pdCartControls .btn-primary{background:linear-gradient(135deg,#8B5CFF 0%,#4B30F0 100%); box-shadow:0 10px 26px rgba(94,60,255,.45), inset 0 1px 0 rgba(255,255,255,.28);}
+#pdQuickBuyBtn{background:var(--hz-glass-bg) !important; color:var(--text) !important; border:1px solid var(--hz-glass-border) !important;}
+.pd-msgs{display:flex; gap:12px; margin:0 0 16px;}
+.pd-msg{flex:1; min-width:0; display:flex; align-items:center; gap:10px; padding:12px 12px; border-radius:18px; color:#fff; text-align:left; box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 8px 20px rgba(0,0,0,.25);}
+.pd-msg.wa{background:linear-gradient(135deg,#5FC878,#3BAA5C);}
+.pd-msg.tg{background:linear-gradient(135deg,#4FAAE8,#3A8FDB);}
+.pd-msg-ico{font-size:38px; flex-shrink:0;}
+.pd-msg-circ{width:42px; height:42px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:#fff; color:#3A8FDB; font-size:19px;}
+.pd-msg-t{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;}
+.pd-msg-t b{font-size:16px; font-weight:700; line-height:1.1;}
+.pd-msg-t small{font-size:13px; font-weight:500; opacity:.92; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pd-msg-arr{font-size:14px; opacity:.85;}
+.pd-about{display:flex; align-items:flex-start; gap:14px; padding:16px; margin-bottom:6px; border-radius:20px; background:var(--hz-glass-bg); border:1px solid var(--hz-glass-border);}
+.pd-about-ico{width:60px; height:60px; border-radius:18px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:26px; color:#8E7BFF; background:linear-gradient(145deg,#2C2380,#1A1450); border:1px solid rgba(140,110,255,.3);}
+.pd-about-main{flex:1; min-width:0;}
+.pd-about-title{font-size:17px; font-weight:700; line-height:1.2; margin-bottom:6px;}
+.pd-about .pd-desc{padding:0; font-size:15px; line-height:1.4; color:var(--text-dim); -webkit-line-clamp:2;}
+.pd-about.open .pd-desc{-webkit-line-clamp:unset;}
+.pd-about-toggle{justify-content:flex-start; width:auto; padding:10px 0 0; margin-top:0; font-size:15px; color:#7C5CFF;}
+.pd-rv-head{padding:18px 0 12px !important; display:flex; justify-content:space-between; align-items:center; font-size:24px; font-weight:800;}
+#pdWriteReviewBtn{display:inline-flex; align-items:center; gap:8px; padding:11px 18px !important; border-radius:999px !important; font-size:14px !important; font-weight:700; color:#fff !important; background:rgba(80,50,200,.28) !important; border:1px solid #6B4CFF; box-shadow:none !important;}
+.reviews-toggle{padding:16px 18px; border-radius:18px; background:var(--hz-glass-bg); border:1px solid var(--hz-glass-border); font-size:15px;}
+.rv-sum{display:flex; align-items:center; gap:8px; color:var(--text-dim); font-weight:500;}
+.rv-sum b{font-size:30px; font-weight:800; color:var(--text); line-height:1;}
+.rv-sum i{color:#FFB020; font-size:22px;}
+.reviews-toggle.open{margin-bottom:10px;}
+.reviews-toggle.open > i.fa-chevron-right{transform:rotate(90deg);}
+</style>
 </head>
 <body data-theme="light">
 
@@ -1569,15 +1821,26 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 
 <!-- REGISTER: TELEGRAM CODE VERIFICATION -->
 <div class="overlay center" id="ovRegVerify">
-  <div class="sheet" style="border-radius:24px;">
-    <div class="sheet-title">Подтверждение через Telegram <button class="close-x" data-close="ovRegVerify"><i class="fa-solid fa-xmark"></i></button></div>
-    <p style="color:var(--text-dim);font-size:13px;margin:-6px 0 14px;">Нажмите кнопку ниже, откройте Telegram и нажмите «Старт» в боте — он пришлёт код из 6 цифр.</p>
-    <button class="btn btn-primary" id="regVerifyOpenBotBtn" style="margin-bottom:14px;"><i class="fa-brands fa-telegram"></i> Открыть Telegram и получить код</button>
-    <p id="regVerifyStatus" style="color:var(--text-dim);font-size:12.5px;margin:-8px 0 12px;text-align:center;"></p>
-    <div class="field"><label>Код из Telegram</label><input id="regVerifyCodeInput" inputmode="numeric" maxlength="6" placeholder="000000" style="letter-spacing:6px;font-size:20px;text-align:center;font-weight:800;"></div>
-    <button class="btn btn-primary" id="regVerifyConfirmBtn" disabled=""><i class="fa-solid fa-check"></i> Подтвердить код</button>
-    <button class="btn btn-outline" id="regVerifyResendBtn" style="margin-top:10px;" disabled=""><i class="fa-solid fa-rotate"></i> Получить новый код</button>
-    <p id="regVerifyTimer" style="color:var(--text-dim);font-size:11.5px;margin:8px 0 0;text-align:center;"></p>
+  <div class="sheet vf-card" id="vfCard">
+    <button class="vf-x" data-close="ovRegVerify" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+    <div class="vf-handle"></div>
+    <div class="vf-lock"><span class="vf-lock-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g class="vf-shk"><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g><rect x="5" y="11" width="14" height="9.5" rx="2.6"/></svg></span></div>
+    <h2 class="vf-title" id="vfTitle">Подтвердите номер</h2>
+    <p class="vf-sub" id="vfSub">Мы отправили код в Telegram.<br>Подтверждение произойдёт сразу после ввода.</p>
+    <div class="vf-boxes" id="vfBoxes"><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div>
+      <input id="regVerifyCodeInput" class="vf-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Код из Telegram">
+    </div>
+    <div class="vf-bar"><i id="vfBarFill"></i></div>
+    <div class="vf-done">
+      <div class="vf-ring"><span class="vf-spin"></span>
+        <svg class="vf-chk" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="29"/><path d="M20 33l8 8 16-17"/></svg></div>
+      <div class="vf-secure"><i class="fa-solid fa-lock"></i> Подтверждено и защищено</div>
+    </div>
+    <p id="regVerifyStatus" class="vf-status"></p>
+    <button class="vf-tg" id="regVerifyOpenBotBtn"><i class="fa-brands fa-telegram"></i> Открыть Telegram и получить код</button>
+    <div class="vf-resend">Не получили код? <button id="regVerifyResendBtn" class="vf-rbtn" disabled="">Отправить снова</button> <span id="regVerifyTimer"></span></div>
+    <button id="regVerifyConfirmBtn" disabled="" hidden>Подтвердить</button>
+    <div class="vf-foot"><i class="fa-solid fa-shield-halved"></i> Защищено сквозным шифрованием</div>
   </div>
 </div>
 
@@ -1650,16 +1913,38 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
     <div class="pd-gallery-viewer" id="pdGalleryViewer">
       <div class="pd-gallery-track" id="pdGalleryTrack"></div>
       <div class="pd-gallery-header">
+        <button class="pd-hb" data-close="ovProduct" aria-label="Назад"><i class="fa-solid fa-chevron-left"></i></button>
         <span id="pdName" class="pd-gallery-name"></span>
         <div class="pd-gallery-header-actions">
-          <button class="close-x" id="pdShareBtn"><i class="fa-solid fa-share-nodes"></i></button>
-          <button class="close-x" data-close="ovProduct"><i class="fa-solid fa-xmark"></i></button>
+          <button class="pd-hb" id="pdShareBtn" aria-label="Поделиться"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+          <button class="pd-hb" id="pdFavBtn" data-fav="" aria-label="В избранное"><i class="fa-regular fa-heart"></i></button>
         </div>
       </div>
       <button class="pd-gallery-arrow left" id="pdGalleryPrev"><i class="fa-solid fa-chevron-left"></i></button>
       <button class="pd-gallery-arrow right" id="pdGalleryNext"><i class="fa-solid fa-chevron-right"></i></button>
       <div class="pd-gallery-dots" id="pdGalleryDots"></div>
+      <div class="pd-count" id="pdCount"></div>
     </div>
+    <div class="pd-seller-wrap">
+      <div class="seller-link-row" id="pdSellerLink"></div>
+      <div class="pd-top-actions">
+        <span id="pdChatSlot" style="display:flex;"></span>
+        <button class="mini-icon-btn" id="pdPriceWatchBtn" style="position:static;" title="Следить за ценой"><i class="fa-regular fa-bell"></i></button>
+      </div>
+    </div>
+    <div class="pd-rating" id="pdRating" style="display:none;"></div>
+    <div id="pdArticul" style="display:none;"></div>
+    <h2 class="pd-title" id="pdTitle"></h2>
+    <div class="pd-subtitle" id="pdSubtitle"></div>
+    <div class="pd-specs" id="pdSpecs"></div>
+    <div class="pd-price-row">
+      <div class="pd-price" id="pdPrice"></div>
+      <div class="card-oldprice" id="pdOldPrice"></div>
+      <span class="pd-disc" id="pdDisc"></span>
+    </div>
+    <div id="pdPromoLabel" style="margin:-4px 0 8px;"></div>
+    <div id="pdLowStock"></div>
+    <div id="pdSocialProof" style="font-size:12px;font-weight:600;color:var(--text-dim);margin:-4px 0 8px;"></div>
     <div class="pd-variant-block" id="pdColorBlock" style="display:none;">
       <div class="pd-variant-label">Цвет: <span id="pdColorSelectedName"></span></div>
       <div class="pd-color-chips" id="pdColorChips"></div>
@@ -1671,36 +1956,25 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       </div>
       <div class="pd-size-chips" id="pdSizeChips"></div>
     </div>
-    <div class="pd-rating" id="pdRating"></div>
-    <div id="pdArticul" style="color:var(--text-dim);font-size:12px;margin-top:-6px;"></div>
-    <div class="seller-link-row" id="pdSellerLink"></div>
-    <h2 class="pd-title" id="pdTitle"></h2>
-    <div class="pd-price-row">
-      <div class="pd-price" id="pdPrice"></div>
-      <div class="card-oldprice" id="pdOldPrice" style="font-size:14px;"></div>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
-        <span id="pdChatSlot" style="display:flex;"></span>
-        <button class="mini-icon-btn" id="pdPriceWatchBtn" style="position:static;width:32px;height:32px;" title="Следить за ценой"><i class="fa-regular fa-bell"></i></button>
-      </div>
-    </div>
-    <div id="pdPromoLabel" style="margin:-4px 0 8px;"></div>
-    <div id="pdLowStock" style="font-size:12px;font-weight:700;color:#FF7A00;margin:-4px 0 8px;"></div>
-    <div id="pdSocialProof" style="font-size:12px;font-weight:600;color:var(--text-dim);margin:-4px 0 8px;"></div>
     <div id="pdCartControls"></div>
     <div id="pdQuickBuyWrap" style="margin:-2px 0 10px;"></div>
     <div id="pdVariantInfo" style="margin-bottom:10px;"></div>
     <div class="pd-about" id="pdAbout">
-      <div class="pd-desc" id="pdDesc"></div>
-      <table class="char-table" id="pdCharTable"></table>
-      <button type="button" class="pd-about-toggle" id="pdAboutToggle"><span id="pdAboutToggleLabel">Показать больше</span><i class="fa-solid fa-chevron-down"></i></button>
+      <span class="pd-about-ico"><i class="fa-solid fa-microchip" id="pdAboutIcon"></i></span>
+      <div class="pd-about-main">
+        <div class="pd-about-title" id="pdAboutTitle"></div>
+        <div class="pd-desc" id="pdDesc"></div>
+        <table class="char-table" id="pdCharTable"></table>
+        <button type="button" class="pd-about-toggle" id="pdAboutToggle"><span id="pdAboutToggleLabel">Показать больше</span><i class="fa-solid fa-chevron-down"></i></button>
+      </div>
     </div>
-    <div class="section-title" style="padding:14px 0 6px;display:flex;justify-content:space-between;align-items:center;">
+    <div class="section-title pd-rv-head">
       <span>Отзывы</span>
       <button class="tiny-btn primary" id="pdWriteReviewBtn"><i class="fa-solid fa-pen"></i> Оставить отзыв</button>
     </div>
     <button class="reviews-toggle" id="pdReviewsToggle">
-      <span id="pdReviewsToggleLabel">Посмотреть отзывы</span>
-      <i class="fa-solid fa-chevron-down"></i>
+      <span class="rv-sum"><b id="pdRvAvg">5.0</b><i class="fa-solid fa-star"></i><span id="pdReviewsToggleLabel">0 отзывов</span></span>
+      <i class="fa-solid fa-chevron-right"></i>
     </button>
     <div id="pdReviewsList" class="pd-reviews-collapse"></div>
     <div class="section-title" style="padding:14px 0 6px;">Похожие товары</div>
@@ -3412,7 +3686,8 @@ $('#pushDiagBtn').addEventListener('click', async ()=>{
   }
   alert(lines.join('\n'));
 });
-$('#notifClearAllBtn').addEventListener('click', ()=>{
+$('#notifClearAllBtn').addEventListener('click', async ()=>{
+  await hzDelAnim($('#notifClearAllBtn'));
   State.notifications = [];
   saveNotifications();
   updateNotifBellUI();
@@ -5151,6 +5426,11 @@ document.addEventListener('click', (e)=>{
   }
   if(e.target.closest('#pdSizeChartLink')){ e.stopPropagation(); openOv('ovSizeChart'); }
   const qtyBtn = e.target.closest('[data-qty]');
+  if(qtyBtn && qtyBtn.classList.contains('remove-x') && !qtyBtn.__hzGo){
+    e.stopPropagation();
+    hzDelAnim(qtyBtn).then(()=>{ qtyBtn.__hzGo = true; qtyBtn.click(); });
+    return;
+  }
   if(qtyBtn){ e.stopPropagation(); changeCartQty(qtyBtn.getAttribute('data-id'), parseInt(qtyBtn.getAttribute('data-qty')), qtyBtn.getAttribute('data-wholesale')==='1', qtyBtn.getAttribute('data-size')||null, qtyBtn.getAttribute('data-color')||null); }
   const wsToggle = e.target.closest('[data-toggle-wholesale]');
   if(wsToggle){ e.stopPropagation(); const panel = $('#pdWholesalePanel'); if(panel) panel.style.display = panel.style.display==='none' ? 'block' : 'none'; }
@@ -5661,10 +5941,10 @@ function hzTgUser(){
       const wa=hzWaNumber(), tg=hzTgUser();
       let box=$('#pdMessengers');
       if(!box){ box=document.createElement('div'); box.id='pdMessengers'; box.style.cssText='display:flex;gap:10px;margin:0 0 14px;'; $('#pdQuickBuyWrap').insertAdjacentElement('afterend', box); }
-      const bs='flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;font-weight:700;font-size:13px;color:#fff;';
       box.style.display = (wa||tg)?'flex':'none';
-      box.innerHTML = (wa?`<button type="button" data-hzmsg="wa" data-pid="${pid}" style="${bs}background:#25D366;"><i class="fa-brands fa-whatsapp" style="font-size:18px;"></i> WhatsApp</button>`:'')+
-                      (tg?`<button type="button" data-hzmsg="tg" data-pid="${pid}" style="${bs}background:#229ED9;"><i class="fa-brands fa-telegram" style="font-size:18px;"></i> Telegram</button>`:'');
+      box.className = 'pd-msgs';
+      box.innerHTML = (wa?`<button type="button" class="pd-msg wa" data-hzmsg="wa" data-pid="${pid}"><i class="fa-brands fa-whatsapp pd-msg-ico"></i><span class="pd-msg-t"><b>WhatsApp</b><small>Написать продавцу</small></span><i class="fa-solid fa-chevron-right pd-msg-arr"></i></button>`:'')+
+                      (tg?`<button type="button" class="pd-msg tg" data-hzmsg="tg" data-pid="${pid}"><span class="pd-msg-circ"><i class="fa-solid fa-paper-plane"></i></span><span class="pd-msg-t"><b>Telegram</b><small>Написать продавцу</small></span><i class="fa-solid fa-chevron-right pd-msg-arr"></i></button>`:'');
     }catch(e){ console.error(e); }
     return r;
   };
@@ -6271,6 +6551,7 @@ $('#coGeoBtn').addEventListener('click', ()=>{
   }, {enableHighAccuracy:true, timeout:10000});
 });
 $('#coSubmitBtn').addEventListener('click', async ()=>{
+  if(window.hzOrderBusy) return;
   const name = $('#coName').value.trim(), phone = $('#coPhone').value.trim(), code = $('#coCountryCode').value, country = $('#coCountry').value, address = $('#coAddress').value.trim();
   if(!name || !phone){ toast('Заполните имя и телефон','','fa-circle-exclamation'); return; }
   const receiveMethodInput = document.querySelector('input[name="coReceiveMethod"]:checked');
@@ -6303,6 +6584,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const installmentProvider = paymentMethod==='installment' ? $('#coInstallmentProvider').value : null;
   const initialStatus = paymentMethod==='installment' ? 'Ожидает оформления рассрочки' : 'Ожидает оплаты';
   const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, receiveMethod, receiveMethodLabel, pickupAddress: receiveMethod==='pickup' ? (State.settings.pickupAddress||null) : null, needsCourier:false, deliveryMethod, deliveryMethodLabel, address, addressLat: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lat : null, addressLng: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lng : null, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, installmentProvider, installmentTerm: hzc?hzc.term.short:null, installmentRate: hzc?hzc.rate:null, installmentMarkup: hzc?hzc.markup:null, installmentParts: hzc?hzc.parts:null, installmentPerPayment: hzc?hzc.perPart:null, passportRequired: hzc?true:null, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  window.hzOrderAnim && hzOrderAnim.start();   // анимация кнопки: коробка → грузовик → галочка
   const orderRef = db.collection('orders').doc();
   try{
     // Reserve stock atomically: aggregate quantity per product (a product can appear in
@@ -6345,6 +6627,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
     State.user.address = address;
   }catch(e){
     console.warn(e);
+    window.hzOrderAnim && hzOrderAnim.fail();
     if(String(e.message||'').startsWith('STOCK_SHORTAGE:')){
       toast('Недостаточно товара на складе', e.message.replace('STOCK_SHORTAGE:',''), 'fa-circle-exclamation');
     } else {
@@ -6387,12 +6670,9 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   State.cart = []; persistCart(); updateCartBadge();
   if(State.user && State.user.docId) db.collection('abandonedCarts').doc(State.user.docId).delete().catch(()=>{});
   resetPromoUI();
+  const okSub = paymentMethod==='installment' ? `Продавец свяжется с вами в чате, чтобы оформить рассрочку через ${installmentProvider}` : 'Продавец скоро с вами свяжется';
+  if(window.hzOrderAnim) await hzOrderAnim.success(okSub); else toast('Ваш заказ принят!', okSub, 'fa-circle-check');
   closeOv('ovCheckout');
-  if(paymentMethod==='installment'){
-    toast('Заказ оформлен!', `Продавец свяжется с вами в чате, чтобы оформить рассрочку через ${installmentProvider}`, 'fa-circle-check');
-  } else {
-    toast('Заказ оформлен!', 'Продавец скоро с вами свяжется', 'fa-circle-check');
-  }
 
   // SMS клиенту: спасибо за заказ + ссылки на Telegram/WhatsApp
   const social = State.settings.social || {};
@@ -6461,6 +6741,7 @@ function renderPdGalleryViewer(){
   if(!imgs.length){
     track.innerHTML = '<div class="pd-slide"><div class="empty-state"><i class="fa-solid fa-image"></i></div></div>';
     dots.innerHTML = '';
+    { const cn=$('#pdCount'); if(cn) cn.style.display='none'; }
     track.style.transform = 'translateX(0)';
     $('#pdGalleryPrev').style.display = 'none';
     $('#pdGalleryNext').style.display = 'none';
@@ -6475,6 +6756,7 @@ function renderPdGalleryViewer(){
     track.setAttribute('data-sig', sig);
   }
   dots.innerHTML = imgs.map((_,i)=>`<span class="${i===pdGalleryState.idx?'active':''}"></span>`).join('');
+  { const cn=$('#pdCount'); if(cn){ cn.textContent=(pdGalleryState.idx+1)+'/'+imgs.length; cn.style.display=imgs.length>1?'':'none'; } }
   track.style.transform = `translateX(-${pdGalleryState.idx*100}%)`;
   $('#pdGalleryPrev').style.display = imgs.length>1 ? 'flex' : 'none';
   $('#pdGalleryNext').style.display = imgs.length>1 ? 'flex' : 'none';
@@ -6491,7 +6773,7 @@ function pdFitViewerToActiveImage(){
     const w = viewer.clientWidth || window.innerWidth;
     const ratio = img.naturalHeight / img.naturalWidth;
     const maxH = window.innerHeight * 0.78;
-    const minH = 280;
+    const minH = 220;
     let h = w * ratio;
     h = Math.max(minH, Math.min(h, maxH));
     viewer.style.height = h + 'px';
@@ -6896,7 +7178,7 @@ $('#pdWriteReviewBtn').addEventListener('click', ()=>{ if(State.activeProductId)
 $('#pdReviewsToggle').addEventListener('click', ()=>{
   const isOpen = $('#pdReviewsList').classList.toggle('open');
   $('#pdReviewsToggle').classList.toggle('open', isOpen);
-  $('#pdReviewsToggleLabel').textContent = isOpen ? 'Скрыть отзывы' : 'Посмотреть отзывы';
+  $('#pdReviewsToggleLabel').textContent = isOpen ? 'Скрыть отзывы' : (($('#pdReviewsToggle').getAttribute('data-cnt')||0)+' отзывов');
 });
 
 /* ============ SELLER REVIEWS ============ */
@@ -6952,7 +7234,7 @@ function openProductDetail(pid){
   State.activeProductId = pid;
   $('#pdReviewsList').classList.remove('open');
   $('#pdReviewsToggle').classList.remove('open');
-  $('#pdReviewsToggleLabel').textContent = 'Посмотреть отзывы';
+  $('#pdReviewsToggleLabel').textContent = (p.ratingCount||0)+' отзывов';
   loadAndRenderReviews(pid); // kick off reviews fetch first so it's not delayed by the rest of the render
   $('#pdName').textContent = p.name;
   $('#pdTitle').textContent = p.name;
@@ -6965,8 +7247,8 @@ function openProductDetail(pid){
   renderPdGalleryViewer();
   $('#pdPrice').textContent = fmt(getVariantPrice(p, (p.sizes&&p.sizes[0])||null));
   renderPriceWatchBtn(pid);
-  $('#pdLowStock').innerHTML = (p.inStock!==false && p.stockQty!=null && p.stockQty<=5)
-    ? `<i class="fa-solid fa-triangle-exclamation"></i> Осталось всего ${p.stockQty} шт.` : '';
+  $('#pdLowStock').innerHTML = (p.inStock!==false && p.stockQty!=null && p.stockQty<=10)
+    ? `<i class="fa-solid fa-fire-flame-curved"></i> Осталось ${p.stockQty} шт.` : '';
   $('#pdSocialProof').innerHTML = (p.totalSold>=5) ? `<i class="fa-solid fa-fire" style="color:#FF7A00;"></i> Уже куплено ${p.totalSold} раз` : '';
   $('#pdQuickBuyWrap').innerHTML = '';
   rememberRecentlyViewed(pid);
@@ -6990,10 +7272,13 @@ function openProductDetail(pid){
   const sellerName = effectiveSellerId==='admin' ? 'HORIZON MARKET' : (seller ? seller.fio : 'Продавец');
   const sellerRatingBadge = (effectiveSellerId!=='admin' && seller && seller.sellerRatingCount)
     ? `<span style="font-size:11px;color:var(--text-dim);font-weight:600;margin-left:6px;"><i class="fa-solid fa-star" style="color:#FFA800;font-size:10px;"></i> ${(seller.sellerRating||5).toFixed(1)}</span>` : '';
-  $('#pdSellerLink').innerHTML = `<div data-openseller="${effectiveSellerId}" style="display:flex;align-items:center;gap:8px;cursor:pointer;width:100%;">
-      <div class="chat-avatar" style="width:32px;height:32px;font-size:13px;">${(sellerName||'S')[0]}</div>
-      <span style="font-size:13px;font-weight:600;">${sellerName}</span>${(seller && seller.verified)?'<i class="fa-solid fa-circle-check" style="color:#3AA0FF;font-size:12px;" title="Проверенный продавец"></i>':''}${sellerRatingBadge}
-      <i class="fa-solid fa-chevron-right" style="margin-left:auto;color:var(--text-dim);font-size:12px;"></i>
+  const sellerPhoto = seller && seller.photo;
+  $('#pdSellerLink').innerHTML = `<div class="pd-seller" data-openseller="${effectiveSellerId}">
+      <div class="pd-seller-av">${sellerPhoto?`<img src="${sellerPhoto}" alt="">`:(sellerName||'S')[0]}</div>
+      <div class="pd-seller-info">
+        <div class="pd-seller-name">${sellerName}${(seller && seller.verified)?' <i class="fa-solid fa-circle-check" style="color:#3AA0FF;font-size:12px;" title="Проверенный продавец"></i>':''}</div>
+        <div class="pd-seller-meta"><i class="fa-solid fa-star"></i><b>${(p.rating||5).toFixed(1)}</b><span>(${p.ratingCount||0} отзывов)</span>${p.articul?`<i class="pd-sep"></i><span>Арт. ${p.articul}</span>`:''}</div>
+      </div>
     </div>`;
   renderPdVariantPicker(p);
   refreshPdCartControls(p);
@@ -7071,7 +7356,7 @@ function refreshPdCartControls(p){
       ? `<button class="btn btn-outline" disabled style="opacity:.6;"><i class="fa-solid fa-ban"></i> Нет в наличии</button><button class="btn ${isNotifySub?'btn-primary':'btn-outline'}" data-notifystock="${pid}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i> ${isNotifySub?'Вы будете уведомлены':'Уведомить о поступлении'}</button>`
       : (inCart
         ? `<div class="qty-stepper" style="width:fit-content;"><button data-qty="-1" data-id="${pid}"${sizeAttr}${colorAttr}>-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${pid}"${sizeAttr}${colorAttr}>+</button></div>`
-        : `<button class="btn btn-primary" data-addcart="${pid}"${sizeAttr}${colorAttr} style="width:auto;flex:1 1 0;min-width:0;padding:14px 8px;font-size:13px;"><i class="fa-solid fa-cart-plus"></i> В корзину</button>`)}
+        : `<button class="btn btn-primary" data-addcart="${pid}"${sizeAttr}${colorAttr} style="width:auto;flex:1 1 0;min-width:0;padding:14px 8px;font-size:13px;"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`)}
     ${p.inStock!==false ? `<button class="btn btn-outline" id="pdQuickBuyBtn" data-quickbuy="${pid}" style="width:auto;flex:1 1 0;min-width:0;padding:14px 8px;font-size:13px;border-color:var(--accent);color:var(--accent);"><i class="fa-solid fa-bolt"></i> Купить в 1 клик</button>` : ''}
     ${(hasWholesale && p.inStock!==false) ? `<button class="btn btn-outline" data-toggle-wholesale="1"><i class="fa-solid fa-boxes-stacked"></i> Купить оптом</button>` : ''}
   </div>
@@ -7190,6 +7475,7 @@ function pollForVerifyChat(){
         clearInterval(RegVerify.pollTimer);
         $('#regVerifyStatus').textContent = 'Код отправлен в Telegram — введите его ниже';
         $('#regVerifyConfirmBtn').disabled = false;
+        window.hzRegVerifyReady && hzRegVerifyReady();
       }
     }catch(e){ /* сеть моргнула — пробуем на следующем тике */ }
   }, 2000);
@@ -7198,7 +7484,7 @@ function startResendCooldown(){
   let sec = 59;
   clearInterval(RegVerify.countdownTimer);
   $('#regVerifyResendBtn').disabled = true;
-  $('#regVerifyTimer').textContent = `Получить новый код можно через ${sec} сек`;
+  $('#regVerifyTimer').textContent = `(${sec}с)`;
   RegVerify.countdownTimer = setInterval(()=>{
     sec--;
     if(sec<=0){
@@ -7206,7 +7492,7 @@ function startResendCooldown(){
       $('#regVerifyTimer').textContent = '';
       $('#regVerifyResendBtn').disabled = false;
     } else {
-      $('#regVerifyTimer').textContent = `Получить новый код можно через ${sec} сек`;
+      $('#regVerifyTimer').textContent = `(${sec}с)`;
     }
   }, 1000);
 }
@@ -7217,7 +7503,9 @@ function startRegVerifyFlow(){
   $('#regVerifyCodeInput').value = '';
   $('#regVerifyConfirmBtn').disabled = true;
   $('#regVerifyStatus').textContent = '';
+  window.hzVerifyReset && hzVerifyReset();
   openOv('ovRegVerify');
+  setTimeout(()=>{ try{ $('#regVerifyCodeInput').focus(); }catch(e){} }, 350);
   openTelegramForVerify();
 }
 function stopRegVerifyFlow(){
@@ -7234,18 +7522,23 @@ $('#regVerifyResendBtn').addEventListener('click', ()=>{
   RegVerify.chatId = null; RegVerify.code = null;
   $('#regVerifyCodeInput').value = '';
   $('#regVerifyConfirmBtn').disabled = true;
+  window.hzVerifyReset && hzVerifyReset();
   openTelegramForVerify();
 });
 $('#regVerifyConfirmBtn').addEventListener('click', async ()=>{
+  if(window.hzVerifyBusy) return;
   const entered = $('#regVerifyCodeInput').value.trim();
   if(!RegVerify.code){ toast('Код ещё не получен','Откройте бота и нажмите «Старт»','fa-circle-exclamation'); return; }
   if((await hzSha256(entered)) !== RegVerify.code){
-    toast('Неверный код','Нажмите «Получить новый код»','fa-circle-exclamation');
+    toast('Неверный код','Нажмите «Отправить снова»','fa-circle-exclamation');
+    if(window.hzVerifyFail) await hzVerifyFail();
     $('#regVerifyCodeInput').value = '';
+    window.hzVerifyReset && hzVerifyReset();
     return;
   }
   const payload = RegVerify.pendingPayload;
   const verifiedChatId = RegVerify.chatId;
+  if(window.hzVerifySuccess) await hzVerifySuccess();   // анимация «Подтверждено»
   stopRegVerifyFlow();
   closeOv('ovRegVerify');
   await finalizeRegistration(payload, verifiedChatId);
@@ -7413,7 +7706,7 @@ function refreshUserUI(){
   syncPushTokenAfterAuth();
 }
 function profileTopHtml(gear){
-  return `<div class="pf-top"><div><h1 class="pf-h1">Профиль</h1><div class="pf-sub">Управляйте своим аккаунтом<br>и настройками приложения</div></div>${gear?`<button class="pf-gear" data-open="ovEditProfile" aria-label="Настройки"><i class="fa-solid fa-gear"></i></button>`:''}</div>`;
+  return `<div class="pf-top"><div><h1 class="pf-h1">Профиль</h1><div class="pf-sub">Управляйте своим магазином<br>и настройками приложения</div></div>${gear?`<button class="pf-gear" data-open="ovEditProfile" aria-label="Настройки"><i class="fa-solid fa-gear"></i></button>`:''}</div>`;
 }
 function renderProfile(){
   const body = $('#profileBody');
@@ -7427,19 +7720,20 @@ function renderProfile(){
   checkCourierWeekRollover(u);
   const roleLabel = u.role==='admin' ? 'Администратор' : u.role==='seller' ? 'Продавец' : (u.courierStatus==='active' ? 'Курьер' : 'Покупатель');
   const arrow = `<i class="fa-solid fa-chevron-right pf-arrow"></i>`;
-  const item = (ico, title, sub, attrs, extra)=>`<div class="pf-item" ${attrs||''}><span class="pf-ico">${ico}</span><span class="pf-txt"><b>${title}</b><small>${sub}</small></span>${extra!==undefined?extra:arrow}</div>`;
+  const TONES={'О нас':'violet','Тёмная тема':'blue','Push-уведомления':'pink','Во весь экран':'blue2','Редактировать профиль':'green','Мои заказы':'orange','Доставка':'blue2','Поддержка':'violet','Стать курьером':'orange','Заказы курьера':'orange','На смене':'green','Получать заказы':'blue','Аналитика':'blue2','Клиенты':'violet','Мои товары':'orange','Способы оплаты':'green','Панель администратора':'violet'};
+  const item = (ico, title, sub, attrs, extra)=>`<div class="pf-item" ${attrs||''}><span class="pf-ico t-${(TONES[title]||(title.indexOf('Telegram')===0?'blue':'violet'))}">${ico}</span><span class="pf-txt"><b>${title}</b><small>${sub}</small></span>${extra!==undefined?extra:arrow}</div>`;
   const sw = (id, on)=>`<button class="theme-switch${on?' on':''}" ${id?`id="${id}"`:''}><span class="knob"></span></button>`;
   const fa = (n, brand)=>`<i class="${brand?'fa-brands':'fa-solid'} ${n}"></i>`;
   const isDarkNow = document.body.getAttribute('data-theme')==='dark';
   const pushOn = ('Notification' in window) && Notification.permission === 'granted';
   const fsOn = !!document.fullscreenElement || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-  let menu = item(fa('fa-circle-info'),'О нас','Информация о приложении','id="openAboutMenuBtn"');
-  menu += item(fa('fa-moon'),'Тёмная тема','Включите тёмную тему интерфейса','', sw('themeSwitch', isDarkNow));
-  menu += item(fa('fa-bell'),'Push-уведомления','Получайте важные уведомления','', sw('pushToggleBtn', pushOn));
+  let menu = item(fa('fa-bell'),'О нас','Информация о магазине','id="openAboutMenuBtn"');
+  menu += item(fa('fa-moon'),'Тёмная тема','Комфорт для ваших глаз','', sw('themeSwitch', isDarkNow));
+  menu += item(fa('fa-bell'),'Push-уведомления','Будьте в курсе новинок и акций','', sw('pushToggleBtn', pushOn));
   menu += item(fa('fa-expand'),'Во весь экран','Открывать приложение в полноэкранном режиме','id="fullscreenBtn"', sw('fullscreenSwitch', fsOn));
   menu += item(fa('fa-pen'),'Редактировать профиль','Измените свои данные и фото','data-open="ovEditProfile"');
   if(u.role==='client' || u.role==='seller'){
-    menu += item(fa('fa-receipt'),'История заказов','Ваши покупки и их статусы','id="openOrdersBtn"');
+    menu += item(fa('fa-box-open'),'Мои заказы','История покупок и статусы','id="openOrdersBtn"');
   }
   if(u.role==='client'){
     if(!u.courierStatus || u.courierStatus==='rejected'){
@@ -7471,15 +7765,10 @@ function renderProfile(){
   menu += `<div class="pf-item pf-danger" id="logoutBtn"><span class="pf-ico">${fa('fa-right-from-bracket')}</span><span class="pf-txt"><b>Выйти</b><small>Завершить сессию</small></span>${arrow}</div>`;
   const bioHtml = u.bio ? `<div class="seller-shop-bio" style="margin:0 0 14px;">${u.bio.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>` : '';
   const loyaltyHtml = (u.role==='client' && u.docId) ? `
-    <div style="display:flex;gap:10px;margin-bottom:14px;">
-      <div style="flex:1;background:var(--grad-main);border-radius:14px;padding:14px;color:#fff;">
-        <div style="font-size:11px;opacity:.85;font-weight:600;">Бонусный баланс</div>
-        <div style="font-size:22px;font-weight:800;margin-top:2px;"><i class="fa-solid fa-coins"></i> ${u.bonusBalance||0}</div>
-      </div>
-      <div style="flex:1;background:var(--surface-2);border-radius:14px;padding:14px;">
-        <div style="font-size:11px;color:var(--text-dim);font-weight:600;">Приглашайте друзей</div>
-        <button class="btn btn-outline" style="margin-top:6px;padding:8px;font-size:12px;" id="shareReferralBtn"><i class="fa-solid fa-user-plus"></i> Поделиться кодом</button>
-      </div>
+    <div class="pf-cards">
+      <div class="pf-bonus"><span class="pf-bonus-ico"><i class="fa-solid fa-wallet"></i></span><div class="pf-bonus-t">Бонусный баланс</div><div class="pf-bonus-n"><i class="fa-solid fa-coins"></i><span>${u.bonusBalance||0}</span></div><i class="fa-solid fa-chevron-right pf-bonus-arr"></i></div>
+      <div class="pf-invite"><div class="pf-invite-top"><span class="pf-invite-ico"><i class="fa-solid fa-user-group"></i></span><div class="pf-invite-t"><b>Приглашайте друзей</b><small>Получайте бонусы<br>и скидки</small></div><i class="fa-solid fa-chevron-right pf-invite-arr"></i></div>
+      <button class="pf-share" id="shareReferralBtn"><i class="fa-solid fa-share-nodes"></i> Поделиться кодом</button></div>
     </div>` : '';
   let courierBannerHtml = '';
   if(u.role==='client' && u.courierStatus==='pending'){
@@ -7506,7 +7795,7 @@ function renderProfile(){
     </div>`;
   }
   const hero = `<div class="pf-hero" data-open="ovEditProfile">
-    <div class="pf-avatar-wrap">${u.photo?`<img class="pf-avatar" src="${u.photo}">`:`<div class="pf-avatar">${(u.fio||'A')[0].toUpperCase()}</div>`}</div>
+    <div class="pf-avatar-wrap">${u.photo?`<img class="pf-avatar" src="${u.photo}">`:`<div class="pf-avatar">${(u.fio||'A')[0].toUpperCase()}</div>`}<span class="pf-av-badge"><i class="fa-solid fa-shield-halved"></i></span></div>
     <div class="pf-hero-info"><div class="pf-name">${u.fio||'Пользователь'}</div><div class="pf-role"><i class="fa-solid fa-shield-halved"></i> ${roleLabel}</div><div class="pf-status">В сети</div></div>
     <i class="fa-solid fa-chevron-right pf-chev"></i>
   </div>`;
@@ -8392,9 +8681,10 @@ async function renderOrders(){
     });
   });
   body.querySelectorAll('[data-del-order]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
+    btn.addEventListener('click', async ()=>{
       const orderId = btn.getAttribute('data-del-order');
       if(!confirm('Удалить этот заказ из истории? Это действие нельзя отменить.')) return;
+      await hzDelAnim(btn);
       db.collection('orders').doc(orderId).delete().then(()=>{
         toast('Заказ удалён','','fa-circle-check');
         renderOrders();
@@ -8405,6 +8695,7 @@ async function renderOrders(){
   $('#ordersExportBtn').onclick = exportOrdersToCSV;
   $('#ordersClearAllBtn').onclick = async ()=>{
     if(!confirm(`Удалить все заказы (${visibleOrderIds.length}) из истории? Это действие нельзя отменить.`)) return;
+    await hzDelAnim($('#ordersClearAllBtn'));
     try{
       const batch = db.batch();
       visibleOrderIds.forEach(id=>batch.delete(db.collection('orders').doc(id)));
@@ -9778,7 +10069,7 @@ $('#bulkGenerateBtn').addEventListener('click', async ()=>{
 });
 document.addEventListener('click', (e)=>{
   const rm = e.target.closest('[data-bulkrm]');
-  if(rm){ bulkDrafts.splice(parseInt(rm.getAttribute('data-bulkrm')),1); renderBulkDrafts(); return; }
+  if(rm){ hzDelAnim(rm).then(()=>{ bulkDrafts.splice(parseInt(rm.getAttribute('data-bulkrm')),1); renderBulkDrafts(); }); return; }
   const retry = e.target.closest('[data-bulkretry]');
   if(retry){ bulkGenerateOne(parseInt(retry.getAttribute('data-bulkretry'))); return; }
   const addChar = e.target.closest('[data-bulkaddchar]');
@@ -10037,7 +10328,7 @@ document.addEventListener('click', (e)=>{
   const del = e.target.closest('[data-delprod]');
   if(del){
     if(confirm('Удалить товар?')){
-      db.collection('products').doc(del.getAttribute('data-delprod')).delete();
+      hzDelAnim(del).then(()=>db.collection('products').doc(del.getAttribute('data-delprod')).delete());
     }
   }
 });
@@ -10526,7 +10817,7 @@ function renderAdminTab(){
       if(pass === null) return;
       if(pass !== (State.settings.adminPassword||'12345')){ toast('Неверный пароль','','fa-circle-exclamation'); return; }
       if(confirm('Удалить локально сохранённые данные Firebase в этом браузере? Если данные вписаны в сам файл сайта, они всё равно продолжат работать у всех клиентов, пока вы не загрузите на хостинг файл с пустыми данными.')){
-        window.hzDeleteFirebaseConfig();
+        hzDelAnim($('#deleteFirebaseBtn')).then(()=>window.hzDeleteFirebaseConfig());
       }
     });
   } else if(adminActiveTab==='courier'){
@@ -10624,6 +10915,7 @@ function renderAdminPromoList(){
   }));
   wrap.querySelectorAll('[data-delpromo]').forEach(b=>b.addEventListener('click', async ()=>{
     if(!confirm('Удалить этот промокод?')) return;
+    await hzDelAnim(b);
     await db.collection('promocodes').doc(b.getAttribute('data-delpromo')).delete();
   }));
 }
@@ -10657,7 +10949,7 @@ function renderAdminCatList(){
     </div>`;
   }).join('') || '<div class="empty-state"><i class="fa-solid fa-folder-open"></i></div>';
   wrap.querySelectorAll('[data-delcat]').forEach(b=>b.addEventListener('click', ()=>{
-    if(confirm('Удалить каталог? Подкаталоги внутри него тоже будут удалены.')) db.collection('catalogs').doc(b.getAttribute('data-delcat')).delete();
+    if(confirm('Удалить каталог? Подкаталоги внутри него тоже будут удалены.')) hzDelAnim(b).then(()=>db.collection('catalogs').doc(b.getAttribute('data-delcat')).delete());
   }));
   wrap.querySelectorAll('[data-editcat]').forEach(b=>b.addEventListener('click', async ()=>{
     const catId = b.getAttribute('data-editcat');
@@ -11445,4 +11737,275 @@ boot();
 
 
 
+<script id="hzVerifyScript">
+/* Логика анимации кода подтверждения (вся проверка кода остаётся в основном скрипте) */
+(function(){
+  const $id=i=>document.getElementById(i);
+  const card=$id('vfCard'), inp=$id('regVerifyCodeInput'), conf=$id('regVerifyConfirmBtn'), bar=$id('vfBarFill');
+  const boxes=[...document.querySelectorAll('#vfBoxes .vf-box')];
+  const T0=$id('vfTitle').innerHTML, S0=$id('vfSub').innerHTML;
+  let pend=false;
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  function swap(el,html){ el.style.opacity=0; setTimeout(()=>{ el.innerHTML=html; el.style.opacity=1; },200); }
+  function render(){
+    const v=inp.value.replace(/\D/g,'').slice(0,6);
+    if(inp.value!==v) inp.value=v;
+    const ok=card.classList.contains('ok'), act=Math.min(v.length,5);
+    boxes.forEach((b,i)=>{
+      const had=b.classList.contains('f'), d=v[i]||'';
+      b.firstElementChild.textContent=d;
+      b.classList.toggle('f',!!d);
+      b.classList.toggle('on',!ok && i===act);
+      if(d && !had){ b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+      if(!d) b.classList.remove('pop');
+    });
+    bar.style.width=(v.length/6*100)+'%';
+    card.classList.toggle('open', v.length>0 && !ok);
+    return v;
+  }
+  inp.addEventListener('input',()=>{
+    if(window.hzVerifyBusy) return;
+    const v=render();
+    if(v.length===6){ if(!conf.disabled) conf.click(); else pend=true; }
+  });
+  card.addEventListener('click',e=>{ if(!window.hzVerifyBusy && !e.target.closest('[data-close],button')) inp.focus(); });
+  window.hzRegVerifyReady=()=>{ if(pend && inp.value.length===6){ pend=false; conf.click(); } };
+  window.hzVerifyReset=()=>{
+    window.hzVerifyBusy=false; pend=false;
+    card.classList.remove('ok','chk','bad','busy','open');
+    boxes.forEach(b=>{ b.style.transitionDelay=''; });
+    inp.disabled=false; inp.value='';
+    $id('vfTitle').innerHTML=T0; $id('vfSub').innerHTML=S0;
+    render();
+  };
+  window.hzVerifyFail=async()=>{ window.hzVerifyBusy=true; card.classList.add('bad'); await wait(650); card.classList.remove('bad'); window.hzVerifyBusy=false; };
+  window.hzVerifySuccess=async()=>{
+    window.hzVerifyBusy=true; inp.blur(); inp.disabled=true;
+    card.classList.add('busy');
+    await wait(250);                                   // последняя цифра «выскакивает»
+    card.classList.add('ok');
+    boxes.forEach((b,i)=>{ b.style.transitionDelay=(i*60)+'ms'; });
+    render();
+    swap($id('vfTitle'),'Подтверждено!'); swap($id('vfSub'),'Ваш аккаунт подтверждён');
+    await wait(1100);                                  // крутится кольцо
+    card.classList.add('chk');                         // галочка рисуется
+    await wait(1500);
+  };
+  render();
+})();
+</script>
+<script id="hzOrderScript">
+/* Анимация кнопки «Заказ»: коробка → товары → закрылась → грузовик → уехал → круглая зелёная галочка */
+(function(){
+  const STAGE=`<span class="oa-lbl">__ORIG__</span><span class="oa-stage"><span class="oa-box"><i class="oa-flap l"></i><i class="oa-flap r"></i><i class="oa-it i1"></i><i class="oa-it i2"></i><i class="oa-it i3"></i><i class="oa-body"><b class="oa-tape"></b></i></span><span class="oa-truck"><svg viewBox="0 0 60 34"><rect x="1" y="13" width="38" height="11" rx="2" fill="#fff"/><path d="M41 12h9.5c1.2 0 2.2.6 2.8 1.6L58 21.5V24H41z" fill="#fff"/><path d="M44 15h5.6l3.4 5.4H44z" fill="#B9AAFF"/><rect x="1" y="22" width="57" height="3" rx="1" fill="#D9D2FF"/><circle cx="11" cy="26" r="5.2" fill="#1D1450" stroke="#fff" stroke-width="1.6"/><circle cx="47" cy="26" r="5.2" fill="#1D1450" stroke="#fff" stroke-width="1.6"/><g class="oa-wh"><path d="M11 22.6v6.8M7.6 26h6.8" stroke="#fff" stroke-width="1.2"/></g><g class="oa-wh"><path d="M47 22.6v6.8M43.6 26h6.8" stroke="#fff" stroke-width="1.2"/></g></svg></span><svg class="oa-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2 8.8-9.4"/></svg></span>`;
+  const ABORT={}, wait=ms=>new Promise(r=>setTimeout(r,ms));
+  let S=null;
+  const E=window.hzOrderAnim={};
+  function cleanup(s){
+    clearTimeout(s.guard);
+    const b=s.btn;
+    b.classList.remove('oa-run','oa-ok');
+    b.style.width=b.style.height=b.style.margin='';
+    b.innerHTML=s.orig;
+    if(S===s) S=null;
+    window.hzOrderBusy=false;
+  }
+  async function run(s){
+    const b=s.btn, q=x=>b.querySelector(x);
+    const A=(el,kf,o)=>{ if(s.abort) throw ABORT; const a=el.animate(kf,Object.assign({fill:'forwards'},o)); s.anims.push(a); const p=a.finished; p.catch(()=>{}); return p; };
+    const box=q('.oa-box'), its=[...b.querySelectorAll('.oa-it')], fl=q('.oa-flap.l'), fr=q('.oa-flap.r'), tape=q('.oa-tape'), truck=q('.oa-truck'), lbl=q('.oa-lbl');
+    const TX=52, TY=7, LX=TX-9, DX=320;
+    A(lbl,[{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.7)'}],{duration:220});
+    await A(box,[{opacity:0,transform:'scale(.2)'},{opacity:1,transform:'scale(1.12)',offset:.7},{opacity:1,transform:'scale(1)'}],{duration:320,easing:'ease-out'});
+    const xs=[-7,0,7];
+    await Promise.all(its.map((it,i)=>A(it,[
+      {opacity:0,transform:`translate(${xs[i]}px,-44px) rotate(-20deg)`},
+      {opacity:1,transform:`translate(${xs[i]}px,-14px) rotate(0deg)`,offset:.35},
+      {opacity:1,transform:`translate(${xs[i]}px,9px)`,offset:.85},
+      {opacity:0,transform:`translate(${xs[i]}px,10px)`}],{duration:380,delay:i*170,easing:'cubic-bezier(.5,0,.8,.6)'})));
+    await A(box,[{transform:'scale(1,1)'},{transform:'scale(1.07,.9)'},{transform:'scale(1,1)'}],{duration:200});
+    fl.style.zIndex=fr.style.zIndex=3;
+    await Promise.all([
+      A(fl,[{transform:'rotate(-115deg)'},{transform:'rotate(0deg)'}],{duration:280,easing:'ease-in'}),
+      A(fr,[{transform:'rotate(115deg)'},{transform:'rotate(0deg)'}],{duration:280,easing:'ease-in'}),
+      A(tape,[{opacity:0},{opacity:1}],{duration:200,delay:180})]);
+    await A(box,[{transform:'translateY(0)'},{transform:'translateY(-5px)'},{transform:'translateY(0)'}],{duration:260});
+    // грузовик приезжает
+    await A(truck,[{opacity:1,transform:`translate(-230px,${TY}px)`},{opacity:1,transform:`translate(${TX+6}px,${TY}px)`,offset:.82},{opacity:1,transform:`translate(${TX}px,${TY}px)`}],{duration:700,easing:'cubic-bezier(.2,.7,.3,1)'});
+    // коробка прыгает в кузов
+    await A(box,[{transform:'translate(0px,0px) scale(1)'},{transform:`translate(${LX/2}px,-30px) scale(.92)`,offset:.5},{transform:`translate(${LX}px,1px) scale(.8)`}],{duration:520,easing:'ease-in-out'});
+    await Promise.all([
+      A(truck,[{transform:`translate(${TX}px,${TY}px)`},{transform:`translate(${TX}px,${TY+2.5}px)`},{transform:`translate(${TX}px,${TY}px)`}],{duration:220}),
+      A(box,[{transform:`translate(${LX}px,1px) scale(.8)`},{transform:`translate(${LX}px,3.5px) scale(.8)`},{transform:`translate(${LX}px,1px) scale(.8)`}],{duration:220})]);
+    // грузовик уезжает
+    await Promise.all([
+      A(truck,[{transform:`translate(${TX}px,${TY}px)`},{transform:`translate(${TX-6}px,${TY}px)`,offset:.18},{transform:`translate(${TX+DX}px,${TY}px)`}],{duration:720,easing:'cubic-bezier(.5,0,.9,.5)'}),
+      A(box,[{transform:`translate(${LX}px,1px) scale(.8)`},{transform:`translate(${LX-6}px,1px) scale(.8)`,offset:.18},{transform:`translate(${LX+DX}px,1px) scale(.8)`}],{duration:720,easing:'cubic-bezier(.5,0,.9,.5)'})]);
+  }
+  E.start=function(){
+    const btn=document.getElementById('coSubmitBtn');
+    if(!btn || S) return;
+    const s=S={btn,orig:btn.innerHTML,anims:[],abort:false};
+    window.hzOrderBusy=true;
+    btn.style.width=btn.offsetWidth+'px'; btn.style.height=btn.offsetHeight+'px'; btn.style.margin='0 auto';
+    btn.classList.add('oa-run');
+    btn.innerHTML=STAGE.replace('__ORIG__',s.orig);
+    s.guard=setTimeout(()=>E.fail(),20000);          // страховка, если что-то пошло не так
+    s.tl=run(s).catch(e=>{ if(e!==ABORT) console.warn(e); });
+  };
+  E.fail=function(){
+    const s=S; if(!s){ window.hzOrderBusy=false; return; }
+    s.abort=true; s.anims.forEach(a=>{ try{a.cancel();}catch(e){} });
+    cleanup(s);
+  };
+  E.success=async function(sub){
+    const s=S;
+    if(!s){ toast('Ваш заказ принят!',sub,'fa-circle-check'); return; }
+    await s.tl; if(s.abort) return;
+    clearTimeout(s.guard);
+    const b=s.btn, chk=b.querySelector('.oa-check');
+    b.classList.add('oa-ok');                         // кнопка сжимается в круг и зеленеет
+    b.style.width=b.offsetHeight+'px';
+    await wait(380);
+    chk.animate([{opacity:1,transform:'scale(.4)'},{opacity:1,transform:'scale(1.15)',offset:.6},{opacity:1,transform:'scale(1)'}],{duration:380,fill:'forwards',easing:'ease-out'});
+    chk.firstElementChild.animate([{strokeDashoffset:24},{strokeDashoffset:0}],{duration:360,fill:'forwards',delay:80,easing:'ease-out'});
+    toast('Ваш заказ принят!',sub,'fa-circle-check');
+    await wait(1300);
+    setTimeout(()=>cleanup(s),700);                   // вернуть кнопку, когда окно уже закрылось
+  };
+})();
+</script>
+<script id="hzDelScript">
+/* Кнопки «Удалить»: единый дизайн + анимация (буквы летят в корзину → круг → кольцо → галочка) */
+(function(){
+  const SEL='[data-del-order],[data-delprod],[data-bulkrm],[data-delpromo],[data-delcat],#ordersClearAllBtn,#notifClearAllBtn,#deleteFirebaseBtn,.remove-x';
+  const BIN='<span class="hz-del-ico"><svg viewBox="0 0 24 24"><g class="hz-lid"><path d="M4 7h16"/><path d="M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7"/></g><path d="M6 7l.9 12.2c.1 1 .9 1.8 1.9 1.8h6.4c1 0 1.8-.8 1.9-1.8L18 7"/><path d="M10 11v6M14 11v6"/></svg></span>';
+  const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  function decorate(){
+    document.querySelectorAll(SEL).forEach(el=>{
+      if(el.__hzDel) return;
+      el.__hzDel=true;
+      const label=el.textContent.replace(/\s+/g,' ').trim();
+      el.classList.add('hz-del');
+      if(!label) el.classList.add('hz-del-icon');
+      el.innerHTML=BIN+(label?'<span class="hz-del-t">'+esc(label)+'</span>':'');
+    });
+  }
+  let raf=0;
+  new MutationObserver(()=>{ if(raf) return; raf=requestAnimationFrame(()=>{ raf=0; decorate(); }); }).observe(document.body,{childList:true,subtree:true});
+  decorate();
+
+  window.hzDelAnim=async function(el){
+    if(!el || !el.classList.contains('hz-del')) return;
+    if(el.__hzBusy) return new Promise(()=>{});
+    el.__hzBusy=true; el.classList.add('hz-del-run');
+    const orig=el.innerHTML, W=el.offsetWidth, H=el.offsetHeight;
+    const ico=el.querySelector('.hz-del-ico'), tx=el.querySelector('.hz-del-t'), lid=el.querySelector('.hz-lid');
+    const OPEN='rotate(-26deg) translate(-1px,-2.5px)', SHUT='rotate(0deg) translate(0,0)';
+    el.style.width=W+'px'; el.style.height=H+'px';
+    const A=(n,kf,o)=>n.animate(kf,Object.assign({fill:'forwards'},o)).finished;
+    try{
+      // 1) крышка открывается, буквы по очереди летят в корзину
+      A(lid,[{transform:SHUT},{transform:OPEN}],{duration:200,easing:'ease-out'});
+      if(tx){
+        const label=tx.textContent;
+        tx.style.width=tx.offsetWidth+'px';
+        tx.innerHTML=[...label].map(c=>c===' '?'<span class="hz-ch" style="width:.3em"> </span>':'<span class="hz-ch">'+esc(c)+'</span>').join('');
+        const letters=[...tx.querySelectorAll('.hz-ch')].filter(s=>s.textContent.trim());
+        const ir=ico.getBoundingClientRect(), gx=ir.left+ir.width*.5, gy=ir.top+ir.height*.25;
+        const step=Math.min(110,1100/Math.max(letters.length,1));
+        const fl=letters.map((s,i)=>{
+          const r=s.getBoundingClientRect(), dx=gx-(r.left+r.width/2), dy=gy-(r.top+r.height/2), sg=dx<0?-1:1, d=200+i*step;
+          A(ico,[{transform:'translateY(0) scale(1)'},{transform:'translateY(2px) scale(1.07)'},{transform:'translateY(0) scale(1)'}],{duration:150,delay:d+420});
+          return A(s,[
+            {transform:'translate(0,0) rotate(0deg) scale(1)',opacity:1},
+            {transform:`translate(${dx*.5}px,${dy*.5-22}px) rotate(${sg*150}deg) scale(.85)`,opacity:1,offset:.5},
+            {transform:`translate(${dx}px,${dy}px) rotate(${sg*300}deg) scale(.2)`,opacity:0}],
+            {duration:520,delay:d,easing:'cubic-bezier(.4,0,.6,1)',fill:'both'});
+        });
+        await Promise.all(fl);
+      } else { await wait(500); }
+      // 2) крышка закрывается
+      await A(lid,[{transform:OPEN},{transform:'rotate(4deg) translate(0,.5px)',offset:.7},{transform:SHUT}],{duration:220,easing:'ease-in'});
+      await wait(100);
+      // 3) кнопка сжимается в круг, корзина уезжает в центр
+      el.style.setProperty('padding','0','important'); el.style.width=H+'px';
+      if(tx){ tx.style.transition='width .55s cubic-bezier(.3,1,.4,1), margin .55s ease'; tx.style.width='0px'; tx.style.marginLeft='0px'; }
+      await wait(620);
+      // 4) вокруг рисуется кольцо
+      const D=H+14, R=D/2-1.5, C=2*Math.PI*R;
+      const ring=document.createElement('span'); ring.className='hz-ring';
+      ring.style.cssText=`width:${D}px;height:${D}px;margin:${-D/2}px 0 0 ${-D/2}px`;
+      ring.innerHTML=`<svg viewBox="0 0 ${D} ${D}" width="${D}" height="${D}"><circle cx="${D/2}" cy="${D/2}" r="${R}" style="stroke-dasharray:${C};stroke-dashoffset:${C}"/></svg>`;
+      const chk=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      chk.setAttribute('class','hz-chk'); chk.setAttribute('viewBox','0 0 24 24'); chk.innerHTML='<path d="M5.5 12.5l4.2 4.2 8.8-9.4"/>';
+      el.appendChild(ring); el.appendChild(chk);
+      const ease='cubic-bezier(.5,0,.3,1)';
+      A(ring.querySelector('circle'),[{strokeDashoffset:C},{strokeDashoffset:0}],{duration:900,easing:ease});
+      A(ring.firstElementChild,[{transform:'rotate(90deg)'},{transform:'rotate(450deg)'}],{duration:900,easing:ease});
+      await wait(960);
+      // 5) кольцо гаснет, кнопка светится, корзина превращается в галочку
+      A(ring,[{opacity:1},{opacity:0}],{duration:300});
+      el.classList.add('hz-del-done');
+      A(ico,[{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.4)'}],{duration:220});
+      A(chk,[{opacity:0,transform:'scale(.4)'},{opacity:1,transform:'scale(1.15)',offset:.6},{opacity:1,transform:'scale(1)'}],{duration:380,delay:120,easing:'ease-out'});
+      A(chk.firstElementChild,[{strokeDashoffset:24},{strokeDashoffset:0}],{duration:340,delay:160,easing:'ease-out'});
+      await wait(950);
+    }catch(e){ console.warn(e); }
+    setTimeout(()=>{                                   // вернуть кнопку, если она ещё на странице
+      if(!el.isConnected){ el.__hzBusy=false; return; }
+      el.classList.remove('hz-del-run','hz-del-done');
+      el.style.width=el.style.height=''; el.style.removeProperty('padding');
+      el.innerHTML=orig; el.__hzBusy=false;
+    },450);
+  };
+})();
+</script>
+<script id="hzPdScript">
+/* Страница товара: характеристики-плашки, подзаголовок, скидка, избранное в шапке */
+(function(){
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const ICONS=[[/ядр|core|thread|потоk/i,'fa-microchip'],[/гц|ghz|mhz|частот|скорост|speed/i,'fa-gauge-high'],[/сокет|socket|питан|мощн|вт\b|watt|tdp/i,'fa-bolt'],[/памят|ram|gb|гб|ssd|hdd/i,'fa-memory'],[/экран|дисплей|display|inch|дюйм/i,'fa-display'],[/камер|мп|mp\b/i,'fa-camera'],[/батаре|акб|mah|мач/i,'fa-battery-full']];
+  const FALL=['fa-microchip','fa-gauge-high','fa-bolt'];
+  const iconFor=(c,i)=>{ const s=(c.key||'')+' '+(c.value||''); for(const [re,ic] of ICONS) if(re.test(s)) return ic; return FALL[i%3]; };
+  function discount(){
+    const el=document.getElementById('pdDisc'); if(!el) return;
+    const p=State.products.find(x=>x.id===State.activeProductId);
+    if(!p||!p.oldPrice){ el.textContent=''; return; }
+    const cur=getVariantPrice(p,(typeof variantState!=='undefined'&&variantState&&variantState.pid===p.id)?variantState.size:((p.sizes&&p.sizes[0])||null));
+    const pc=Math.round((1-cur/p.oldPrice)*100);
+    el.textContent=pc>0?('-'+pc+'%'):'';
+  }
+  function favState(){
+    const b=document.getElementById('pdFavBtn'); if(!b) return;
+    const on=!!(State.user&&(State.user.favorites||[]).includes(State.activeProductId));
+    b.classList.toggle('on',on);
+    b.innerHTML='<i class="fa-'+(on?'solid':'regular')+' fa-heart"></i>';
+  }
+  function fill(pid){
+    const p=State.products.find(x=>x.id===pid); if(!p) return;
+    // подзаголовок = короткая первая фраза описания
+    const first=(p.subtitle||(p.desc||'').split(/[.!?\n]/)[0]||'').trim();
+    document.getElementById('pdSubtitle').textContent=first.length>90?first.slice(0,87)+'…':first;
+    // три плашки из характеристик
+    const ch=(p.characteristics||[]).filter(c=>c&&c.key&&c.value).slice(0,3);
+    const sp=document.getElementById('pdSpecs');
+    sp.style.gridTemplateColumns='repeat('+Math.max(ch.length,1)+',1fr)';
+    sp.innerHTML=ch.map((c,i)=>'<div class="pd-spec"><span class="pd-spec-ico"><i class="fa-solid '+iconFor(c,i)+'"></i></span><span class="pd-spec-t"><b>'+esc(c.value)+'</b><small>'+esc(c.key)+'</small></span></div>').join('');
+    // карточка «О товаре»
+    document.getElementById('pdAboutTitle').textContent=p.name||'';
+    document.getElementById('pdAboutIcon').className='fa-solid '+(/intel|amd|ryzen|core|процессор|cpu|gpu|видеокарт|rtx|gtx|материнск|оператив|ssd|hdd/i.test(p.name||'')?'fa-microchip':'fa-box-open');
+    // отзывы
+    document.getElementById('pdRvAvg').textContent=(p.rating||5).toFixed(1);
+    document.getElementById('pdReviewsToggle').setAttribute('data-cnt',p.ratingCount||0);
+    document.getElementById('pdFavBtn').setAttribute('data-fav',pid);
+    discount(); favState();
+  }
+  const _o=openProductDetail;
+  openProductDetail=function(pid){ const r=_o.apply(this,arguments); try{ fill(pid); }catch(e){ console.error(e); } return r; };
+  document.getElementById('pdFavBtn').addEventListener('click',()=>setTimeout(favState,40));
+  new MutationObserver(discount).observe(document.getElementById('pdPrice'),{childList:true,characterData:true,subtree:true});
+})();
+</script>
 </body></html>
