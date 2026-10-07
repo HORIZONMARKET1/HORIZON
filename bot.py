@@ -17,9 +17,9 @@ HORIZON MARKET — Telegram-бот (Railway).
   ADMIN_IDS                   Telegram ID админов через запятую (необязательно: иначе берётся adminBotChatId из settings/main)
   CARD_NUMBER, CARD_BANK, PAY_PHONE   (необязательно, есть значения по умолчанию)
 """
-import base64, hashlib, hmac, html, json, logging, os, random, re, threading, time, urllib.parse
+import base64, calendar, hashlib, hmac, html, json, logging, os, random, re, threading, time, traceback, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
+from datetime import date, datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import requests
 import firebase_admin
@@ -30,7 +30,7 @@ log = logging.getLogger("horizon-bot")
 
 TOKEN = os.environ.get("BOT_TOKEN", "").strip()
 CARD = os.environ.get("CARD_NUMBER", "4444 8888 1227 1025").strip()
-BANK = os.environ.get("CARD_BANK", "Alif").strip()
+CARD_BANK_NAME = os.environ.get("CARD_BANK", "Alif").strip()  # название банка для реквизитов (BANK ниже — id чата HORIZON BANK)
 PHONE = os.environ.get("PAY_PHONE", "+992 978 11 78 11").strip()
 CUR = os.environ.get("CURRENCY", "TJS")
 AI_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
@@ -71,12 +71,69 @@ def tg(method, _t=40, **p):
     if r.status_code == 429:
         time.sleep(min(int(j.get("parameters", {}).get("retry_after", 1)), 10))
         return tg(method, _t, **p)
+    LAST_TG_ERR["text"] = "%s: %s" % (method, j.get("description"))
     log.warning("%s -> %s %s", method, r.status_code, j.get("description"))
     return None
 
 
 def say(chat, text, **kw):
-    return tg("sendMessage", chat_id=chat, text=text, parse_mode="HTML", disable_web_page_preview=True, **kw)
+    r = tg("sendMessage", chat_id=chat, text=text, parse_mode="HTML", disable_web_page_preview=True, **kw)
+    if r is None and kw.get("reply_markup"):
+        # Telegram отклонил сообщение с кнопкой — сообщаем админам (кроме случаев, когда клиент заблокировал бота)
+        err = LAST_TG_ERR["text"]
+        if not re.search(r"blocked|chat not found|deactivated|kicked", err, re.I):
+            notify_admins("Telegram отклонил сообщение с кнопкой (чат <code>%s</code>):\n<code>%s</code>" % (chat, esc(err)), key="btn:" + err)
+    return r
+
+
+# ───────────── оповещения админов об ошибках ─────────────
+LAST_TG_ERR = {"text": ""}
+_alert_last = {}
+
+
+def notify_admins(text, key=None, every=600, icon="⚠️"):
+    """Сообщение админам. Никогда не бросает исключений; одинаковые (по key) — не чаще раза в `every` секунд."""
+    try:
+        key = key or text[:80]
+        now = time.time()
+        if every and now - _alert_last.get(key, 0) < every:
+            return
+        _alert_last[key] = now
+        for a in sorted(set(admin_ids()) | set(kyc_admins())):
+            try:
+                S.post(API + "sendMessage", json={"chat_id": a, "text": ("%s %s" % (icon, text))[:3900], "parse_mode": "HTML",
+                                                  "disable_web_page_preview": True}, timeout=15)
+            except Exception:
+                pass
+    except Exception:
+        log.exception("notify_admins")
+
+
+def report_exc(where):
+    """Записать текущее исключение в лог и отправить админам (кратко)."""
+    tb = traceback.format_exc().strip().splitlines()
+    notify_admins("<b>Ошибка в боте</b> (%s):\n<code>%s</code>" % (esc(where), esc("\n".join(tb[-3:])[-900:])),
+                  key="exc:%s:%s" % (where, tb[-1][:80]))
+
+
+def _thread_hook(args):
+    log.error("Упал поток %s: %s", getattr(args.thread, "name", "?"), args.exc_value)
+    notify_admins("<b>Упал фоновый поток</b> <code>%s</code>:\n<code>%s</code>" % (esc(getattr(args.thread, "name", "?")), esc(str(args.exc_value)[:500])),
+                  key="thr:%s" % args.exc_type)
+
+
+threading.excepthook = _thread_hook
+
+
+def bg(fn, *a):
+    """Фоновая задача: ошибки не теряются, а попадают в лог и админам."""
+    def run():
+        try:
+            fn(*a)
+        except Exception:
+            log.exception("bg %s", getattr(fn, "__name__", "?"))
+            report_exc(getattr(fn, "__name__", "фоновая задача"))
+    POOL.submit(run)
 
 
 def esc(x):
@@ -118,7 +175,7 @@ def pay_instruction(o):
     return (
         f"🛒 <b>Ваш заказ</b>\n{order_text(o)}\n\n"
         f"💰 <b>Общий итог: {money(o.get('total', 0))}</b>\n\n"
-        f"Оплатите на карту <code>{esc(CARD)}</code> <b>{esc(BANK)}</b> по номеру карты.\n"
+        f"Оплатите на карту <code>{esc(CARD)}</code> <b>{esc(CARD_BANK_NAME)}</b> по номеру карты.\n"
         f"Алиф моби и DC City: <code>{esc(PHONE)}</code>\n\n"
         f"📸 После оплаты отправьте сюда <b>чек</b> (фото или файл)."
     )
@@ -211,11 +268,22 @@ def claim(tx, ref, new_status, admin):
 
 def on_callback(cb):
     uid = cb["from"]["id"]
-    if uid not in admin_ids():
-        return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Только для администратора", show_alert=True)
     act, _, oid = (cb.get("data") or "").partition(":")
-    if act in ("kok", "kno"):
-        return kyc_decide(cb, act == "kok", oid)
+    kyc_acts = ("kok", "kno", "kback", "kr", "ip")
+    allowed = (set(admin_ids()) | set(kyc_admins())) if act in kyc_acts else set(admin_ids())
+    if uid not in allowed:
+        return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Только для администратора", show_alert=True)
+    if act == "kok":
+        return kyc_decide(cb, True, oid)
+    if act == "kno":
+        return kyc_reasons(cb, oid)
+    if act == "kback":
+        return kyc_back(cb, oid)
+    if act == "kr":
+        code, _, oid2 = oid.partition(":")
+        return kyc_decide(cb, False, oid2, code)
+    if act == "ip":
+        return installment_paid(cb, oid)
     if act not in ("ok", "no") or not oid:
         return tg("answerCallbackQuery", callback_query_id=cb["id"])
     ref = db.collection("botPayments").document(oid)
@@ -299,7 +367,12 @@ def process_credit_order(oid):
         return bank_post(cid, head + "\n\n⚠️ Сумма заказа превышает ваш кредитный лимит (%s). Выберите другой способ оплаты или обратитесь к администратору для повышения лимита." % money(limit))
     if u.get("creditVerified"):
         ref.update({"creditStatus": "approved", "status": "Новый"})
-        return bank_post(cid, head + "\n\n✅ Вы уже проходили верификацию — заявка одобрена. Продавец свяжется с вами для оформления.")
+        sched = credit_approved(oid, o)
+        txt = head + "\n\n✅ Вы уже проходили верификацию — заявка одобрена. Продавец свяжется с вами для оформления.\n\n📅 График платежей:\n" + schedule_text(sched)
+        chat = client_chat(cid, oid)
+        if chat:
+            say(chat, "✅ <b>Рассрочка подтверждена!</b>\n\n" + esc(credit_summary(o)) + "\n\n📅 <b>График платежей:</b>\n" + esc(schedule_text(sched)) + "\n\nМы напомним о каждом платеже заранее.")
+        return bank_post(cid, txt)
     ref.update({"creditStatus": "kyc_required"})
     link = "https://t.me/%s?start=kyc_%s" % (BOT_USERNAME, oid)
     bank_post(cid, head + "\n\nЭто ваша первая рассрочка, поэтому нужно пройти верификацию (около 5 минут). Нажмите кнопку ниже.",
@@ -350,7 +423,8 @@ def kyc_start(chat, user, oid):
         return say(chat, "Ваша заявка уже %s." % ("на проверке" if o.get("creditStatus") == "review" else "одобрена"))
     if not PUBLIC_URL:
         return say(chat, "Верификация временно недоступна. Попробуйте позже.")
-    db.collection("kycSessions").document(str(chat)).set({"orderId": oid, "clientId": o.get("clientId"), "step": "fio", "data": {}, "username": user.get("username") or ""})
+    db.collection("kycSessions").document(str(chat)).set({"orderId": oid, "clientId": o.get("clientId"), "step": "fio", "data": {}, "username": user.get("username") or "",
+                                                            "updatedAt": int(time.time() * 1000), "remind": 0})
     say(chat, "🏦 <b>Верификация HORIZON BANK</b>\nОтвечайте на вопросы по одному. Отмена: /cancel")
     kyc_ask(chat, "fio")
 
@@ -393,7 +467,7 @@ def kyc_message(m, sess):
                 return say(chat, "Второй номер должен отличаться от первого.")
         data[step] = text
     nxt = KYC_ORDER[KYC_ORDER.index(step) + 1]
-    ref.update({"data": data, "step": nxt})
+    ref.update({"data": data, "step": nxt, "updatedAt": int(time.time() * 1000), "remind": 0})
     kyc_ask(chat, nxt)
 
 
@@ -441,30 +515,89 @@ def kyc_admins():
     return ids or admin_ids()
 
 
-def kyc_decide(cb, ok, oid):
+REJECT_REASONS = {
+    "photo": "Фото паспорта нечёткое или обрезано. Переснимите документ при хорошем освещении: должны быть видны все данные и края страницы.",
+    "face": "Лицо на селфи не совпадает с фото в паспорте. Сделайте новое селфи при хорошем освещении, без очков и головного убора.",
+    "expired": "Паспорт недействителен или срок его действия истёк. Нужен действующий паспорт.",
+    "data": "Данные в анкете неверны или не совпадают с паспортом. Проверьте ФИО, дату рождения и номера телефонов.",
+    "other": None,
+}
+REASON_BTN = {"photo": "📷 Плохое фото паспорта", "face": "🙂 Лицо не совпадает", "expired": "📕 Паспорт просрочен",
+              "data": "✏️ Неверные данные", "other": "❌ Без причины"}
+REASON_SHORT = {"photo": "фото паспорта", "face": "лицо", "expired": "паспорт", "data": "данные"}
+
+
+def kyc_markup(oid):
+    return {"inline_keyboard": [[{"text": "✅ Подтвердить", "callback_data": "kok:" + oid}, {"text": "❌ Отказ", "callback_data": "kno:" + oid}]]}
+
+
+def _kyc_guard(cb):
     if cb["from"]["id"] not in kyc_admins():
-        return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Только для администратора", show_alert=True)
+        tg("answerCallbackQuery", callback_query_id=cb["id"], text="Только для администратора", show_alert=True)
+        return False
+    return True
+
+
+def kyc_reasons(cb, oid):
+    """Админ нажал «Отказ» — просим выбрать причину (клиент получит её в сообщении)."""
+    if not _kyc_guard(cb):
+        return
+    d = db.collection("kycApplications").document(oid).get().to_dict() or {}
+    if d.get("status") != "review":
+        return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Уже обработано", show_alert=True)
+    rows = [[{"text": REASON_BTN[k], "callback_data": "kr:%s:%s" % (k, oid)}] for k in ("photo", "face", "expired", "data", "other")]
+    rows.append([{"text": "↩️ Назад", "callback_data": "kback:" + oid}])
+    tg("editMessageReplyMarkup", chat_id=cb["message"]["chat"]["id"], message_id=cb["message"]["message_id"], reply_markup={"inline_keyboard": rows})
+    tg("answerCallbackQuery", callback_query_id=cb["id"], text="Выберите причину отказа")
+
+
+def kyc_back(cb, oid):
+    if not _kyc_guard(cb):
+        return
+    tg("editMessageReplyMarkup", chat_id=cb["message"]["chat"]["id"], message_id=cb["message"]["message_id"], reply_markup=kyc_markup(oid))
+    tg("answerCallbackQuery", callback_query_id=cb["id"])
+
+
+def kyc_decide(cb, ok, oid, reason=None):
+    if not _kyc_guard(cb):
+        return
     app = db.collection("kycApplications").document(oid)
     d = app.get().to_dict() or {}
     if d.get("status") != "review":
         return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Уже обработано", show_alert=True)
-    app.update({"status": "approved" if ok else "rejected", "decidedBy": cb["from"]["id"]})
+    code = reason if reason in REJECT_REASONS else "other"
+    upd = {"status": "approved" if ok else "rejected", "decidedBy": cb["from"]["id"]}
+    if not ok:
+        upd["rejectReason"] = code
+    app.update(upd)
     o = db.collection("orders").document(oid).get().to_dict() or {}
     cid, chat = d.get("clientId"), d.get("chatId")
     if ok:
-        upd = {"creditVerified": True}
+        u_upd = {"creditVerified": True}
         if not user_info(cid).get("creditLimit"):
-            upd["creditLimit"] = DEFAULT_LIMIT
-        db.collection("users").document(cid).update(upd)
+            u_upd["creditLimit"] = DEFAULT_LIMIT
+        db.collection("users").document(cid).update(u_upd)
         db.collection("orders").document(oid).update({"creditStatus": "approved", "status": "Новый"})
-        txt = "✅ Ваша заявка на кредит успешно принята!\n\n" + credit_summary(o)
-        say(chat, "✅ <b>Ваша заявка на кредит успешно принята!</b>\n\n" + esc(credit_summary(o)))
+        sched = credit_approved(oid, o)
+        sched_txt = schedule_text(sched)
+        txt = "✅ Ваша заявка на кредит успешно принята!\n\n" + credit_summary(o) + "\n\n📅 График платежей:\n" + sched_txt + "\n\nМы напомним о каждом платеже заранее."
+        say(chat, "✅ <b>Ваша заявка на кредит успешно принята!</b>\n\n" + esc(credit_summary(o)) + "\n\n📅 <b>График платежей:</b>\n" + esc(sched_txt) + "\n\nМы напомним о каждом платеже заранее.")
         bank_post(cid, txt)
+        mark = "✅ Подтверждено"
     else:
-        db.collection("orders").document(oid).update({"creditStatus": "rejected"})
-        say(chat, "❌ К сожалению, заявка на кредит отклонена. Вы можете выбрать другой способ оплаты или обратиться в чат HORIZON BANK.")
-        bank_post(cid, "❌ К сожалению, ваша заявка на кредит отклонена. Выберите другой способ оплаты или напишите нам в этот чат.")
-    mark = "✅ Подтверждено" if ok else "❌ Отказано"
+        db.collection("orders").document(oid).update({"creditStatus": "rejected", "creditRejectReason": code})
+        link = "https://t.me/%s?start=kyc_%s" % (BOT_USERNAME, oid)
+        why = REJECT_REASONS[code]
+        msg = "❌ К сожалению, заявка на кредит отклонена."
+        plain = msg
+        if why:
+            msg += "\n\n<b>Причина:</b> " + esc(why)
+            plain += "\n\nПричина: " + why
+        msg += "\n\nВы можете пройти верификацию заново или выбрать другой способ оплаты."
+        plain += "\n\nВы можете пройти верификацию заново или выбрать другой способ оплаты."
+        say(chat, msg, reply_markup={"inline_keyboard": [[{"text": "🔁 Пройти верификацию заново", "url": link}]]})
+        bank_post(cid, plain, actions=[{"type": "kyc", "label": "Пройти верификацию заново", "url": link}])
+        mark = "❌ Отказано" + (" · " + REASON_SHORT[code] if code in REASON_SHORT else "")
     tg("editMessageReplyMarkup", chat_id=cb["message"]["chat"]["id"], message_id=cb["message"]["message_id"], reply_markup={"inline_keyboard": [[{"text": mark, "callback_data": "done"}]]})
     tg("answerCallbackQuery", callback_query_id=cb["id"], text="Готово")
 
@@ -502,6 +635,7 @@ def ai_reply(cid, history):
     j = r.json()
     if r.status_code != 200:
         log.warning("AI error %s %s", r.status_code, j)
+        notify_admins("ИИ-ответчик HORIZON BANK не работает: HTTP %s\n<code>%s</code>" % (r.status_code, esc(str(j)[:300])), key="ai", every=1800)
         return None
     return "".join(b.get("text", "") for b in j.get("content", []) if b.get("type") == "text").strip()
 
@@ -527,6 +661,7 @@ def answer_chat(chat_id):
         ans = ai_reply(cid, hist)
     except Exception:
         log.exception("ai_reply")
+        report_exc("ИИ-ответчик")
         ans = None
     bank_post(cid, ans or "Спасибо за сообщение! Сейчас я не могу ответить автоматически — оператор HORIZON BANK ответит вам в ближайшее время.")
 
@@ -536,7 +671,7 @@ def on_chats(docs, changes, read_time):
         if ch.type.name == "REMOVED":
             continue
         if (ch.document.to_dict() or {}).get("lastMessageSenderId") not in (None, BANK):
-            POOL.submit(answer_chat, ch.document.id)
+            bg(answer_chat, ch.document.id)
 
 
 def on_orders(docs, changes, read_time):
@@ -544,7 +679,7 @@ def on_orders(docs, changes, read_time):
         if ch.type.name != "REMOVED":
             d = ch.document.to_dict() or {}
             if d.get("installmentProvider") == "HORIZON кредит" and not d.get("bankNotified"):
-                POOL.submit(process_credit_order, ch.document.id)
+                bg(process_credit_order, ch.document.id)
 
 
 # ---------- веб-сервер: страница селфи (Telegram Mini App) ----------
@@ -626,6 +761,7 @@ class Web(BaseHTTPRequestHandler):
             self._send(200, json.dumps({"ok": True}))
         except Exception:
             log.exception("web")
+            report_exc("страница селфи /selfie")
             self._send(500, json.dumps({"ok": False, "error": "Ошибка сервера"}))
 
 
@@ -636,10 +772,368 @@ def start_background():
     port = int(os.environ.get("PORT", "8080"))
     threading.Thread(target=ThreadingHTTPServer(("0.0.0.0", port), Web).serve_forever, daemon=True).start()
     log.info("Web :%s, public=%s, bot=@%s, AI=%s", port, PUBLIC_URL or "—", BOT_USERNAME, "on" if AI_KEY else "off")
-    global _w1, _w2
-    _w1 = db.collection("orders").where("installmentProvider", "==", "HORIZON кредит").on_snapshot(on_orders)
+    start_watchers()
+    tg("setMyCommands", commands=[
+        {"command": "status", "description": "Статус заявки и ближайший платёж"},
+        {"command": "continue", "description": "Продолжить верификацию"},
+        {"command": "cancel", "description": "Отменить верификацию или оплату"},
+        {"command": "help", "description": "Помощь"}])
+    threading.Thread(target=scheduler, name="scheduler", daemon=True).start()
+
+
+# ═══════════════ УВЕДОМЛЕНИЯ О ЗАКАЗЕ, ГРАФИК И НАПОМИНАНИЯ РАССРОЧКИ, КОМАНДЫ ═══════════════
+TZ = timezone(timedelta(hours=5))  # Таджикистан: UTC+5, без перехода на летнее время
+
+
+def add_months(d, n):
+    y, m = divmod(d.month - 1 + n, 12)
+    y, m = d.year + y, m + 1
+    return date(y, m, min(d.day, calendar.monthrange(y, m)[1]))
+
+
+def fmt_date(iso):
+    try:
+        return date.fromisoformat(iso).strftime("%d.%m.%Y")
+    except Exception:
+        return str(iso)
+
+
+def build_schedule(o, base_ms):
+    """График платежей рассрочки: считаем от дня одобрения. Неделя — один платёж через 7 дней, иначе — ежемесячно."""
+    base = datetime.fromtimestamp(base_ms / 1000, TZ).date()
+    total = float(o.get("total") or 0)
+    parts = max(int(o.get("installmentParts") or 1), 1)
+    per = float(o.get("installmentPerPayment") or 0)
+    if "недел" in str(o.get("installmentTerm") or "").lower():
+        return [{"n": 1, "due": (base + timedelta(days=7)).isoformat(), "amount": per or total}]
+    amt = per or round(total / parts, 2)
+    return [{"n": i, "due": add_months(base, i).isoformat(), "amount": amt} for i in range(1, parts + 1)]
+
+
+def schedule_text(sched):
+    return "\n".join("%d) %s — %s" % (x["n"], fmt_date(x["due"]), money(x["amount"])) for x in sched)
+
+
+def credit_approved(oid, o):
+    base = int(time.time() * 1000)
+    sched = build_schedule(o, base)
+    db.collection("orders").document(oid).update({"creditApprovedAt": base, "installmentSchedule": sched, "installmentPaid": 0, "reminders": {}})
+    return sched
+
+
+def client_chat(cid, oid=None):
+    """Telegram-чат клиента: из профиля (если уведомления включены) или из его заявки на кредит."""
+    if not cid or cid == "guest":
+        return None
+    u = user_info(cid)
+    if u.get("telegramChatId") and u.get("telegramNotifyEnabled") is not False:
+        return u["telegramChatId"]
+    if oid:
+        try:
+            return (db.collection("kycApplications").document(oid).get().to_dict() or {}).get("chatId")
+        except Exception:
+            return None
+    return None
+
+
+# ---------- статусы заказа → сообщение клиенту в Telegram ----------
+NOTIFY_STATUS = {
+    "Новый": "📥 Заказ №{n} принят! Мы уже начали его обработку.",
+    "Ожидает оформления рассрочки": "🏦 Заказ №{n}: ждём оформления рассрочки. Мы напишем, как только она будет подтверждена.",
+    "Оплачено": "✅ Заказ №{n}: оплата получена. Скоро соберём ваш заказ.",
+    "Собран": "📦 Заказ №{n} собран и скоро отправится к вам.",
+    "В пути": "🚚 Заказ №{n} в пути.",
+    "У курьера": "🛵 Заказ №{n} у курьера — скоро будет у вас!",
+    "Доставлен": "🎉 Заказ №{n} доставлен. Спасибо за покупку в HORIZON MARKET!",
+    "Отменён": "❌ Заказ №{n} отменён. Если это ошибка — напишите нам в чат приложения.",
+}
+_ord_status = {}
+
+
+def on_all_orders(docs, changes, read_time):
+    first = not _ord_status and not getattr(on_all_orders, "ready", False)
+    for ch in changes:
+        if ch.type.name == "REMOVED":
+            continue
+        st = (ch.document.to_dict() or {}).get("status") or "Новый"
+        prev = _ord_status.get(ch.document.id)
+        _ord_status[ch.document.id] = st
+        if first:
+            continue  # при запуске не рассылаем про уже существующие заказы
+        if st != prev and st in NOTIFY_STATUS:
+            bg(notify_order_status, ch.document.id, st)
+    on_all_orders.ready = True
+
+
+def notify_order_status(oid, st):
+    ref = db.collection("orders").document(oid)
+    o = ref.get().to_dict() or {}
+    if (o.get("status") or "Новый") != st or o.get("tgStatusSent") == st:
+        return
+    if st == "Оплачено" and o.get("paidVia") == "telegram":
+        return  # об оплате через бота клиент уже получил сообщение «Покупка завершена»
+    chat = client_chat(o.get("clientId"), oid)
+    if not chat:
+        return
+    ref.update({"tgStatusSent": st})
+    say(chat, NOTIFY_STATUS[st].format(n=oid[-5:].upper()))
+
+
+# ---------- напоминания о платежах рассрочки ----------
+def reminder_kind(days):
+    """days — сколько дней до срока платежа (отрицательное — просрочка)."""
+    if days > 3:
+        return None
+    if days > 0:
+        return "pre"
+    if days == 0:
+        return "due"
+    if days >= -2:
+        return "late1"
+    return "late3"
+
+
+def _remind_one(ref, oid, o, today):
+    sched = o.get("installmentSchedule") or []
+    paid = int(o.get("installmentPaid") or 0)
+    if not sched or paid >= len(sched) or o.get("status") == "Отменён":
+        return
+    x = sched[paid]
+    days = (date.fromisoformat(x["due"]) - today).days
+    kind = reminder_kind(days)
+    if not kind:
+        return
+    key = "p%d_%s" % (x["n"], kind)
+    if (o.get("reminders") or {}).get(key):
+        return
+    n, amount, due = oid[-5:].upper(), money(x["amount"]), fmt_date(x["due"])
+    head = "Заказ №%s · платёж %d из %d\nСумма: %s\nСрок: %s" % (n, x["n"], len(sched), amount, due)
+    pay = ("Оплатить можно на карту %s (%s) или через Алиф моби / DC City: %s.\n"
+           "После оплаты напишите об этом в чат HORIZON BANK в приложении.") % (CARD, CARD_BANK_NAME, PHONE)
+    if kind == "pre":
+        txt = "⏰ Скоро платёж по рассрочке (через %d дн.)\n%s\n\n%s" % (days, head, pay)
+    elif kind == "due":
+        txt = "📅 Сегодня срок платежа по рассрочке\n%s\n\n%s" % (head, pay)
+    elif kind == "late1":
+        txt = "⚠️ Платёж по рассрочке просрочен\n%s\n\nПожалуйста, оплатите как можно скорее.\n%s" % (head, pay)
+    else:
+        txt = "⚠️ Платёж по рассрочке просрочен более 2 дней\n%s\n\nПожалуйста, срочно оплатите или напишите нам в чат HORIZON BANK.\n%s" % (head, pay)
+    ref.update({"reminders.%s" % key: True})  # отмечаем до отправки, чтобы не продублировать
+    cid = o.get("clientId")
+    chat = client_chat(cid, oid)
+    if chat:
+        say(chat, esc(txt))
+    try:
+        bank_post(cid, txt)
+    except Exception:
+        log.exception("bank_post reminder")
+    if kind in ("due", "late3"):
+        atxt = ("💳 <b>Платёж по рассрочке%s</b>\nЗаказ <code>%s</code> · платёж %d из %d\nКлиент: %s %s\nСумма: %s · срок: %s") % (
+            " — просрочка" if kind == "late3" else "", esc(oid), x["n"], len(sched), esc(o.get("clientName")), esc(o.get("clientPhone")), esc(amount), esc(due))
+        markup = {"inline_keyboard": [[{"text": "✅ Платёж получен", "callback_data": "ip:%s:%d" % (oid, x["n"])}]]}
+        for a in kyc_admins():
+            say(a, atxt, reply_markup=markup)
+
+
+def installment_reminders(now):
+    today = now.date()
+    for d in db.collection("orders").where("installmentProvider", "==", "HORIZON кредит").where("creditStatus", "==", "approved").stream():
+        try:
+            _remind_one(d.reference, d.id, d.to_dict() or {}, today)
+        except Exception:
+            log.exception("reminder %s", d.id)
+            report_exc("напоминание о платеже")
+
+
+def installment_paid(cb, rest):
+    """Админ нажал «Платёж получен»: callback_data = ip:<orderId>:<номер платежа>."""
+    oid, _, num = rest.rpartition(":")
+    try:
+        n = int(num)
+    except ValueError:
+        return tg("answerCallbackQuery", callback_query_id=cb["id"])
+    ref = db.collection("orders").document(oid)
+    o = ref.get().to_dict() or {}
+    sched = o.get("installmentSchedule") or []
+    paid = int(o.get("installmentPaid") or 0)
+    if n > len(sched) or paid != n - 1:
+        return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Уже отмечено", show_alert=True)
+    done = n >= len(sched)
+    upd = {"installmentPaid": n}
+    if done:
+        upd["creditStatus"] = "closed"
+    ref.update(upd)
+    short = oid[-5:].upper()
+    if done:
+        msg = "🎉 Рассрочка по заказу №%s полностью погашена. Спасибо, что вы с HORIZON MARKET!" % short
+    else:
+        nx = sched[n]
+        msg = "✅ Платёж %d из %d по заказу №%s получен. Спасибо!\nСледующий платёж: %s — %s" % (n, len(sched), short, fmt_date(nx["due"]), money(nx["amount"]))
+    cid = o.get("clientId")
+    chat = client_chat(cid, oid)
+    if chat:
+        say(chat, esc(msg))
+    try:
+        bank_post(cid, msg)
+    except Exception:
+        log.exception("bank_post paid")
+    tg("editMessageReplyMarkup", chat_id=cb["message"]["chat"]["id"], message_id=cb["message"]["message_id"],
+       reply_markup={"inline_keyboard": [[{"text": "✅ Платёж %d получен" % n, "callback_data": "done"}]]})
+    tg("answerCallbackQuery", callback_query_id=cb["id"], text="Готово")
+
+
+# ---------- напоминание о незавершённой верификации ----------
+STEP_NAMES = {"fio": "ФИО", "dob": "дата рождения", "work": "место работы", "phone1": "первый доп. телефон", "phone2": "второй доп. телефон",
+              "pass_front": "паспорт (лицевая сторона)", "pass_back": "паспорт (обратная сторона)", "selfie": "аутентификация (селфи)"}
+
+
+def kyc_abandon_reminders():
+    now = int(time.time() * 1000)
+    for d in db.collection("kycSessions").stream():
+        sess = d.to_dict() or {}
+        step = sess.get("step")
+        if step not in KYC_ORDER:
+            continue
+        up = sess.get("updatedAt")
+        if not up:
+            d.reference.update({"updatedAt": now, "remind": 0})  # старые сессии: отсчёт начинаем с сегодня
+            continue
+        chat = int(d.id)
+        hours = (now - up) / 3600000.0
+        done = int(sess.get("remind") or 0)
+        if hours >= 168:
+            d.reference.delete()
+            say(chat, "Верификация отменена: прошло 7 дней без ответа. Начать заново можно кнопкой в чате HORIZON BANK в приложении.")
+        elif hours >= 24 and done < 2:
+            d.reference.update({"remind": 2})
+            say(chat, "⏰ Вы так и не завершили верификацию HORIZON BANK (шаг %d из %d). Ваши ответы сохранены — продолжим с того же места. Отмена: /cancel" % (KYC_ORDER.index(step) + 1, len(KYC_ORDER)))
+            kyc_ask(chat, step)
+        elif hours >= 1 and done < 1:
+            d.reference.update({"remind": 1})
+            say(chat, "⏰ Вы не закончили верификацию HORIZON BANK (шаг %d из %d). Ваши ответы сохранены — продолжим с того же места. Отмена: /cancel" % (KYC_ORDER.index(step) + 1, len(KYC_ORDER)))
+            kyc_ask(chat, step)
+
+
+# ---------- подписки Firestore и планировщик ----------
+_watchers = {}
+
+
+def start_watchers():
+    for w in list(_watchers.values()):
+        try:
+            w.unsubscribe()
+        except Exception:
+            pass
+    _watchers.clear()
+    _watchers["credit_orders"] = db.collection("orders").where("installmentProvider", "==", "HORIZON кредит").on_snapshot(on_orders)
+    _watchers["all_orders"] = db.collection("orders").on_snapshot(on_all_orders)
     if AI_KEY:
-        _w2 = db.collection("chats").where("sellerId", "==", BANK).on_snapshot(on_chats)
+        _watchers["chats"] = db.collection("chats").where("sellerId", "==", BANK).on_snapshot(on_chats)
+
+
+def check_watchers():
+    for name, w in list(_watchers.items()):
+        if getattr(w, "is_active", True) is False:
+            notify_admins("Подписка на Firestore «%s» остановилась — перезапускаю." % name, key="watch:" + name)
+            start_watchers()
+            return
+
+
+def scheduler():
+    time.sleep(60)
+    while True:
+        try:
+            check_watchers()
+            now = datetime.now(TZ)
+            if 9 <= now.hour < 21:  # ночью клиентам не пишем
+                kyc_abandon_reminders()
+                installment_reminders(now)
+        except Exception:
+            log.exception("scheduler")
+            report_exc("планировщик напоминаний")
+        time.sleep(1800)
+
+
+# ---------- команды клиента ----------
+CREDIT_HUMAN = {"kyc_required": "нужно пройти верификацию", "review": "заявка на проверке (около 2–3 часов)", "rejected": "заявка отклонена",
+                "limit_exceeded": "сумма превышает кредитный лимит", "closed": "рассрочка погашена ✅"}
+HELP_TEXT = ("Команды:\n/status — на каком шаге заявка и когда ближайший платёж\n/continue — продолжить верификацию с того же места\n"
+             "/cancel — отменить верификацию или оплату\n/help — эта подсказка")
+
+
+def client_ids_for_chat(chat):
+    ids = set()
+    try:
+        for d in db.collection("users").where("telegramChatId", "==", chat).limit(3).stream():
+            ids.add(d.id)
+        for d in db.collection("kycApplications").where("chatId", "==", chat).limit(5).stream():
+            c = (d.to_dict() or {}).get("clientId")
+            if c:
+                ids.add(c)
+    except Exception:
+        log.exception("client_ids_for_chat")
+    return ids
+
+
+def status_text(chat):
+    out = []
+    ks = db.collection("kycSessions").document(str(chat)).get()
+    if ks.exists:
+        st = (ks.to_dict() or {}).get("step")
+        if st in KYC_ORDER:
+            out.append("🏦 <b>Верификация</b>: шаг %d из %d — %s.\nПродолжить: /continue · Отменить: /cancel" % (KYC_ORDER.index(st) + 1, len(KYC_ORDER), esc(STEP_NAMES.get(st, st))))
+    lines = []
+    for cid in client_ids_for_chat(chat):
+        try:
+            for d in db.collection("orders").where("clientId", "==", cid).where("installmentProvider", "==", "HORIZON кредит").limit(5).stream():
+                o = d.to_dict() or {}
+                cs = o.get("creditStatus")
+                if not cs:
+                    continue
+                if cs == "approved":
+                    sched, paid = o.get("installmentSchedule") or [], int(o.get("installmentPaid") or 0)
+                    if sched and paid < len(sched):
+                        x = sched[paid]
+                        h = "рассрочка одобрена. Следующий платёж %d из %d: %s — %s" % (x["n"], len(sched), fmt_date(x["due"]), money(x["amount"]))
+                    else:
+                        h = "рассрочка одобрена"
+                else:
+                    h = CREDIT_HUMAN.get(cs, cs)
+                lines.append("• Заказ №%s: %s" % (d.id[-5:].upper(), h))
+        except Exception:
+            log.exception("status orders")
+    if lines:
+        out.append("💳 <b>Рассрочка HORIZON кредит</b>\n" + esc("\n".join(lines)))
+    pay = db.collection("botChats").document(str(chat)).get().to_dict() or {}
+    if pay.get("orderId"):
+        out.append("🧾 Ждём чек об оплате заказа №%s. Отправьте сюда фото чека. Отмена: /cancel" % esc(str(pay["orderId"])[-5:].upper()))
+    return "\n\n".join(out) or "Активных заявок и платежей нет.\nЧтобы оформить заказ, откройте приложение HORIZON MARKET."
+
+
+def on_command(chat, cmd):
+    if cmd == "/status":
+        return say(chat, status_text(chat))
+    if cmd == "/help":
+        return say(chat, HELP_TEXT)
+    kref = db.collection("kycSessions").document(str(chat))
+    if cmd == "/continue":
+        ks = kref.get()
+        st = (ks.to_dict() or {}).get("step") if ks.exists else None
+        if st not in KYC_ORDER:
+            return say(chat, "Сейчас нет незавершённой верификации. Узнать статус: /status")
+        kref.update({"updatedAt": int(time.time() * 1000), "remind": 0})
+        say(chat, "▶️ Продолжаем верификацию — шаг %d из %d." % (KYC_ORDER.index(st) + 1, len(KYC_ORDER)))
+        return kyc_ask(chat, st)
+    if cmd == "/cancel":
+        if kref.get().exists:
+            kref.delete()
+            return say(chat, "Верификация отменена. Вы можете начать заново кнопкой в чате HORIZON BANK.")
+        bref = db.collection("botChats").document(str(chat))
+        if bref.get().exists:
+            bref.delete()
+            return say(chat, "Оплата отменена. Чтобы вернуться к ней, нажмите «Оплатить» у заказа в приложении.")
+        return say(chat, "Сейчас нечего отменять.")
+    return say(chat, "Неизвестная команда. Список команд: /help")
 
 
 # ───────────── цикл ─────────────
@@ -653,9 +1147,8 @@ def handle(u):
     text = (m.get("text") or "").strip()
     if text.startswith("/start"):
         return on_start(chat, m.get("from") or {}, text[6:].strip())
-    if text == "/cancel" and db.collection("kycSessions").document(str(chat)).get().exists:
-        db.collection("kycSessions").document(str(chat)).delete()
-        return say(chat, "Верификация отменена. Вы можете начать заново кнопкой в чате HORIZON BANK.")
+    if text.startswith("/"):
+        return on_command(chat, text.split()[0].split("@")[0].lower())
     ks = db.collection("kycSessions").document(str(chat)).get()
     if ks.exists and ks.to_dict().get("step") in KYC_ORDER:
         return kyc_message(m, ks.to_dict())
@@ -669,7 +1162,9 @@ def main():
     tg("deleteWebhook")
     start_background()
     log.info("Бот запущен. Админы: %s", admin_ids())
+    notify_admins("Бот запущен. Если вы его не обновляли — значит он перезапустился после сбоя (причину ищите в Logs на Railway).", key="start", every=0, icon="🔄")
     offset = None
+    fails = 0
     while True:
         body = {"timeout": 30, "allowed_updates": ["message", "callback_query"]}
         if offset is not None:
@@ -678,19 +1173,36 @@ def main():
             res = S.post(API + "getUpdates", json=body, timeout=45).json()
         except Exception as e:
             log.warning("getUpdates: %s", e)
+            fails += 1
+            if fails == 6:
+                notify_admins("Бот не может получить сообщения из Telegram: <code>%s</code>" % esc(str(e)[:300]), key="poll", every=1800)
             time.sleep(3)
             continue
         if not res.get("ok"):
             log.warning("getUpdates: %s", res.get("description"))
+            fails += 1
+            desc = str(res.get("description"))
+            if "Conflict" in desc:
+                notify_admins("Бот запущен в двух местах одновременно (Telegram: Conflict). Оставьте только один запуск, иначе сообщения будут теряться.", key="conflict", every=3600)
+            elif fails == 6:
+                notify_admins("Telegram вернул ошибку при получении сообщений: <code>%s</code>" % esc(desc[:300]), key="poll", every=1800)
             time.sleep(5)
             continue
+        fails = 0
         for u in res["result"]:
             offset = u["update_id"] + 1
             try:
                 handle(u)
             except Exception:
                 log.exception("Ошибка обработки апдейта")
+                report_exc("обработка сообщения клиента")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BaseException as e:
+        if not isinstance(e, (KeyboardInterrupt, SystemExit)):
+            log.exception("Бот остановился из-за ошибки")
+            report_exc("бот остановился")
+        raise
