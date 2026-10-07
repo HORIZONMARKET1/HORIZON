@@ -16,6 +16,9 @@ HORIZON MARKET — Telegram-бот (Railway).
   FIREBASE_CREDENTIALS_JSON   JSON сервисного аккаунта целиком (или его base64)
   ADMIN_IDS                   Telegram ID админов через запятую (необязательно: иначе берётся adminBotChatId из settings/main)
   CARD_NUMBER, CARD_BANK, PAY_PHONE   (необязательно, есть значения по умолчанию)
+  SITE_URL                    адрес сайта/приложения (https://...) для кнопки «Смотреть на сайте» в рассылке о новых товарах
+                              (необязательно: если не задан, берётся settings/main.siteUrl — его сохраняет приложение, когда его открывает админ)
+  PROMO_GAP_MIN (20), PROMO_DAILY_MAX (5)   пауза между рассылками о товарах и максимум рассылок в день (необязательно)
 """
 import base64, calendar, hashlib, hmac, html, json, logging, os, random, re, threading, time, traceback, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
@@ -783,6 +786,7 @@ def start_background():
         {"command": "cancel", "description": "Отменить верификацию или оплату"},
         {"command": "help", "description": "Помощь"}])
     threading.Thread(target=scheduler, name="scheduler", daemon=True).start()
+    threading.Thread(target=promo_loop, name="promo", daemon=True).start()
 
 
 # ═══════════════ УВЕДОМЛЕНИЯ О ЗАКАЗЕ, ГРАФИК И НАПОМИНАНИЯ РАССРОЧКИ, КОМАНДЫ ═══════════════
@@ -1112,6 +1116,268 @@ def channel_reminders():
         time.sleep(0.05)
 
 
+# ═══════════════ РАССЫЛКА О НОВЫХ ТОВАРАХ: ИИ пишет текст под конкретный товар ═══════════════
+PROMO_GAP = int(os.environ.get("PROMO_GAP_MIN", "20")) * 60      # пауза между рассылками о разных товарах
+PROMO_DAILY_MAX = int(os.environ.get("PROMO_DAILY_MAX", "5"))    # не больше стольких рассылок о товарах в день (защита от спама)
+
+PROMO_SYSTEM = """Ты — копирайтер интернет-магазина электроники HORIZON MARKET (Таджикистан). Напиши короткое сообщение для Telegram о том, что в каталоге появился новый товар.
+Требования:
+— 1–2 коротких предложения, не больше 200 символов;
+— живой, привлекательный тон, подходящий именно этому типу товара: для смартфона — «Новый смартфон уже в каталоге…», для наушников — про звук, для клавиатуры и мыши — про удобство, для ноутбука — про работу и учёбу и т.п.;
+— 1–2 уместных эмодзи в тексте;
+— называй товар по названию (длинное название можно сократить до бренда и модели);
+— опирайся ТОЛЬКО на переданные данные: не выдумывай характеристики, скидки, акции, гарантию, сроки, «хит продаж» и «ограниченную партию»;
+— цену не указывай (её добавят отдельно);
+— без хэштегов, без markdown и HTML, без кавычек вокруг текста, не начинай с «Привет»;
+— пиши по-русски.
+Ответ — только сам текст сообщения."""
+
+PROMO_FALLBACK = [
+    "🆕 Новинка в каталоге: {name}.",
+    "✨ В HORIZON MARKET появился новый товар: {name}.",
+    "🛍 Свежее поступление — {name}. Загляните в каталог!",
+    "🔥 Встречайте новинку: {name} уже в каталоге.",
+    "📦 В каталог добавили {name}. Посмотрите, пока интересно!",
+]
+
+
+def name_of(coll, doc_id):
+    if not doc_id:
+        return ""
+    try:
+        return (db.collection(coll).document(str(doc_id)).get().to_dict() or {}).get("name") or ""
+    except Exception:
+        return ""
+
+
+def clean_promo(t):
+    t = re.sub(r"<[^>]+>", "", t or "")
+    t = re.sub(r"\s+", " ", t).strip().strip('"«»“”').strip()
+    if len(t) > 260:
+        cut = max(t.rfind(x, 0, 260) for x in ".!?…")
+        t = t[:cut + 1] if cut > 80 else t[:257].rstrip() + "…"
+    return t if len(t) >= 10 else None
+
+
+def ai_promo_text(p, cat, sub):
+    """Текст рассылки под товар от ИИ; None, если ИИ недоступен."""
+    if not AI_KEY:
+        return None
+    chars = "; ".join("%s: %s" % (c.get("key"), c.get("value")) for c in (p.get("characteristics") or [])[:6] if isinstance(c, dict) and c.get("key"))
+    info = "Название: %s\nКатегория: %s\nБренд: %s\nХарактеристики: %s\nОписание: %s\nМетка: %s" % (
+        p.get("name"), " / ".join(x for x in (cat, sub) if x) or "—", p.get("brand") or "—", chars or "—",
+        (p.get("desc") or "—")[:300], p.get("promoLabel") or "—")
+    try:
+        r = requests.post("https://api.anthropic.com/v1/messages", timeout=40,
+                          headers={"x-api-key": AI_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                          json={"model": AI_MODEL, "max_tokens": 200, "temperature": 0.9, "system": PROMO_SYSTEM,
+                                "messages": [{"role": "user", "content": info}]})
+        j = r.json()
+        if r.status_code != 200:
+            log.warning("AI promo error %s %s", r.status_code, j)
+            notify_admins("ИИ не смог написать текст рассылки: HTTP %s\n<code>%s</code>\nОтправлен обычный шаблон." % (r.status_code, esc(str(j)[:300])), key="aipromo", every=1800)
+            return None
+        return "".join(b.get("text", "") for b in j.get("content", []) if b.get("type") == "text")
+    except Exception:
+        log.exception("ai_promo_text")
+        return None
+
+
+def make_hook(p):
+    """(текст, 'ai' | 'fallback')"""
+    hook = clean_promo(ai_promo_text(p, name_of("catalogs", p.get("catalogId")), name_of("subcatalogs", p.get("subcatalogId"))))
+    if hook:
+        return hook, "ai"
+    return random.choice(PROMO_FALLBACK).format(name=p.get("name") or "товар"), "fallback"
+
+
+def promo_rates():
+    st = {}
+    try:
+        st = db.collection("settings").document("main").get().to_dict() or {}
+    except Exception:
+        log.exception("promo_rates")
+    site = (os.environ.get("SITE_URL", "") or st.get("siteUrl") or "").strip()
+    if site and not site.lower().startswith("http"):
+        site = "https://" + site
+    return {"rub": float(st.get("rateRUB") or 8.23), "uzs": float(st.get("rateUZS") or 1304), "site": site}
+
+
+def fmt_price(n, cc, rates):
+    """Цена в валюте клиента, как в приложении: TJS — основная, +7 → RUB, +998 → UZS."""
+    n = float(n or 0)
+    nb = "\u00a0"
+    if cc == "+7":
+        return "{:,}".format(round(n * rates["rub"])).replace(",", nb) + " ₽"
+    if cc == "+998":
+        return "{:,}".format(round(n * rates["uzs"])).replace(",", nb) + " UZS"
+    return "{:,.2f}".format(n).replace(",", nb).replace(".", ",") + " TJS"
+
+
+def promo_message(hook, p, cc, rates):
+    line = "💰 <b>%s</b>" % esc(fmt_price(p.get("price"), cc, rates))
+    try:
+        if p.get("oldPrice") and float(p["oldPrice"]) > float(p.get("price") or 0):
+            line += "  <s>%s</s>" % esc(fmt_price(p["oldPrice"], cc, rates))
+    except Exception:
+        pass
+    return esc(hook) + "\n\n" + line
+
+
+def promo_markup(pid, rates):
+    row = [{"text": "📢 Смотреть в Telegram", "url": CHANNEL_URL}]
+    if rates.get("site"):
+        base = rates["site"]
+        row.append({"text": "🌐 Смотреть на сайте", "url": "%s%sproduct=%s" % (base, "&" if "?" in base else "?", pid)})
+    return {"inline_keyboard": [row]}
+
+
+def promo_photo(p):
+    """Первое фото товара: data:-картинка из Firestore (декодируем) или ссылка."""
+    img = (p.get("images") or [None])[0]
+    try:
+        if isinstance(img, str) and img.startswith("data:") and "," in img:
+            return {"bytes": base64.b64decode(img.split(",", 1)[1])}
+        if isinstance(img, str) and img.startswith("http"):
+            return {"fid": img}
+    except Exception:
+        log.exception("promo_photo")
+    return {}
+
+
+def send_promo_to(chat, text, markup, photo):
+    """Фото с подписью (первый раз загружаем, дальше по file_id) или просто текст. Возвращает результат Telegram либо None."""
+    if photo.get("fid") or photo.get("bytes"):
+        if photo.get("fid"):
+            r = tg("sendPhoto", chat_id=chat, photo=photo["fid"], caption=text[:1024], parse_mode="HTML", reply_markup=markup)
+        else:
+            r = send_bytes_photo(chat, photo["bytes"], text[:1024], markup)
+        if r:
+            try:
+                photo.clear()
+                photo["fid"] = r["photo"][-1]["file_id"]
+            except Exception:
+                pass
+            return r
+        if re.search(r"blocked|chat not found|deactivated|kicked", LAST_TG_ERR["text"], re.I):
+            return None
+        photo.clear()  # фото не принято Telegram — дальше шлём только текст
+    return say(chat, text, reply_markup=markup)
+
+
+def promo_audience():
+    seen, out = set(), []
+    for d in db.collection("users").where("telegramNotifyEnabled", "==", True).select(["telegramChatId", "countryCode"]).stream():
+        u = d.to_dict() or {}
+        ch = u.get("telegramChatId")
+        if ch and str(ch) not in seen:
+            seen.add(str(ch))
+            out.append((ch, u.get("countryCode")))
+    return out
+
+
+@firestore.transactional
+def _claim_promo_tx(tx, ref):
+    if ref.get(transaction=tx).exists:
+        return False
+    tx.set(ref, {"state": "sending", "at": int(time.time() * 1000)})
+    return True
+
+
+def process_new_product(pid, p):
+    """Рассылка о новом товаре всем клиентам с включёнными уведомлениями. Возвращает True, если разослали."""
+    log_ref = db.collection("promoLog").document(pid)  # отдельная коллекция, чтобы не трогать документ товара (он тяжёлый, с фото)
+    if not _claim_promo_tx(db.transaction(), log_ref):
+        return False
+    try:
+        if p.get("inStock") is False or float(p.get("price") or 0) <= 0 or not p.get("name"):
+            log_ref.update({"state": "skipped"})
+            return False
+        hook, how = make_hook(p)
+        rates = promo_rates()
+        markup, photo = promo_markup(pid, rates), promo_photo(p)
+        sent = failed = 0
+        for chat, cc in promo_audience():
+            if send_promo_to(chat, promo_message(hook, p, cc, rates), markup, photo):
+                sent += 1
+            else:
+                failed += 1
+            time.sleep(0.05)  # ~20 сообщений в секунду — в пределах лимитов Telegram
+        log_ref.update({"state": "sent", "sent": sent, "failed": failed, "text": hook, "by": how})
+        notify_admins("Рассылка о товаре «%s»: доставлено %d, не доставлено %d.\nТекст (%s): %s" % (
+            esc(p.get("name")), sent, failed, "ИИ" if how == "ai" else "шаблон", esc(hook)), key=None, every=0, icon="📣")
+        return True
+    except Exception:
+        log_ref.update({"state": "error"})
+        raise
+
+
+def promo_tick():
+    """Раз в пару минут: берём самый старый ещё не обработанный новый товар и рассылаем (днём, не чаще раза в PROMO_GAP)."""
+    if not 9 <= datetime.now(TZ).hour < 21:
+        return  # ночью не рассылаем — товар уйдёт утром
+    st_ref = db.collection("settings").document("botPromo")
+    st = st_ref.get().to_dict() or {}
+    if not st.get("cursor"):
+        st_ref.set({"cursor": datetime.now(timezone.utc)}, merge=True)  # первый запуск: уже добавленные товары не трогаем
+        return
+    now_ms = int(time.time() * 1000)
+    if now_ms - int(st.get("lastSentAt") or 0) < PROMO_GAP * 1000:
+        return
+    docs = list(db.collection("products").where("createdAt", ">", st["cursor"]).order_by("createdAt").limit(1).stream())
+    if not docs:
+        return
+    d = docs[0]
+    created = d.get("createdAt")
+    day = datetime.now(TZ).strftime("%Y-%m-%d")
+    count = int(st.get("count") or 0) if st.get("day") == day else 0
+    if count >= PROMO_DAILY_MAX:
+        db.collection("promoLog").document(d.id).set({"state": "skipped_limit", "at": now_ms})
+        st_ref.set({"cursor": created}, merge=True)
+        return
+    ok = False
+    try:
+        ok = process_new_product(d.id, d.to_dict() or {})
+    finally:
+        upd = {"cursor": created}
+        if ok:
+            upd.update({"lastSentAt": int(time.time() * 1000), "day": day, "count": count + 1})
+        st_ref.set(upd, merge=True)
+
+
+def promo_loop():
+    time.sleep(90)
+    while True:
+        try:
+            promo_tick()
+        except Exception:
+            log.exception("promo")
+            report_exc("рассылка о новых товарах")
+        time.sleep(120)
+
+
+def promo_preview(chat, arg):
+    """Для админа: /promo [id товара] — показывает, как будет выглядеть рассылка (отправляется только вам)."""
+    if chat not in (set(admin_ids()) | set(kyc_admins())):
+        return say(chat, "Команда только для администратора.")
+    if arg:
+        doc = db.collection("products").document(arg).get()
+        if not doc.exists:
+            return say(chat, "Товар с таким id не найден.")
+        pid, p = doc.id, doc.to_dict() or {}
+    else:
+        docs = list(db.collection("products").order_by("createdAt", direction=firestore.Query.DESCENDING).limit(1).stream())
+        if not docs:
+            return say(chat, "Товаров пока нет.")
+        pid, p = docs[0].id, docs[0].to_dict() or {}
+    hook, how = make_hook(p)
+    rates = promo_rates()
+    send_promo_to(chat, promo_message(hook, p, "+992", rates), promo_markup(pid, rates), promo_photo(p))
+    say(chat, "👆 Так клиенты увидят рассылку о товаре «%s». Текст: %s." % (
+        esc(p.get("name")), "написал ИИ" if how == "ai" else "обычный шаблон (ИИ недоступен — проверьте ANTHROPIC_API_KEY)")
+        + ("" if rates.get("site") else "\n⚠️ Кнопки «Смотреть на сайте» нет: не задан SITE_URL (Railway → Variables)."))
+
+
 # ---------- команды клиента ----------
 CREDIT_HUMAN = {"kyc_required": "нужно пройти верификацию", "review": "заявка на проверке (около 2–3 часов)", "rejected": "заявка отклонена",
                 "limit_exceeded": "сумма превышает кредитный лимит", "closed": "рассрочка погашена ✅"}
@@ -1168,7 +1434,10 @@ def status_text(chat):
     return "\n\n".join(out) or "Активных заявок и платежей нет.\nЧтобы оформить заказ, откройте приложение HORIZON MARKET."
 
 
-def on_command(chat, cmd):
+def on_command(chat, cmd, text=""):
+    if cmd == "/promo":
+        parts = text.split()
+        return promo_preview(chat, parts[1] if len(parts) > 1 else "")
     if cmd == "/status":
         return say(chat, status_text(chat))
     if cmd == "/help":
@@ -1206,7 +1475,7 @@ def handle(u):
     if text.startswith("/start"):
         return on_start(chat, m.get("from") or {}, text[6:].strip())
     if text.startswith("/"):
-        return on_command(chat, text.split()[0].split("@")[0].lower())
+        return on_command(chat, text.split()[0].split("@")[0].lower(), text)
     ks = db.collection("kycSessions").document(str(chat)).get()
     if ks.exists and ks.to_dict().get("step") in KYC_ORDER:
         return kyc_message(m, ks.to_dict())
