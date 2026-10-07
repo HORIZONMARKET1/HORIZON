@@ -1590,6 +1590,50 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 /* единый счётчик фото «1/3» */
 #pdGalleryCount{right:14px !important; bottom:12px !important; padding:5px 11px !important; border-radius:14px !important; font-size:12px !important; background:rgba(14,12,38,.75) !important; border:1px solid rgba(255,255,255,.1);}
 </style>
+<style id="hzCompactFix">
+/* убрать старый спиннер у кнопки «Заказ» и кнопок удаления */
+#coSubmitBtn.hz-btn-loading, .hz-del.hz-btn-loading{opacity:1;}
+#coSubmitBtn.hz-btn-loading::before, .hz-del.hz-btn-loading::before{display:none !important;}
+/* ===== Отзывы: стандартный размер ===== */
+.pd-rv-head{font-size:17px; padding:12px 0 8px !important;}
+#pdWriteReviewBtn{padding:7px 13px !important; font-size:12px !important; gap:6px;}
+.reviews-toggle{padding:10px 14px; border-radius:14px; font-size:13px;}
+.rv-sum{gap:6px; font-size:13px;}
+.rv-sum b{font-size:17px; font-weight:800;}
+.rv-sum i{font-size:14px;}
+#ovProduct .section-title{font-size:17px;}
+/* ===== Профиль: стандартные небольшие кнопки ===== */
+.pf-h1{font-size:26px; letter-spacing:-.4px;}
+.pf-sub{font-size:13px;}
+.pf-gear{width:42px; height:42px; border-radius:14px; font-size:17px;}
+.pf-hero{padding:12px; gap:12px; border-radius:20px; margin-bottom:10px;}
+.pf-avatar-wrap{width:72px; height:72px; padding:4px;}
+.pf-av-badge{width:26px; height:26px; font-size:11px; border-width:2px;}
+.pf-name{font-size:19px;}
+.pf-role{margin-top:5px; padding:4px 10px; font-size:12px;}
+.pf-status{margin-top:5px; padding:4px 11px 4px 9px; font-size:12px;}
+.pf-status::before{width:8px; height:8px;}
+.pf-chev{font-size:16px;}
+.pf-cards{gap:10px; margin-bottom:10px;}
+.pf-bonus{min-height:104px; padding:12px; border-radius:18px;}
+.pf-bonus-ico{left:12px; top:11px; width:34px; height:34px; border-radius:11px; font-size:15px;}
+.pf-bonus-t{left:54px; top:22px; font-size:12.5px;}
+.pf-bonus-n{left:12px; bottom:11px; font-size:28px; gap:8px;}
+.pf-bonus-n i{font-size:18px;}
+.pf-invite{padding:10px; border-radius:18px; gap:6px;}
+.pf-invite-ico{width:34px; height:34px; border-radius:11px; font-size:15px;}
+.pf-invite-t b{font-size:13px;}
+.pf-invite-t small{font-size:11px;}
+.pf-share{height:34px; border-radius:17px; font-size:12.5px; gap:6px;}
+.pf-item{min-height:56px; padding:8px 12px 8px 10px; gap:12px; margin-bottom:8px; border-radius:16px;}
+.pf-ico{width:38px; height:38px; border-radius:12px; font-size:16px;}
+.pf-txt b{font-size:14.5px;}
+.pf-txt small{font-size:12px; margin-top:1px;}
+.pf-item .pf-arrow{font-size:12px;}
+.pf-item .theme-switch{width:52px; height:30px; border-radius:15px;}
+.pf-item .theme-switch .knob{top:3px; left:3px; width:22px; height:22px;}
+.pf-item .theme-switch.on .knob{left:25px;}
+</style>
 </head>
 <body data-theme="light">
 
@@ -3313,7 +3357,7 @@ async function adminSendWarrantyCertificate(orderId, btn){
 })();
 (function setupGlobalButtonLoadingSpinner(){
   const SELECTOR = '.btn, .tiny-btn';
-  const EXCLUDE_SELECTOR = '[data-close], .admin-tab, .theme-switch, [data-send-warranty], #pfAiFillBtn, #bulkGenerateBtn';
+  const EXCLUDE_SELECTOR = '[data-close], .admin-tab, .theme-switch, [data-send-warranty], #pfAiFillBtn, #bulkGenerateBtn, #coSubmitBtn, .hz-del, [data-addcart], [data-quickbuy], [data-openvariant], [data-qty], .cart-add-btn, #checkoutOpenBtn';
   function showSpinner(btn){
     if(btn.classList.contains('hz-btn-loading')) return;
     btn.classList.add('hz-btn-loading');
