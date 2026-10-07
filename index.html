@@ -1363,27 +1363,31 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 @media(max-width:360px){.vf-box{width:38px; flex-basis:38px; height:46px; font-size:21px;} .vf-card{padding-left:16px; padding-right:16px;}}
 </style>
 <style id="hzOrderStyle">
-/* ===== АНИМАЦИЯ КНОПКИ «ЗАКАЗ» ===== */
-#coSubmitBtn{transition:width .55s cubic-bezier(.3,1.25,.5,1), border-radius .55s ease, background .4s ease, box-shadow .4s ease, transform .15s ease, filter .15s ease;}
+/* ===== АНИМАЦИЯ КНОПКИ «ЗАКАЗ» — современный линейный стиль ===== */
+#coSubmitBtn{transition:width .6s cubic-bezier(.34,1.4,.5,1), border-radius .6s ease, background .5s ease, box-shadow .5s ease, transform .15s ease, filter .15s ease;}
 #coSubmitBtn.oa-run{position:relative; overflow:hidden; pointer-events:none; padding:0;}
-#coSubmitBtn.oa-ok{border-radius:999px !important; background:linear-gradient(135deg,#34E08F,#12B76A) !important; box-shadow:0 8px 26px rgba(30,210,120,.5), inset 0 1px 0 rgba(255,255,255,.35) !important;}
+#coSubmitBtn.oa-ok{overflow:visible; border-radius:999px !important; background:linear-gradient(135deg,#34E9A0,#10B873) !important; box-shadow:0 0 0 1px rgba(255,255,255,.18) inset, 0 8px 30px rgba(30,220,140,.55), 0 0 44px rgba(30,220,140,.35) !important;}
 .oa-lbl{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:8px;}
 .oa-stage{position:absolute; inset:0; pointer-events:none;}
-.oa-box{position:absolute; left:50%; top:50%; width:30px; height:26px; margin:-13px 0 0 -15px; opacity:0; z-index:2;}
-.oa-body{position:absolute; left:0; right:0; bottom:0; height:20px; border-radius:3px 3px 4px 4px; background:linear-gradient(180deg,#EDBB72,#DDA250); z-index:2; box-shadow:0 2px 6px rgba(20,10,80,.35);}
-.oa-tape{position:absolute; left:50%; top:0; bottom:0; width:6px; margin-left:-3px; background:rgba(255,255,255,.55); opacity:0;}
-.oa-flap{position:absolute; top:0; width:15px; height:7px; background:#F6D398; z-index:0; border-radius:2px;}
-.oa-flap.l{left:0; transform-origin:0 100%; transform:rotate(-115deg);}
-.oa-flap.r{right:0; transform-origin:100% 100%; transform:rotate(115deg);}
-.oa-it{position:absolute; left:50%; top:2px; opacity:0; z-index:1;}
-.oa-it.i1{width:8px; height:13px; margin-left:-4px; border-radius:2px; background:#fff; box-shadow:inset 0 0 0 1.5px #CFC5FF;}
-.oa-it.i2{width:10px; height:10px; margin-left:-5px; border-radius:50%; background:#6FE3FF;}
-.oa-it.i3{width:9px; height:9px; margin-left:-4.5px; border-radius:2px; background:#FFD166;}
-.oa-truck{position:absolute; left:50%; top:50%; width:56px; height:32px; margin:-16px 0 0 -28px; opacity:0; z-index:3;}
-.oa-truck svg{width:100%; height:100%; display:block; overflow:visible;}
-.oa-wh{transform-box:fill-box; transform-origin:center; animation:oaSpin .3s linear infinite;}
-.oa-check{position:absolute; left:50%; top:50%; width:26px; height:26px; margin:-13px 0 0 -13px; opacity:0; z-index:4; fill:none; stroke:#fff; stroke-width:3; stroke-linecap:round; stroke-linejoin:round;}
+.oa-shine{position:absolute; inset:0; opacity:0; background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%); transform:translateX(-110%);}
+.oa-box{position:absolute; left:50%; top:50%; width:30px; height:30px; margin:-15px 0 0 -15px; opacity:0; z-index:2; color:#fff; filter:drop-shadow(0 0 6px rgba(255,255,255,.5));}
+.oa-box svg{width:100%; height:100%; overflow:visible; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.oa-box path,.oa-box rect{stroke-dasharray:1; stroke-dashoffset:1;}
+.oa-lid{transform-origin:4px 13px; transform:rotate(-26deg) translate(-1px,-3px);}
+.oa-it{position:absolute; left:50%; top:50%; opacity:0; background:#fff; box-shadow:0 0 8px rgba(255,255,255,.95);}
+.oa-it.i1{width:6px; height:6px; margin:-3px 0 0 -3px; border-radius:50%;}
+.oa-it.i2{width:7px; height:7px; margin:-3.5px 0 0 -3.5px; border-radius:2px;}
+.oa-it.i3{width:5px; height:5px; margin:-2.5px 0 0 -2.5px; border-radius:50%;}
+.oa-pulse{position:absolute; left:50%; top:50%; width:30px; height:30px; margin:-15px 0 0 -15px; border-radius:50%; border:1.5px solid rgba(255,255,255,.75); opacity:0; z-index:1;}
+.oa-truck{position:absolute; left:50%; top:50%; width:64px; height:34px; margin:-17px 0 0 -32px; opacity:0; z-index:3; color:#fff; filter:drop-shadow(0 0 6px rgba(255,255,255,.4));}
+.oa-truck svg{width:100%; height:100%; display:block; overflow:visible; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.oa-st{position:absolute; right:100%; top:0; bottom:0; width:46px; opacity:0; margin-right:-2px;}
+.oa-st i{position:absolute; right:0; height:1.5px; border-radius:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.9));}
+.oa-wh{transform-box:fill-box; transform-origin:center; animation:oaSpin .28s linear infinite;}
+.oa-check{position:absolute; left:50%; top:50%; width:26px; height:26px; margin:-13px 0 0 -13px; opacity:0; z-index:4; fill:none; stroke:#fff; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 6px rgba(255,255,255,.7));}
 .oa-check path{stroke-dasharray:24; stroke-dashoffset:24;}
+.oa-rip{position:absolute; left:50%; top:50%; border-radius:50%; border:2px solid rgba(120,255,190,.85); opacity:0; pointer-events:none;}
+.oa-pt{position:absolute; left:50%; top:50%; width:5px; height:5px; margin:-2.5px 0 0 -2.5px; border-radius:50%; opacity:0; pointer-events:none;}
 @keyframes oaSpin{to{transform:rotate(360deg);}}
 </style>
 <style id="hzDelStyle">
@@ -1484,6 +1488,107 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 .rv-sum i{color:#FFB020; font-size:22px;}
 .reviews-toggle.open{margin-bottom:10px;}
 .reviews-toggle.open > i.fa-chevron-right{transform:rotate(90deg);}
+</style>
+<style id="hzCardStyle">
+/* ===== КАРТОЧКА ТОВАРА В СЕТКЕ — как на фото ===== */
+.grid{gap:12px; padding:0 12px 20px;}
+.card{border-radius:26px; background:var(--card-bg); border:1px solid rgba(120,95,255,.12); box-shadow:var(--card-shadow);}
+[data-theme="dark"] .card{background:linear-gradient(180deg,#15123A 0%,#0B0A22 100%); border:1px solid rgba(125,100,255,.42); box-shadow:0 0 0 1px rgba(90,60,230,.10) inset, 0 12px 30px rgba(30,15,110,.40);}
+.card-img{aspect-ratio:1/1.08; margin:8px 8px 0; border-radius:20px; overflow:hidden; background:radial-gradient(circle at 70% 30%,#2A2570,#0E0C2C);}
+[data-theme="light"] .card-img, :root:not([data-theme="dark"]) .card-img{background:var(--card-bg-2);}
+.card-img-clip{border-radius:20px;}
+.card-img-clip > img, .card-img-slide img{object-fit:cover; object-position:right center;}
+.card-img::after{content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(90deg,rgba(8,6,28,.55) 0%,rgba(8,6,28,0) 55%), linear-gradient(0deg,rgba(8,6,28,.35) 0%,rgba(8,6,28,0) 30%); z-index:1;}
+.card-eye{display:none;}
+/* бейджи сверху слева */
+.card-img-badges{left:8px; top:8px; bottom:auto; z-index:3; max-width:calc(100% - 52px); gap:4px;}
+.card-img-badges::before{display:none;}
+.promo-label{padding:5px 10px 5px 9px; border-radius:16px; font-size:11.5px; font-weight:700; color:#fff; gap:5px; background:linear-gradient(135deg,#7A4DFF,#4B30F0); border:1px solid rgba(255,255,255,.22); box-shadow:0 4px 12px rgba(90,60,255,.4);}
+.promo-label i{font-size:10.5px;}
+.promo-label.pl1{background:linear-gradient(135deg,#3E8BFF,#2C5BE0);}
+.promo-label.pl2{background:linear-gradient(135deg,#2FB6C9,#2B84D8);}
+.promo-label.pl3{background:linear-gradient(135deg,#E24BC6,#B02FD8);}
+.promo-label.hot{color:#fff;}
+.sale-ribbon.flash-pill{padding:5px 10px; border-radius:16px; font-size:11.5px; background:linear-gradient(135deg,#FF3D57,#FF7A3D);}
+/* сердечко */
+.card-actions-top{top:8px; right:8px; z-index:3;}
+.fav-toggle{width:34px; height:34px; border-radius:50%; font-size:15px; color:#fff; background:rgba(16,13,44,.62); border:1px solid rgba(255,255,255,.14); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);}
+.fav-toggle.active{color:#FF4D7E;}
+/* плашки-характеристики поверх фото */
+.card-feats{position:absolute; left:8px; top:44px; bottom:44px; z-index:2; display:flex; flex-direction:column; justify-content:center; gap:9px; max-width:46%; pointer-events:none;}
+.card-feat{display:flex; align-items:center; gap:7px; min-width:0;}
+.card-feat-ico{width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; color:#EDE8FF; background:rgba(14,12,46,.7); border:1.5px solid rgba(190,170,255,.65); box-shadow:0 0 10px rgba(110,80,255,.45);}
+.card-feat-t{display:flex; flex-direction:column; min-width:0; line-height:1.15; text-shadow:0 1px 4px rgba(0,0,0,.7);}
+.card-feat-t b{font-size:10.5px; font-weight:700; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.card-feat-t small{font-size:9.5px; color:#CFC8F5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+/* скидка снизу слева */
+.card-sale{position:absolute; left:8px; bottom:8px; z-index:3; padding:6px 14px; border-radius:18px; font-size:15px; font-weight:800; color:#fff; background:linear-gradient(135deg,#C93CF0,#F0457A); box-shadow:0 6px 16px rgba(220,60,200,.45); border:1px solid rgba(255,255,255,.2);}
+.card-img-dots{bottom:8px; z-index:3;}
+/* тело */
+.card-body{padding:12px 12px 12px; gap:3px; background:transparent;}
+.card-seller{display:block; font-size:12.5px; font-weight:500; color:var(--card-text-dim); margin:0;}
+.card-seller i{display:none;}
+.card-name{font-size:16px; font-weight:800; line-height:1.2; color:var(--card-text); min-height:0; -webkit-line-clamp:2; letter-spacing:-.2px;}
+.card-sub{font-size:12.5px; line-height:1.3; color:var(--card-text-dim); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:32px; margin-top:1px;}
+.card-meta{display:flex; align-items:center; justify-content:space-between; gap:6px; margin:6px 0 4px;}
+.card-rating{font-size:13px; font-weight:700; gap:5px; margin:0;}
+.card-rating i{font-size:15px; color:#FFB020;}
+.card-rating span{font-weight:500;}
+.card-orig{display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:10px; font-size:11.5px; font-weight:600; color:var(--card-text); background:rgba(80,70,190,.22); border:1px solid rgba(130,110,255,.28); white-space:nowrap;}
+.card-orig i{font-size:11.5px;}
+.card-prices{align-items:baseline; flex-wrap:wrap; gap:4px 8px; margin-top:2px;}
+.card-prices::before{display:none;}
+.card-price{font-size:19px; font-weight:800; letter-spacing:-.3px;}
+.card-oldprice{font-size:11.5px;}
+.card-low{font-size:11.5px; font-weight:700; color:#FF9A1F; margin-top:2px;}
+/* кнопка «В корзину» на всю ширину */
+.card-footer{position:static; margin-top:8px; width:100%;}
+.cart-add-btn{width:100%; height:42px; border-radius:15px; gap:8px; font-size:13.5px; font-weight:700; font-family:inherit; background:linear-gradient(135deg,#8B5CFF 0%,#4B30F0 100%); box-shadow:0 8px 20px rgba(94,60,255,.40), inset 0 1px 0 rgba(255,255,255,.28);}
+.cart-add-btn i{font-size:15px;}
+.card-footer .qty-stepper{width:100%; height:42px; justify-content:space-between; padding:0 8px; border-radius:15px; background:linear-gradient(135deg,#8B5CFF 0%,#4B30F0 100%); box-shadow:0 8px 20px rgba(94,60,255,.40);}
+.card-footer .qty-stepper button{width:30px; height:30px; border-radius:10px; background:rgba(255,255,255,.2); color:#fff; font-size:16px;}
+.card-footer .qty-stepper span{color:#fff; font-size:15px;}
+@media(max-width:360px){.card-name{font-size:14.5px;} .card-price{font-size:17px;} .card-feat-t b{font-size:9.5px;}}
+#pdRelated .card, .related-scroll .card{min-width:176px;}
+</style>
+<style id="hzPdFix">
+/* стандартные (небольшие) кнопки на странице товара */
+.pd-title{font-size:22px; margin:4px 0 6px;}
+.pd-subtitle{font-size:14.5px; margin-bottom:12px;}
+.pd-price{font-size:28px;}
+#pdOldPrice{font-size:15px !important;}
+.pd-disc{padding:4px 11px; font-size:13.5px;}
+#pdLowStock{font-size:14px; margin:2px 0 10px;}
+.pd-seller-av{width:38px; height:38px; font-size:16px;}
+.pd-seller-name{font-size:14px;}
+.pd-seller-meta{font-size:12px;}
+.pd-seller-meta i.fa-star{font-size:12px;}
+.pd-top-actions{gap:6px;}
+.pd-top-actions .mini-icon-btn{width:32px !important; height:32px !important; font-size:13px;}
+.pd-hb{width:38px; height:38px; font-size:15px;}
+#pdCartControls>div:first-child{gap:10px !important; margin-bottom:10px !important;}
+#pdCartControls .btn{min-height:44px; border-radius:14px; font-size:14px; padding:10px 8px !important;}
+#pdCartControls .btn i{font-size:16px;}
+.pd-msgs{gap:10px; margin:0 0 12px;}
+.pd-msg{padding:8px 10px; border-radius:14px; gap:8px; min-height:46px;}
+.pd-msg-ico{font-size:28px;}
+.pd-msg-circ{width:30px; height:30px; font-size:14px;}
+.pd-msg-t b{font-size:14px;}
+.pd-msg-t small{font-size:11px;}
+.pd-msg-arr{font-size:11px;}
+.pd-about{padding:12px; border-radius:16px; gap:12px;}
+.pd-about-ico{width:46px; height:46px; border-radius:14px; font-size:20px;}
+.pd-about-title{font-size:15px;}
+.pd-about .pd-desc{font-size:13.5px;}
+.pd-about-toggle{font-size:13.5px; padding-top:6px;}
+.pd-rv-head{font-size:20px; padding:14px 0 10px !important;}
+#pdWriteReviewBtn{padding:8px 14px !important; font-size:12.5px !important;}
+.reviews-toggle{padding:12px 14px; border-radius:14px;}
+.rv-sum b{font-size:24px;}
+.rv-sum i{font-size:18px;}
+.rv-sum{font-size:13.5px;}
+/* единый счётчик фото «1/3» */
+#pdGalleryCount{right:14px !important; bottom:12px !important; padding:5px 11px !important; border-radius:14px !important; font-size:12px !important; background:rgba(14,12,38,.75) !important; border:1px solid rgba(255,255,255,.1);}
 </style>
 </head>
 <body data-theme="light">
@@ -1923,7 +2028,6 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
       <button class="pd-gallery-arrow left" id="pdGalleryPrev"><i class="fa-solid fa-chevron-left"></i></button>
       <button class="pd-gallery-arrow right" id="pdGalleryNext"><i class="fa-solid fa-chevron-right"></i></button>
       <div class="pd-gallery-dots" id="pdGalleryDots"></div>
-      <div class="pd-count" id="pdCount"></div>
     </div>
     <div class="pd-seller-wrap">
       <div class="seller-link-row" id="pdSellerLink"></div>
@@ -5076,42 +5180,45 @@ function cardHtml(p){
   const fsActive = State.settings.flashSale;
   const flashEndsAtMs = fsActive && fsActive.endsAt ? (fsActive.endsAt.toMillis ? fsActive.endsAt.toMillis() : new Date(fsActive.endsAt).getTime()) : null;
   const isFlashProduct = fsActive && fsActive.active && flashEndsAtMs && (fsActive.productIds||[]).includes(p.id) && Date.now() < flashEndsAtMs;
-  const badgesHtml = (sale>0 || promoBadges.length || isFlashProduct)
+  const PROMO_ICONS=['fa-bolt','fa-star','fa-fire','fa-crown'];
+  const badgesHtml = (promoBadges.length || isFlashProduct)
     ? `<div class="card-img-badges">
-        ${isFlashProduct?`<div class="sale-ribbon" style="background:linear-gradient(135deg,#FF3D57,#FF7A3D);"><i class="fa-solid fa-bolt"></i> АКЦИЯ</div><div class="flash-countdown" data-flash-ends="${flashEndsAtMs}">--:--:--</div>`:''}
-        ${sale>0?`<div class="sale-ribbon">-${sale}%</div>`:''}
-        ${promoBadges.map((b,i)=>`<div class="promo-label ${i>0?'hot':''}">${b}</div>`).join('')}
+        ${isFlashProduct?`<div class="sale-ribbon flash-pill"><i class="fa-solid fa-bolt"></i> АКЦИЯ</div><div class="flash-countdown" data-flash-ends="${flashEndsAtMs}">--:--:--</div>`:''}
+        ${promoBadges.map((b,i)=>`<div class="promo-label pl${i%4}${i>0?' hot':''}"><i class="fa-solid ${PROMO_ICONS[i%4]}"></i> ${b}</div>`).join('')}
       </div>` : '';
+  const saleHtml = sale>0 ? `<div class="card-sale">-${sale}%</div>` : '';
+  const subtitle = (()=>{ const f=(p.subtitle||(p.desc||'').split(/[.!?\n]/)[0]||'').trim(); return f.length>70?f.slice(0,67)+'…':f; })();
+  const feats = (p.characteristics||[]).filter(c=>c&&c.key&&c.value).slice(0,3);
+  const featsHtml = feats.length ? `<div class="card-feats">${feats.map((c,i)=>`<div class="card-feat"><span class="card-feat-ico"><i class="fa-solid ${window.hzSpecIcon?hzSpecIcon(c,i):'fa-circle'}"></i></span><span class="card-feat-t"><b>${c.value}</b><small>${c.key}</small></span></div>`).join('')}</div>` : '';
   const lowStockHtml = (p.inStock!==false && p.stockQty!=null && p.stockQty<=5)
-    ? `<div style="font-size:11px;font-weight:700;color:#FF7A00;margin-top:2px;"><i class="fa-solid fa-triangle-exclamation"></i> Осталось ${p.stockQty} шт.</div>` : '';
+    ? `<div class="card-low"><i class="fa-solid fa-fire-flame-curved"></i> Осталось ${p.stockQty} шт.</div>` : '';
   return `<div class="card" data-id="${p.id}">
     <div class="card-img" data-openpd="${p.id}" data-idx="0">
       <div class="card-img-clip">${mediaHtml}</div>
-      <div class="card-eye"><i class="fa-solid fa-eye-slash"></i></div>
       ${badgesHtml}
+      ${featsHtml}
+      ${saleHtml}
       <div class="card-actions-top">
         <button class="fav-toggle ${isFav?'active':''}" data-fav="${p.id}"><i class="fa-${isFav?'solid':'regular'} fa-heart"></i></button>
-        <button class="mini-icon-btn ${isComparing?'active':''}" data-compare="${p.id}" title="Сравнить"><i class="fa-solid fa-scale-balanced"></i></button>
-        <button class="mini-icon-btn" data-share="${p.id}" title="Поделиться"><i class="fa-solid fa-share-nodes"></i></button>
-        <button class="mini-icon-btn" data-review="${p.id}" title="Оставить отзыв"><i class="fa-regular fa-star"></i></button>
-      </div>
-      <div class="card-footer">
-        ${p.inStock===false ? `<div style="display:flex;gap:6px;align-items:center;"><span class="out-of-stock-tag">Нет в наличии</span><button class="mini-icon-btn ${isNotifySub?'active':''}" data-notifystock="${p.id}" title="${isNotifySub?'Отменить уведомление':'Уведомить о поступлении'}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i></button></div>`
-          : (hasVariants ? `<button class="cart-add-btn" data-openvariant="${p.id}"><i class="fa-solid fa-cart-shopping"></i></button>`
-          : (inCart ? `<div class="qty-stepper"><button data-qty="-1" data-id="${p.id}">-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${p.id}">+</button></div>`
-                    : `<button class="cart-add-btn" data-addcart="${p.id}"><i class="fa-solid fa-cart-shopping"></i></button>`))}
       </div>
     </div>
     <div class="card-body">
+      <div class="card-seller">${sellerName}</div>
+      <div class="card-name" data-openpd="${p.id}">${p.name}</div>
+      ${subtitle?`<div class="card-sub">${subtitle}</div>`:''}
+      <div class="card-meta">
+        <div class="card-rating"><i class="fa-solid fa-star"></i> ${(p.rating||5).toFixed(1)} <span>(${p.ratingCount||0})</span></div>
+        ${p.original!==false?'<span class="card-orig"><i class="fa-solid fa-shield-halved"></i> Оригинал</span>':''}
+      </div>
       <div class="card-prices"><span class="card-price">${priceVariesBySize(p)?'от ':''}${fmt(getMinPrice(p))}</span>${p.oldPrice?`<span class="card-oldprice">${fmt(p.oldPrice)}</span>`:''}</div>
       ${hzDeliveryHtml()}
       ${lowStockHtml}
-      <div class="card-seller"><i class="fa-solid fa-circle-check"></i>${sellerName}</div>
-      <div class="card-name" data-openpd="${p.id}">${p.name}</div>
-      ${(p.characteristics&&p.characteristics.length)
-        ? `<div class="card-specs">${p.characteristics.slice(0,3).map(c=>`<div class="card-spec-line"><span class="k">${c.key}</span><span class="v">${c.value}</span></div>`).join('')}</div>`
-        : (p.desc ? `<div class="card-desc-preview">${p.desc}</div>` : '')}
-      <div class="card-rating"><i class="fa-solid fa-star"></i> ${(p.rating||5).toFixed(1)} <span>· ${p.ratingCount||0} оценок</span></div>
+      <div class="card-footer">
+        ${p.inStock===false ? `<div style="display:flex;gap:6px;align-items:center;"><span class="out-of-stock-tag">Нет в наличии</span><button class="mini-icon-btn ${isNotifySub?'active':''}" data-notifystock="${p.id}" title="${isNotifySub?'Отменить уведомление':'Уведомить о поступлении'}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i></button></div>`
+          : (hasVariants ? `<button class="cart-add-btn" data-openvariant="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`
+          : (inCart ? `<div class="qty-stepper"><button data-qty="-1" data-id="${p.id}">-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${p.id}">+</button></div>`
+                    : `<button class="cart-add-btn" data-addcart="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`))}
+      </div>
     </div>
   </div>`;
 }
@@ -5889,13 +5996,8 @@ document.addEventListener('click', (e)=>{
       localStorage.setItem('hz_recent', JSON.stringify(ids)); renderRecent();
       const slot = $('#pdChatSlot');
       if(slot) slot.insertAdjacentHTML('afterbegin', `<button class="mini-icon-btn" style="position:static;width:32px;height:32px;" title="Сравнить" data-cmp="${pid}"><i class="fa-solid fa-scale-balanced"></i></button>`);
-      let st = $('#pdStockLeft');
-      if(!st){ st = document.createElement('div'); st.id='pdStockLeft'; $('#pdTitle').insertAdjacentElement('afterend', st); }
-      const low = p.inStock!==false && p.stockQty!=null && p.stockQty<=10;
-      st.style.cssText = low ? 'font-size:13px;font-weight:700;color:#FF7A00;margin:2px 0 4px;' : 'display:none;';
-      st.innerHTML = low ? `<i class="fa-solid fa-fire"></i> Осталось ${p.stockQty} шт.` : '';
-      let dl = $('#pdDeliveryLine'); if(!dl){ dl = document.createElement('div'); dl.id='pdDeliveryLine'; st.insertAdjacentElement('afterend', dl); }
-      dl.innerHTML = hzDeliveryHtml().replace('margin-top:3px','margin:2px 0 6px;font-size:13px');
+      let dl = $('#pdDeliveryLine'); if(!dl){ dl = document.createElement('div'); dl.id='pdDeliveryLine'; $('#pdLowStock').insertAdjacentElement('afterend', dl); }
+      dl.innerHTML = hzDeliveryHtml().replace('margin-top:3px','margin:2px 0 8px;font-size:13px');
       cmpUpdateUi();
     }catch(e){ console.error(e); }
     return r;
@@ -5912,6 +6014,56 @@ document.addEventListener('click', (e)=>{
   };
   const _grid = filterAndRenderGrid;
   filterAndRenderGrid = function(){ const r=_grid.apply(this, arguments); try{ renderRecent(); }catch(e){} return r; };
+})();
+
+/* ============ СТРАНИЦА ТОВАРА: плашки, подзаголовок, скидка, избранное ============ */
+/* Страница товара: характеристики-плашки, подзаголовок, скидка, избранное в шапке */
+(function(){
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const ICONS=[[/ядр|core|thread|потоk/i,'fa-microchip'],[/гц|ghz|mhz|частот|скорост|speed/i,'fa-gauge-high'],[/сокет|socket|питан|мощн|вт\b|watt|tdp/i,'fa-bolt'],[/памят|ram|gb|гб|ssd|hdd/i,'fa-memory'],[/экран|дисплей|display|inch|дюйм/i,'fa-display'],[/камер|мп|mp\b/i,'fa-camera'],[/батаре|акб|mah|мач/i,'fa-battery-full']];
+  const FALL=['fa-microchip','fa-gauge-high','fa-bolt'];
+  const iconFor=(c,i)=>{ const s=(c.key||'')+' '+(c.value||''); for(const [re,ic] of ICONS) if(re.test(s)) return ic; return FALL[i%3]; };
+  window.hzSpecIcon=iconFor;
+  function discount(){
+    const el=document.getElementById('pdDisc'); if(!el) return;
+    const p=State.products.find(x=>x.id===State.activeProductId);
+    if(!p||!p.oldPrice){ el.textContent=''; return; }
+    const cur=getVariantPrice(p,(typeof variantState!=='undefined'&&variantState&&variantState.pid===p.id)?variantState.size:((p.sizes&&p.sizes[0])||null));
+    const pc=Math.round((1-cur/p.oldPrice)*100);
+    el.textContent=pc>0?('-'+pc+'%'):'';
+  }
+  function favState(){
+    const b=document.getElementById('pdFavBtn'); if(!b) return;
+    const on=!!(State.user&&(State.user.favorites||[]).includes(State.activeProductId));
+    b.classList.toggle('on',on);
+    b.innerHTML='<i class="fa-'+(on?'solid':'regular')+' fa-heart"></i>';
+  }
+  function fill(pid){
+    const p=State.products.find(x=>x.id===pid); if(!p) return;
+    // подзаголовок = короткая первая фраза описания
+    const first=(p.subtitle||(p.desc||'').split(/[.!?\n]/)[0]||'').trim();
+    document.getElementById('pdSubtitle').textContent=first.length>90?first.slice(0,87)+'…':first;
+    // три плашки из характеристик
+    const ch=(p.characteristics||[]).filter(c=>c&&c.key&&c.value).slice(0,3);
+    const sp=document.getElementById('pdSpecs');
+    sp.style.gridTemplateColumns='repeat('+Math.max(ch.length,1)+',1fr)';
+    sp.innerHTML=ch.map((c,i)=>'<div class="pd-spec"><span class="pd-spec-ico"><i class="fa-solid '+iconFor(c,i)+'"></i></span><span class="pd-spec-t"><b>'+esc(c.value)+'</b><small>'+esc(c.key)+'</small></span></div>').join('');
+    // карточка «О товаре»
+    document.getElementById('pdAboutTitle').textContent=p.name||'';
+    const hay=((p.name||'')+' '+(typeof pcCatalogNamesForProduct==='function'?pcCatalogNamesForProduct(p):'')).toLowerCase();
+    const KIND=[[/процессор|cpu|ryzen|core i|core ultra|intel core|athlon|xeon/,'fa-microchip'],[/видеокарт|gpu|rtx|gtx|radeon/,'fa-microchip'],[/наушник|гарнитур|headphone|airpods|earbuds/,'fa-headphones'],[/телевизор|tv\b|телевиз/,'fa-tv'],[/принтер|мфу|printer/,'fa-print'],[/монитор|monitor/,'fa-display'],[/ноутбук|laptop|macbook/,'fa-laptop'],[/смартфон|телефон|iphone|айфон|samsung galaxy|xiaomi|redmi|phone/,'fa-mobile-screen'],[/планшет|ipad|tablet/,'fa-tablet-screen-button'],[/блок питания|psu/,'fa-plug'],[/клавиатур|keyboard/,'fa-keyboard'],[/мыш|mouse/,'fa-computer-mouse'],[/камер|camera|фотоап/,'fa-camera'],[/час|watch/,'fa-clock'],[/кроссов|ботин|обув|shoe/,'fa-shoe-prints'],[/футбол|куртк|платье|рубаш|одежд|shirt/,'fa-shirt'],[/ssd|hdd|накопител|памят/,'fa-hard-drive'],[/роутер|router|wi-?fi/,'fa-wifi'],[/колонк|speaker|аудио/,'fa-volume-high']];
+    let ico='fa-box-open'; for(const [re,ic] of KIND){ if(re.test(hay)){ ico=ic; break; } }
+    document.getElementById('pdAboutIcon').className='fa-solid '+ico;
+    // отзывы
+    document.getElementById('pdRvAvg').textContent=(p.rating||5).toFixed(1);
+    document.getElementById('pdReviewsToggle').setAttribute('data-cnt',p.ratingCount||0);
+    document.getElementById('pdFavBtn').setAttribute('data-fav',pid);
+    discount(); favState();
+  }
+  const _o=openProductDetail;
+  openProductDetail=function(pid){ const r=_o.apply(this,arguments); try{ fill(pid); }catch(e){ console.error(e); } return r; };
+  document.getElementById('pdFavBtn').addEventListener('click',()=>setTimeout(favState,40));
+  new MutationObserver(discount).observe(document.getElementById('pdPrice'),{childList:true,characterData:true,subtree:true});
 })();
 
 
@@ -6671,7 +6823,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   if(State.user && State.user.docId) db.collection('abandonedCarts').doc(State.user.docId).delete().catch(()=>{});
   resetPromoUI();
   const okSub = paymentMethod==='installment' ? `Продавец свяжется с вами в чате, чтобы оформить рассрочку через ${installmentProvider}` : 'Продавец скоро с вами свяжется';
-  if(window.hzOrderAnim) await hzOrderAnim.success(okSub); else toast('Ваш заказ принят!', okSub, 'fa-circle-check');
+  if(window.hzOrderAnim) await hzOrderAnim.success(okSub, toast); else toast('Ваш заказ принят!', okSub, 'fa-circle-check');
   closeOv('ovCheckout');
 
   // SMS клиенту: спасибо за заказ + ссылки на Telegram/WhatsApp
@@ -6741,7 +6893,6 @@ function renderPdGalleryViewer(){
   if(!imgs.length){
     track.innerHTML = '<div class="pd-slide"><div class="empty-state"><i class="fa-solid fa-image"></i></div></div>';
     dots.innerHTML = '';
-    { const cn=$('#pdCount'); if(cn) cn.style.display='none'; }
     track.style.transform = 'translateX(0)';
     $('#pdGalleryPrev').style.display = 'none';
     $('#pdGalleryNext').style.display = 'none';
@@ -6756,7 +6907,6 @@ function renderPdGalleryViewer(){
     track.setAttribute('data-sig', sig);
   }
   dots.innerHTML = imgs.map((_,i)=>`<span class="${i===pdGalleryState.idx?'active':''}"></span>`).join('');
-  { const cn=$('#pdCount'); if(cn){ cn.textContent=(pdGalleryState.idx+1)+'/'+imgs.length; cn.style.display=imgs.length>1?'':'none'; } }
   track.style.transform = `translateX(-${pdGalleryState.idx*100}%)`;
   $('#pdGalleryPrev').style.display = imgs.length>1 ? 'flex' : 'none';
   $('#pdGalleryNext').style.display = imgs.length>1 ? 'flex' : 'none';
@@ -11795,10 +11945,11 @@ boot();
 })();
 </script>
 <script id="hzOrderScript">
-/* Анимация кнопки «Заказ»: коробка → товары → закрылась → грузовик → уехал → круглая зелёная галочка */
+/* Кнопка «Заказ»: линейная коробка → товары-огоньки → крышка → грузовик со скоростными линиями → круг с галочкой и частицами */
 (function(){
-  const STAGE=`<span class="oa-lbl">__ORIG__</span><span class="oa-stage"><span class="oa-box"><i class="oa-flap l"></i><i class="oa-flap r"></i><i class="oa-it i1"></i><i class="oa-it i2"></i><i class="oa-it i3"></i><i class="oa-body"><b class="oa-tape"></b></i></span><span class="oa-truck"><svg viewBox="0 0 60 34"><rect x="1" y="13" width="38" height="11" rx="2" fill="#fff"/><path d="M41 12h9.5c1.2 0 2.2.6 2.8 1.6L58 21.5V24H41z" fill="#fff"/><path d="M44 15h5.6l3.4 5.4H44z" fill="#B9AAFF"/><rect x="1" y="22" width="57" height="3" rx="1" fill="#D9D2FF"/><circle cx="11" cy="26" r="5.2" fill="#1D1450" stroke="#fff" stroke-width="1.6"/><circle cx="47" cy="26" r="5.2" fill="#1D1450" stroke="#fff" stroke-width="1.6"/><g class="oa-wh"><path d="M11 22.6v6.8M7.6 26h6.8" stroke="#fff" stroke-width="1.2"/></g><g class="oa-wh"><path d="M47 22.6v6.8M43.6 26h6.8" stroke="#fff" stroke-width="1.2"/></g></svg></span><svg class="oa-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2 8.8-9.4"/></svg></span>`;
+  const STAGE=`<span class="oa-lbl">__ORIG__</span><span class="oa-stage"><span class="oa-shine"></span><span class="oa-pulse"></span><span class="oa-box"><svg viewBox="0 0 32 32"><g class="oa-lid"><rect class="oa-lidp" pathLength="1" x="4" y="8" width="24" height="5" rx="1.6"/></g><path class="oa-body" pathLength="1" d="M6 13v12.2A2.8 2.8 0 0 0 8.8 28h14.4a2.8 2.8 0 0 0 2.8-2.8V13"/><path class="oa-tape" pathLength="1" d="M13 19h6"/></svg><i class="oa-it i1"></i><i class="oa-it i2"></i><i class="oa-it i3"></i></span><span class="oa-truck"><span class="oa-st"><i style="top:8px;width:40px"></i><i style="top:16px;width:26px"></i><i style="top:23px;width:34px"></i></span><svg viewBox="0 0 64 34"><rect x="2" y="4" width="34" height="19" rx="3.5" fill="rgba(255,255,255,.16)"/><path d="M36 9h10l7 8v6H36z" fill="rgba(255,255,255,.16)"/><path d="M40 12.4h5.4l3.4 4.1H40z" fill="rgba(255,255,255,.35)" stroke="none"/><circle cx="54" cy="19" r="1.4" fill="#fff" stroke="none"/><circle cx="13" cy="25" r="4" fill="#5A32E6"/><circle cx="44" cy="25" r="4" fill="#5A32E6"/><g class="oa-wh"><path d="M13 22.6v4.8M10.6 25h4.8" stroke-width="1.1"/></g><g class="oa-wh"><path d="M44 22.6v4.8M41.6 25h4.8" stroke-width="1.1"/></g></svg></span><svg class="oa-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4.2 4.2 8.8-9.4"/></svg></span>`;
   const ABORT={}, wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const EXPO='cubic-bezier(.16,1,.3,1)', INOUT='cubic-bezier(.65,0,.35,1)', SPRING='cubic-bezier(.34,1.56,.64,1)';
   let S=null;
   const E=window.hzOrderAnim={};
   function cleanup(s){
@@ -11813,44 +11964,65 @@ boot();
   async function run(s){
     const b=s.btn, q=x=>b.querySelector(x);
     const A=(el,kf,o)=>{ if(s.abort) throw ABORT; const a=el.animate(kf,Object.assign({fill:'forwards'},o)); s.anims.push(a); const p=a.finished; p.catch(()=>{}); return p; };
-    const box=q('.oa-box'), its=[...b.querySelectorAll('.oa-it')], fl=q('.oa-flap.l'), fr=q('.oa-flap.r'), tape=q('.oa-tape'), truck=q('.oa-truck'), lbl=q('.oa-lbl');
-    const TX=52, TY=7, LX=TX-9, DX=320;
-    A(lbl,[{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.7)'}],{duration:220});
-    await A(box,[{opacity:0,transform:'scale(.2)'},{opacity:1,transform:'scale(1.12)',offset:.7},{opacity:1,transform:'scale(1)'}],{duration:320,easing:'ease-out'});
-    const xs=[-7,0,7];
-    await Promise.all(its.map((it,i)=>A(it,[
-      {opacity:0,transform:`translate(${xs[i]}px,-44px) rotate(-20deg)`},
-      {opacity:1,transform:`translate(${xs[i]}px,-14px) rotate(0deg)`,offset:.35},
-      {opacity:1,transform:`translate(${xs[i]}px,9px)`,offset:.85},
-      {opacity:0,transform:`translate(${xs[i]}px,10px)`}],{duration:380,delay:i*170,easing:'cubic-bezier(.5,0,.8,.6)'})));
-    await A(box,[{transform:'scale(1,1)'},{transform:'scale(1.07,.9)'},{transform:'scale(1,1)'}],{duration:200});
-    fl.style.zIndex=fr.style.zIndex=3;
+    const lbl=q('.oa-lbl'), box=q('.oa-box'), lid=q('.oa-lid'), lidp=q('.oa-lidp'), body=q('.oa-body'), tape=q('.oa-tape'), its=[...b.querySelectorAll('.oa-it')],
+          truck=q('.oa-truck'), st=q('.oa-st'), shine=q('.oa-shine'), pulse=q('.oa-pulse');
+    const TX=46, TY=2, LX=TX-13, DX=330, OPEN='rotate(-26deg) translate(-1px,-3px)', SHUT='rotate(0deg) translate(0,0)';
+    const draw=(el,o)=>A(el,[{strokeDashoffset:1},{strokeDashoffset:0}],Object.assign({easing:INOUT},o));
+    // 1) блик по кнопке, надпись растворяется, коробка «рисуется»
+    A(shine,[{opacity:1,transform:'translateX(-110%)'},{opacity:1,transform:'translateX(110%)'}],{duration:700,easing:INOUT});
+    A(lbl,[{opacity:1,transform:'translateY(0)',filter:'blur(0px)'},{opacity:0,transform:'translateY(-8px)',filter:'blur(3px)'}],{duration:260,easing:'ease-in'});
+    A(box,[{opacity:0,transform:'scale(.7)'},{opacity:1,transform:'scale(1)'}],{duration:360,delay:140,easing:EXPO});
+    draw(lidp,{duration:360,delay:160});
+    await draw(body,{duration:440,delay:160});
+    // 2) товары-огоньки падают в открытую коробку
+    const xs=[-5,1,6];
+    const drops=its.map((it,i)=>A(it,[
+      {opacity:0,transform:`translate(${xs[i]}px,-30px) scale(.6)`},
+      {opacity:1,transform:`translate(${xs[i]}px,-6px) scale(1)`,offset:.55},
+      {opacity:0,transform:`translate(${xs[i]}px,8px) scale(.4)`}],{duration:460,delay:i*130,easing:'cubic-bezier(.4,0,.2,1)'}));
+    A(box,[{transform:'scale(1)'},{transform:'scale(1)',offset:.55},{transform:'scale(1.09)',offset:.78},{transform:'scale(1)'}],{duration:760});
+    await Promise.all(drops);
+    // 3) крышка закрывается пружиной, на коробке вспыхивает кольцо и рисуется лента
+    A(lid,[{transform:OPEN},{transform:'rotate(3deg) translate(0,.6px)',offset:.7},{transform:SHUT}],{duration:360,easing:SPRING});
+    A(pulse,[{opacity:.8,transform:'scale(.9)'},{opacity:0,transform:'scale(2.4)'}],{duration:620,delay:240,easing:EXPO});
+    await draw(tape,{duration:260,delay:200});
+    await wait(80);
+    // 4) грузовик влетает со скоростными линиями и мягко тормозит
+    A(st,[{opacity:0},{opacity:1,offset:.25},{opacity:0}],{duration:780});
+    await A(truck,[
+      {opacity:1,transform:`translate(-260px,${TY}px) skewX(-10deg)`,filter:'blur(1.2px)'},
+      {opacity:1,transform:`translate(${TX+3}px,${TY}px) skewX(0deg)`,filter:'blur(0px)',offset:.85},
+      {opacity:1,transform:`translate(${TX}px,${TY}px) skewX(0deg)`,filter:'blur(0px)'}],{duration:780,easing:EXPO});
+    // 5) коробка плавно «заезжает» в стеклянный кузов
+    await A(box,[
+      {transform:'translate(0px,0px) scale(1)'},
+      {transform:`translate(${LX*.5}px,-9px) scale(.85)`,offset:.5},
+      {transform:`translate(${LX}px,1px) scale(.6)`}],{duration:540,easing:INOUT});
     await Promise.all([
-      A(fl,[{transform:'rotate(-115deg)'},{transform:'rotate(0deg)'}],{duration:280,easing:'ease-in'}),
-      A(fr,[{transform:'rotate(115deg)'},{transform:'rotate(0deg)'}],{duration:280,easing:'ease-in'}),
-      A(tape,[{opacity:0},{opacity:1}],{duration:200,delay:180})]);
-    await A(box,[{transform:'translateY(0)'},{transform:'translateY(-5px)'},{transform:'translateY(0)'}],{duration:260});
-    // грузовик приезжает
-    await A(truck,[{opacity:1,transform:`translate(-230px,${TY}px)`},{opacity:1,transform:`translate(${TX+6}px,${TY}px)`,offset:.82},{opacity:1,transform:`translate(${TX}px,${TY}px)`}],{duration:700,easing:'cubic-bezier(.2,.7,.3,1)'});
-    // коробка прыгает в кузов
-    await A(box,[{transform:'translate(0px,0px) scale(1)'},{transform:`translate(${LX/2}px,-30px) scale(.92)`,offset:.5},{transform:`translate(${LX}px,1px) scale(.8)`}],{duration:520,easing:'ease-in-out'});
+      A(truck,[{transform:`translate(${TX}px,${TY}px)`},{transform:`translate(${TX}px,${TY+2.5}px)`},{transform:`translate(${TX}px,${TY}px)`}],{duration:240}),
+      A(box,[{transform:`translate(${LX}px,1px) scale(.6)`},{transform:`translate(${LX}px,3.5px) scale(.6)`},{transform:`translate(${LX}px,1px) scale(.6)`}],{duration:240})]);
+    // 6) грузовик стартует и уносится за край кнопки
+    A(st,[{opacity:0},{opacity:1,offset:.3},{opacity:0}],{duration:660});
     await Promise.all([
-      A(truck,[{transform:`translate(${TX}px,${TY}px)`},{transform:`translate(${TX}px,${TY+2.5}px)`},{transform:`translate(${TX}px,${TY}px)`}],{duration:220}),
-      A(box,[{transform:`translate(${LX}px,1px) scale(.8)`},{transform:`translate(${LX}px,3.5px) scale(.8)`},{transform:`translate(${LX}px,1px) scale(.8)`}],{duration:220})]);
-    // грузовик уезжает
-    await Promise.all([
-      A(truck,[{transform:`translate(${TX}px,${TY}px)`},{transform:`translate(${TX-6}px,${TY}px)`,offset:.18},{transform:`translate(${TX+DX}px,${TY}px)`}],{duration:720,easing:'cubic-bezier(.5,0,.9,.5)'}),
-      A(box,[{transform:`translate(${LX}px,1px) scale(.8)`},{transform:`translate(${LX-6}px,1px) scale(.8)`,offset:.18},{transform:`translate(${LX+DX}px,1px) scale(.8)`}],{duration:720,easing:'cubic-bezier(.5,0,.9,.5)'})]);
+      A(truck,[
+        {transform:`translate(${TX}px,${TY}px) skewX(0deg)`,filter:'blur(0px)'},
+        {transform:`translate(${TX-7}px,${TY}px) skewX(4deg)`,offset:.2},
+        {transform:`translate(${TX+DX}px,${TY}px) skewX(-12deg)`,filter:'blur(1.5px)'}],{duration:660,easing:'cubic-bezier(.7,0,.9,.6)'}),
+      A(box,[
+        {transform:`translate(${LX}px,1px) scale(.6) skewX(0deg)`},
+        {transform:`translate(${LX-7}px,1px) scale(.6) skewX(4deg)`,offset:.2},
+        {transform:`translate(${LX+DX}px,1px) scale(.6) skewX(-12deg)`}],{duration:660,easing:'cubic-bezier(.7,0,.9,.6)'})]);
   }
   E.start=function(){
     const btn=document.getElementById('coSubmitBtn');
-    if(!btn || S) return;
+    if(!btn) return;
+    if(S) cleanup(S);                                  // остатки прошлой анимации
     const s=S={btn,orig:btn.innerHTML,anims:[],abort:false};
     window.hzOrderBusy=true;
     btn.style.width=btn.offsetWidth+'px'; btn.style.height=btn.offsetHeight+'px'; btn.style.margin='0 auto';
     btn.classList.add('oa-run');
     btn.innerHTML=STAGE.replace('__ORIG__',s.orig);
-    s.guard=setTimeout(()=>E.fail(),20000);          // страховка, если что-то пошло не так
+    s.guard=setTimeout(()=>E.fail(),20000);          // страховка
     s.tl=run(s).catch(e=>{ if(e!==ABORT) console.warn(e); });
   };
   E.fail=function(){
@@ -11858,21 +12030,42 @@ boot();
     s.abort=true; s.anims.forEach(a=>{ try{a.cancel();}catch(e){} });
     cleanup(s);
   };
-  E.success=async function(sub){
-    const s=S;
-    if(!s){ toast('Ваш заказ принят!',sub,'fa-circle-check'); return; }
-    await s.tl; if(s.abort) return;
-    clearTimeout(s.guard);
-    const b=s.btn, chk=b.querySelector('.oa-check');
-    b.classList.add('oa-ok');                         // кнопка сжимается в круг и зеленеет
-    b.style.width=b.offsetHeight+'px';
-    await wait(380);
-    chk.animate([{opacity:1,transform:'scale(.4)'},{opacity:1,transform:'scale(1.15)',offset:.6},{opacity:1,transform:'scale(1)'}],{duration:380,fill:'forwards',easing:'ease-out'});
-    chk.firstElementChild.animate([{strokeDashoffset:24},{strokeDashoffset:0}],{duration:360,fill:'forwards',delay:80,easing:'ease-out'});
-    toast('Ваш заказ принят!',sub,'fa-circle-check');
-    await wait(1300);
-    setTimeout(()=>cleanup(s),700);                   // вернуть кнопку, когда окно уже закрылось
+  E.success=async function(sub,toastFn){
+    const s=S, T=toastFn||window.toast||function(){};
+    if(!s){ try{ T('Ваш заказ принят!',sub,'fa-circle-check'); }catch(e){} return; }
+    try{
+      await s.tl; if(s.abort) return;
+      clearTimeout(s.guard);
+      const b=s.btn, st=b.querySelector('.oa-stage'), chk=b.querySelector('.oa-check'), H=b.offsetHeight;
+      b.classList.add('oa-ok');                        // кнопка пружинно сжимается в круг и становится зелёной
+      b.style.width=H+'px';
+      await wait(320);
+      try{
+        // волны от круга
+        [0,150].forEach(d=>{
+          const r=document.createElement('span'); r.className='oa-rip';
+          r.style.cssText=`width:${H}px;height:${H}px;margin:${-H/2}px 0 0 ${-H/2}px`;
+          st.appendChild(r);
+          r.animate([{opacity:.8,transform:'scale(1)'},{opacity:0,transform:'scale(2.3)'}],{duration:760,delay:d,easing:EXPO,fill:'forwards'});
+        });
+        // искры
+        const cols=['#fff','#B8FFE0','#7DF3B8','#fff'];
+        for(let i=0;i<14;i++){
+          const pt=document.createElement('span'); pt.className='oa-pt';
+          pt.style.background=cols[i%4]; pt.style.boxShadow='0 0 6px '+cols[i%4];
+          st.appendChild(pt);
+          const ang=(i/14)*Math.PI*2+Math.random()*.4, d=H*.62+Math.random()*H*.5;
+          pt.animate([{opacity:1,transform:'translate(0,0) scale(1)'},{opacity:1,transform:`translate(${Math.cos(ang)*d*.7}px,${Math.sin(ang)*d*.7}px) scale(1)`,offset:.5},{opacity:0,transform:`translate(${Math.cos(ang)*d}px,${Math.sin(ang)*d}px) scale(.2)`}],{duration:720+Math.random()*200,easing:EXPO,fill:'forwards'});
+        }
+        chk.animate([{opacity:1,transform:'scale(.3)'},{opacity:1,transform:'scale(1.2)',offset:.6},{opacity:1,transform:'scale(1)'}],{duration:420,fill:'forwards',easing:SPRING});
+        chk.firstElementChild.animate([{strokeDashoffset:24},{strokeDashoffset:0}],{duration:380,fill:'forwards',delay:60,easing:EXPO});
+      }catch(e){ chk.style.opacity=1; chk.firstElementChild.style.strokeDashoffset=0; }
+      try{ T('Ваш заказ принят!',sub,'fa-circle-check'); }catch(e){ console.warn(e); }
+      await wait(1300);
+    }catch(e){ console.warn(e); }
+    finally{ setTimeout(()=>cleanup(s),700); }        // кнопка ВСЕГДА возвращается к обычному виду
   };
+  const SPRING_=SPRING; // для читаемости выше
 })();
 </script>
 <script id="hzDelScript">
@@ -11962,50 +12155,5 @@ boot();
   };
 })();
 </script>
-<script id="hzPdScript">
-/* Страница товара: характеристики-плашки, подзаголовок, скидка, избранное в шапке */
-(function(){
-  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const ICONS=[[/ядр|core|thread|потоk/i,'fa-microchip'],[/гц|ghz|mhz|частот|скорост|speed/i,'fa-gauge-high'],[/сокет|socket|питан|мощн|вт\b|watt|tdp/i,'fa-bolt'],[/памят|ram|gb|гб|ssd|hdd/i,'fa-memory'],[/экран|дисплей|display|inch|дюйм/i,'fa-display'],[/камер|мп|mp\b/i,'fa-camera'],[/батаре|акб|mah|мач/i,'fa-battery-full']];
-  const FALL=['fa-microchip','fa-gauge-high','fa-bolt'];
-  const iconFor=(c,i)=>{ const s=(c.key||'')+' '+(c.value||''); for(const [re,ic] of ICONS) if(re.test(s)) return ic; return FALL[i%3]; };
-  function discount(){
-    const el=document.getElementById('pdDisc'); if(!el) return;
-    const p=State.products.find(x=>x.id===State.activeProductId);
-    if(!p||!p.oldPrice){ el.textContent=''; return; }
-    const cur=getVariantPrice(p,(typeof variantState!=='undefined'&&variantState&&variantState.pid===p.id)?variantState.size:((p.sizes&&p.sizes[0])||null));
-    const pc=Math.round((1-cur/p.oldPrice)*100);
-    el.textContent=pc>0?('-'+pc+'%'):'';
-  }
-  function favState(){
-    const b=document.getElementById('pdFavBtn'); if(!b) return;
-    const on=!!(State.user&&(State.user.favorites||[]).includes(State.activeProductId));
-    b.classList.toggle('on',on);
-    b.innerHTML='<i class="fa-'+(on?'solid':'regular')+' fa-heart"></i>';
-  }
-  function fill(pid){
-    const p=State.products.find(x=>x.id===pid); if(!p) return;
-    // подзаголовок = короткая первая фраза описания
-    const first=(p.subtitle||(p.desc||'').split(/[.!?\n]/)[0]||'').trim();
-    document.getElementById('pdSubtitle').textContent=first.length>90?first.slice(0,87)+'…':first;
-    // три плашки из характеристик
-    const ch=(p.characteristics||[]).filter(c=>c&&c.key&&c.value).slice(0,3);
-    const sp=document.getElementById('pdSpecs');
-    sp.style.gridTemplateColumns='repeat('+Math.max(ch.length,1)+',1fr)';
-    sp.innerHTML=ch.map((c,i)=>'<div class="pd-spec"><span class="pd-spec-ico"><i class="fa-solid '+iconFor(c,i)+'"></i></span><span class="pd-spec-t"><b>'+esc(c.value)+'</b><small>'+esc(c.key)+'</small></span></div>').join('');
-    // карточка «О товаре»
-    document.getElementById('pdAboutTitle').textContent=p.name||'';
-    document.getElementById('pdAboutIcon').className='fa-solid '+(/intel|amd|ryzen|core|процессор|cpu|gpu|видеокарт|rtx|gtx|материнск|оператив|ssd|hdd/i.test(p.name||'')?'fa-microchip':'fa-box-open');
-    // отзывы
-    document.getElementById('pdRvAvg').textContent=(p.rating||5).toFixed(1);
-    document.getElementById('pdReviewsToggle').setAttribute('data-cnt',p.ratingCount||0);
-    document.getElementById('pdFavBtn').setAttribute('data-fav',pid);
-    discount(); favState();
-  }
-  const _o=openProductDetail;
-  openProductDetail=function(pid){ const r=_o.apply(this,arguments); try{ fill(pid); }catch(e){ console.error(e); } return r; };
-  document.getElementById('pdFavBtn').addEventListener('click',()=>setTimeout(favState,40));
-  new MutationObserver(discount).observe(document.getElementById('pdPrice'),{childList:true,characterData:true,subtree:true});
-})();
-</script>
+
 </body></html>
