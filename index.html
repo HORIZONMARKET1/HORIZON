@@ -1786,6 +1786,35 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
 .mcard-qty{position:absolute; top:-5px; right:-5px; min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:#FF3D71; color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; box-sizing:border-box;}
 /* Убрана только «пружинка» (сжатие карточки при нажатии) */
 .card:active, .mcard:active{transform:none !important;}
+/* ===== Одинаковые карточки: всё стоит на одних и тех же местах ===== */
+.card-body{display:flex; flex-direction:column;}
+.card-name{display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; min-height:39px; max-height:39px;}
+.card-sub{min-height:32px; max-height:32px; overflow:hidden;}
+.card-bottom{margin-top:auto; display:flex; flex-direction:column; gap:3px;}
+.card-bottom .card-prices{min-height:46px; align-content:flex-start; margin-top:6px;}
+.card-bottom .card-low{min-height:16px; margin-top:0;}
+.card-bottom .card-footer{margin-top:0; padding-top:4px;}
+.card-bottom .card-footer .cart-add-btn, .card-bottom .card-footer .qty-stepper{height:42px;}
+.mcard-name{max-height:29px;}
+.mcard-sub{min-height:12px;}
+/* поиск и каталог внутри магазина продавца */
+.ss-tools{margin:14px 12px 0;}
+.ss-search{position:relative; display:flex; align-items:center; height:46px; border-radius:16px; background:var(--ss-card); border:1px solid var(--ss-line); box-shadow:0 6px 18px var(--ss-glow);}
+.ss-search > i{position:absolute; left:15px; font-size:15px; color:var(--ss-d); pointer-events:none;}
+.ss-search input{flex:1; min-width:0; height:100%; border:0; outline:0; background:transparent; color:var(--ss-t); font-family:inherit; font-size:15px; padding:0 40px 0 42px; border-radius:16px; -webkit-appearance:none; appearance:none;}
+.ss-search input::placeholder{color:var(--ss-d);}
+.ss-search input::-webkit-search-cancel-button{display:none;}
+.ss-search button{position:absolute; right:6px; width:34px; height:34px; border-radius:50%; align-items:center; justify-content:center; background:transparent; color:var(--ss-d); font-size:14px;}
+.ss-cats{display:flex; gap:8px; overflow-x:auto; padding:10px 0 2px; scrollbar-width:none;}
+.ss-cats::-webkit-scrollbar{display:none;}
+.ss-cat{flex-shrink:0; height:34px; padding:0 15px; border-radius:17px; font-size:13px; font-weight:600; font-family:inherit; color:var(--ss-t); background:var(--ss-chip); border:1px solid var(--ss-line); white-space:nowrap;}
+.ss-cat.active{color:#fff; background:linear-gradient(135deg,#8B5CFF,#4B30F0); border-color:transparent; box-shadow:0 6px 14px rgba(94,60,255,.4);}
+/* подписка */
+.ss-follow{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;}
+.ss-fcount{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ss-d); min-width:0;}
+.ss-fcount i{font-size:14px;} .ss-fcount b{color:var(--ss-t); font-size:15px;}
+.ss-fbtn{flex-shrink:0; height:38px; padding:0 18px; border-radius:19px; font-family:inherit; font-size:13.5px; font-weight:700; color:#fff; background:linear-gradient(135deg,#8B5CFF,#4B30F0); box-shadow:0 6px 16px rgba(94,60,255,.45); display:flex; align-items:center; gap:7px; border:1px solid transparent;}
+.ss-fbtn.on{background:var(--ss-chip); color:var(--ss-t); border-color:var(--ss-line); box-shadow:none;}
 </style>
 
 
@@ -2070,22 +2099,22 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
   <div class="sheet vf-card" id="vfCard">
     <button class="vf-x" data-close="ovRegVerify" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
     <div class="vf-handle"></div>
-    <div class="vf-lock"><span class="vf-lock-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g class="vf-shk"><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g><rect x="5" y="11" width="14" height="9.5" rx="2.6"/></svg></span></div>
+    <div class="vf-lock"><span class="vf-lock-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g class="vf-shk"><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></g><rect x="5" y="11" width="14" height="9.5" rx="2.6"></rect></svg></span></div>
     <h2 class="vf-title" id="vfTitle">Подтвердите номер</h2>
     <p class="vf-sub" id="vfSub">Мы отправили код в Telegram.<br>Подтверждение произойдёт сразу после ввода.</p>
-    <div class="vf-boxes" id="vfBoxes"><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div>
+    <div class="vf-boxes" id="vfBoxes"><div class="vf-box on"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div>
       <input id="regVerifyCodeInput" class="vf-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Код из Telegram">
     </div>
-    <div class="vf-bar"><i id="vfBarFill"></i></div>
+    <div class="vf-bar"><i id="vfBarFill" style="width: 0%;"></i></div>
     <div class="vf-done">
       <div class="vf-ring"><span class="vf-spin"></span>
-        <svg class="vf-chk" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="29"/><path d="M20 33l8 8 16-17"/></svg></div>
+        <svg class="vf-chk" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="29"></circle><path d="M20 33l8 8 16-17"></path></svg></div>
       <div class="vf-secure"><i class="fa-solid fa-lock"></i> Подтверждено и защищено</div>
     </div>
     <p id="regVerifyStatus" class="vf-status"></p>
     <button class="vf-tg" id="regVerifyOpenBotBtn"><i class="fa-brands fa-telegram"></i> Открыть Telegram и получить код</button>
     <div class="vf-resend">Не получили код? <button id="regVerifyResendBtn" class="vf-rbtn" disabled="">Отправить снова</button> <span id="regVerifyTimer"></span></div>
-    <button id="regVerifyConfirmBtn" disabled="" hidden>Подтвердить</button>
+    <button id="regVerifyConfirmBtn" disabled="" hidden="">Подтвердить</button>
     <div class="vf-foot"><i class="fa-solid fa-shield-halved"></i> Защищено сквозным шифрованием</div>
   </div>
 </div>
@@ -2373,9 +2402,7 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
       <button class="btn btn-primary" id="pushEnableBtn" style="width:auto;padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
     </div>
     <button id="pushDiagBtn" style="display:none;align-items:center;gap:6px;justify-content:center;width:100%;padding:8px;margin-bottom:12px;border-radius:10px;background:none;border:1.5px dashed var(--border);color:var(--text-dim);font-size:11.5px;"><i class="fa-solid fa-stethoscope"></i> Диагностика push</button>
-    <button class="btn btn-outline notif-clear-btn" id="notifClearAllBtn" style="display:none;margin-bottom:12px;">
-      <i class="fa-solid fa-trash-can"></i> Очистить все уведомления
-    </button>
+    <button class="btn btn-outline notif-clear-btn hz-del" id="notifClearAllBtn" style="display:none;margin-bottom:12px;"><span class="hz-del-ico"><svg viewBox="0 0 24 24"><g class="hz-lid"><path d="M4 7h16"></path><path d="M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7"></path></g><path d="M6 7l.9 12.2c.1 1 .9 1.8 1.9 1.8h6.4c1 0 1.8-.8 1.9-1.8L18 7"></path><path d="M10 11v6M14 11v6"></path></svg></span><span class="hz-del-t">Очистить все уведомления</span></button>
     <div id="notifListBody"></div>
   </div>
 </div>
@@ -2459,6 +2486,12 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Редактировать профиль <button class="close-x" data-close="ovEditProfile"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="editCoverWrap" style="display:none;margin-bottom:14px;">
+      <label class="field-label" style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;">Фото обложки профиля</label>
+      <label for="editCoverInput" id="editCoverBox" style="position:relative;display:flex;align-items:center;justify-content:center;gap:8px;height:120px;border-radius:16px;border:1.5px dashed var(--border);background:var(--surface-2) center/cover no-repeat;color:var(--text-dim);font-size:14px;font-weight:600;cursor:pointer;overflow:hidden;"><span id="editCoverHint"><i class="fa-solid fa-image"></i> Выбрать обложку</span></label>
+      <input type="file" accept="image/*" id="editCoverInput" class="hidden">
+      <button type="button" id="editCoverClear" style="display:none;margin-top:6px;font-size:12.5px;color:var(--danger,#e5484d);background:none;border:0;padding:0;">Убрать обложку</button>
+    </div>
     <label class="photo-upload" for="editPhotoInput"><i class="fa-solid fa-camera"></i><img id="editPhotoPreview" style="display:none;"></label>
     <input type="file" accept="image/*" id="editPhotoInput" class="hidden">
     <div class="field"><label>ФИО</label><input id="editFio"></div>
@@ -2474,7 +2507,7 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
     <div class="sheet-handle"></div>
     <div class="sheet-title">История заказов <button class="close-x" data-close="ovOrders"><i class="fa-solid fa-xmark"></i></button></div>
     <button class="btn btn-outline" id="ordersExportBtn" style="display:none;margin-bottom:10px;"><i class="fa-solid fa-file-export"></i> Экспорт в CSV</button>
-    <button class="btn btn-outline" id="ordersClearAllBtn" style="display:none;color:var(--danger);border-color:var(--danger);margin-bottom:12px;"><i class="fa-solid fa-trash-can"></i> Очистить историю заказов</button>
+    <button class="btn btn-outline hz-del" id="ordersClearAllBtn" style="display:none;color:var(--danger);border-color:var(--danger);margin-bottom:12px;"><span class="hz-del-ico"><svg viewBox="0 0 24 24"><g class="hz-lid"><path d="M4 7h16"></path><path d="M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7"></path></g><path d="M6 7l.9 12.2c.1 1 .9 1.8 1.9 1.8h6.4c1 0 1.8-.8 1.9-1.8L18 7"></path><path d="M10 11v6M14 11v6"></path></svg></span><span class="hz-del-t">Очистить историю заказов</span></button>
     <div id="ordersBody"></div>
   </div>
 </div>
@@ -5327,7 +5360,7 @@ function cardHtml(p){
   const feats = (p.characteristics||[]).filter(c=>c&&c.key&&c.value).slice(0,3);
   const featsHtml = feats.length ? `<div class="card-feats">${feats.map((c,i)=>`<div class="card-feat"><span class="card-feat-ico"><i class="fa-solid ${window.hzSpecIcon?hzSpecIcon(c,i):'fa-circle'}"></i></span><span class="card-feat-t"><b>${c.value}</b><small>${c.key}</small></span></div>`).join('')}</div>` : '';
   const lowStockHtml = (p.inStock!==false && p.stockQty!=null && p.stockQty<=5)
-    ? `<div class="card-low"><i class="fa-solid fa-fire-flame-curved"></i> Осталось ${p.stockQty} шт.</div>` : '';
+    ? `<i class="fa-solid fa-fire-flame-curved"></i> Осталось ${p.stockQty} шт.` : '';
   return `<div class="card" data-id="${p.id}">
     <div class="card-img" data-openpd="${p.id}" data-idx="0">
       <div class="card-img-clip">${mediaHtml}</div>
@@ -5341,15 +5374,13 @@ function cardHtml(p){
     <div class="card-body">
       <div class="card-seller">${sellerName}</div>
       <div class="card-name" data-openpd="${p.id}">${p.name}</div>
-      ${subtitle?`<div class="card-sub">${subtitle}</div>`:''}
-      <div class="card-meta">
-        <div class="card-rating"><i class="fa-solid fa-star"></i> ${(p.rating||5).toFixed(1)} <span>(${p.ratingCount||0})</span></div>
-        ${p.original!==false?'<span class="card-orig"><i class="fa-solid fa-shield-halved"></i> Оригинал</span>':''}
-      </div>
-      <div class="card-prices"><span class="card-price">${priceVariesBySize(p)?'от ':''}${fmt(getMinPrice(p))}</span>${p.oldPrice?`<span class="card-oldprice">${fmt(p.oldPrice)}</span>`:''}</div>
-      ${hzDeliveryHtml()}
-      ${lowStockHtml}
+      <div class="card-sub">${subtitle||'&nbsp;'}</div>
+      <div class="card-bottom">
+        <div class="card-prices"><span class="card-price">${priceVariesBySize(p)?'от ':''}${fmt(getMinPrice(p))}</span>${p.oldPrice?`<span class="card-oldprice">${fmt(p.oldPrice)}</span>`:''}</div>
+        ${hzDeliveryHtml()}
+        <div class="card-low">${lowStockHtml}</div>
       <div class="card-footer">${cardFooterInnerHtml(p)}</div>
+      </div>
     </div>
   </div>`;
 }
@@ -5357,12 +5388,17 @@ function cardHtml(p){
    добавлении в корзину обновлять только футер, а не перерисовывать всю сетку товаров. */
 function cardFooterInnerHtml(p){
   const hasVariants = (p.sizes&&p.sizes.length) || (p.colors&&p.colors.length);
-  const inCart = !hasVariants ? State.cart.find(c=>c.productId===p.id && !c.wholesale) : null;
+  // последняя добавленная позиция этого товара (для товаров с вариантами +/- меняет именно её)
+  const lines = State.cart.filter(c=>c.productId===p.id && !c.wholesale);
+  const inCart = lines.length ? lines[lines.length-1] : null;
   const isNotifySub = State.user && (State.user.stockNotify||[]).includes(p.id);
-  return p.inStock===false ? `<div style="display:flex;gap:6px;align-items:center;"><span class="out-of-stock-tag">Нет в наличии</span><button class="mini-icon-btn ${isNotifySub?'active':''}" data-notifystock="${p.id}" title="${isNotifySub?'Отменить уведомление':'Уведомить о поступлении'}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i></button></div>`
-    : (hasVariants ? `<button class="cart-add-btn" data-openvariant="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`
-    : (inCart ? `<div class="qty-stepper"><button data-qty="-1" data-id="${p.id}">-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${p.id}">+</button></div>`
-              : `<button class="cart-add-btn" data-addcart="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`));
+  if(p.inStock===false) return `<div style="display:flex;gap:6px;align-items:center;"><span class="out-of-stock-tag">Нет в наличии</span><button class="mini-icon-btn ${isNotifySub?'active':''}" data-notifystock="${p.id}" title="${isNotifySub?'Отменить уведомление':'Уведомить о поступлении'}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i></button></div>`;
+  if(inCart){
+    const va = `data-id="${p.id}" data-size="${hzEsc(inCart.size||'')}" data-color="${hzEsc(inCart.color||'')}"`;
+    return `<div class="qty-stepper"><button type="button" data-qty="-1" ${va} aria-label="Уменьшить">−</button><span>${inCart.qty}</span><button type="button" data-qty="1" ${va} aria-label="Увеличить">+</button></div>`;
+  }
+  return hasVariants ? `<button class="cart-add-btn" data-openvariant="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`
+                     : `<button class="cart-add-btn" data-addcart="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`;
 }
 function updateCardFooters(pid){
   const p = State.products.find(pp=>pp.id===pid);
@@ -7315,9 +7351,30 @@ function miniCardHtml(p, hit){
       <button class="mcard-fav ${isFav?'active':''}" data-fav="${p.id}" aria-label="В избранное"><i class="fa-${isFav?'solid':'regular'} fa-heart"></i></button>
     </div>
     <div class="mcard-name" data-openpd="${p.id}">${hzEsc(p.name)}</div>
-    ${sub ? `<div class="mcard-sub">${hzEsc(sub)}</div>` : ''}
+    <div class="mcard-sub">${sub ? hzEsc(sub) : '&nbsp;'}</div>
     <div class="mcard-foot"><div class="mcard-price">${price}</div>${miniCartBtnHtml(p)}</div>
   </div>`;
+}
+function toggleFollowShop(sellerId){
+  if(!State.user || !State.user.docId){ openOv('ovAuthChoice'); return; }
+  if(State.user.docId===sellerId) return;
+  const set = new Set(State.user.following||[]);
+  const adding = !set.has(sellerId);
+  adding ? set.add(sellerId) : set.delete(sellerId);
+  State.user.following = Array.from(set);
+  saveLocalUser(State.user);
+  db.collection('users').doc(State.user.docId).update({following: State.user.following}).catch(()=>{});
+  const delta = adding ? 1 : -1;
+  const inc = firebase.firestore.FieldValue.increment(delta);
+  if(sellerId==='admin'){
+    State.settings.followersCount = Math.max(0, (Number(State.settings.followersCount)||0) + delta);
+    db.collection('settings').doc('main').set({followersCount: inc}, {merge:true}).catch(()=>{});
+  } else {
+    const sc = (State.sellersCache||{})[sellerId];
+    if(sc) sc.followersCount = Math.max(0, (Number(sc.followersCount)||0) + delta);
+    db.collection('users').doc(sellerId).update({followersCount: inc}).catch(()=>{});
+  }
+  toast(adding ? 'Вы подписались на магазин' : 'Подписка отменена', '', adding ? 'fa-user-check' : 'fa-user-minus');
 }
 function openSellerShop(sellerId){
   if(!sellerId) return;
@@ -7340,7 +7397,7 @@ function openSellerShop(sellerId){
   const banner = (seller && (seller.banner || seller.cover)) || (isAdminShop && (S.shopBanner || about.banner)) || '';
   const ratingTxt = (!isAdminShop && seller && seller.sellerRatingCount) ? ` · <i class="fa-solid fa-star" style="color:#FFB020;"></i> ${(seller.sellerRating||5).toFixed(1)} (${seller.sellerRatingCount})` : '';
   const avatar = isAdminShop
-    ? `<div><i class="fa-solid fa-diamond"></i></div>`
+    ? (S.shopLogo ? `<img src="${S.shopLogo}" alt="">` : `<div><i class="fa-solid fa-diamond"></i></div>`)
     : (seller && seller.photo ? `<img src="${seller.photo}" alt="">` : `<div>${hzEsc((sellerName||'S')[0])}</div>`);
   // соцсети: сначала свои у продавца, иначе общие настройки магазина
   const soc = Object.assign({}, S.social||{}, isAdminShop ? {} : Object.fromEntries(['telegram','instagram','whatsapp'].filter(k=>seller && (seller[k] || (seller.social&&seller.social[k]))).map(k=>[k, seller[k] || seller.social[k]])));
@@ -7351,6 +7408,8 @@ function openSellerShop(sellerId){
     wa ? `<a class="ss-soc wa" href="${wa}" target="_blank" rel="noopener"><span class="ss-soc-ico"><i class="fa-brands fa-whatsapp"></i></span><span class="ss-soc-t"><b>WhatsApp</b><small>Написать нам</small></span></a>` : ''
   ].filter(Boolean);
   const canRate = !isAdminShop && State.user && State.user.role==='client';
+  const shopCatIds = Array.from(new Set(sellerProducts.map(p=>p.catalogId).filter(Boolean)));
+  const shopCats = shopCatIds.map(id=>(State.catalogs||[]).find(c=>c.id===id)).filter(Boolean);
   const popular = sellerProducts.length>3 ? sellerProducts.slice().sort((a,b)=>(Number(b.viewCount)||0)-(Number(a.viewCount)||0)).slice(0,3) : [];
   const bannerStyle = banner ? ` style="background-image:url('${String(banner).replace(/'/g,'%27')}')"` : '';
   $('#sellerShopPage').innerHTML = `
@@ -7372,6 +7431,10 @@ function openSellerShop(sellerId){
           <div class="ss-sub">${hzEsc(subtitle)}${ratingTxt}</div>
         </div>
       </div>
+      <div class="ss-follow">
+        <div class="ss-fcount"><i class="fa-solid fa-user-group"></i><span id="ssFollowTxt"></span></div>
+        <button type="button" class="ss-fbtn" id="ssFollowBtn" style="${(State.user && State.user.docId===sellerId)?'display:none;':''}"></button>
+      </div>
       <div class="ss-chips">
         <div class="ss-chip"><i class="fa-solid fa-shop"></i><div><small>Директор магазина</small><b>${hzEsc(director)}</b></div></div>
         <div class="ss-chip"><i class="fa-solid fa-shop"></i><div><small>Номер магазина</small><b>#${hzEsc(shopNo)}</b></div></div>
@@ -7386,12 +7449,16 @@ function openSellerShop(sellerId){
         <div class="ss-feat"><i class="fa-solid fa-headset"></i><span>Поддержка 24/7</span></div>
       </div>
     </div>
-    ${popular.length ? `<div class="ss-sec">
+    <div class="ss-tools">
+      <div class="ss-search"><i class="fa-solid fa-magnifying-glass"></i><input id="ssSearch" type="search" placeholder="Поиск по магазину" autocomplete="off" enterkeyhint="search"><button type="button" id="ssSearchClear" aria-label="Очистить" style="display:none;"><i class="fa-solid fa-xmark"></i></button></div>
+      ${shopCats.length>1 ? `<div class="ss-cats" id="ssCats"><button type="button" class="ss-cat active" data-cat="">Все</button>${shopCats.map(c=>`<button type="button" class="ss-cat" data-cat="${hzEsc(c.id)}">${hzEsc(c.name)}</button>`).join('')}</div>` : ''}
+    </div>
+    ${popular.length ? `<div class="ss-sec" id="ssPopSec">
       <div class="ss-sec-h"><h3>Популярные товары</h3><a href="#" id="ssSeeAll">Смотреть все <i class="fa-solid fa-arrow-right"></i></a></div>
       <div class="ss-grid" id="sellerShopPopular">${popular.map(p=>miniCardHtml(p,true)).join('')}</div>
     </div>` : ''}
     <div class="ss-sec" id="ssAllSec">
-      <div class="ss-sec-h"><h3>Все товары</h3><span class="ss-count">${sellerProducts.length}</span></div>
+      <div class="ss-sec-h"><h3 id="ssAllTitle">Все товары</h3><span class="ss-count" id="ssCount">${sellerProducts.length}</span></div>
       <div class="ss-grid" id="sellerShopGrid"></div>
     </div>`;
   $('#ssShareBtn').addEventListener('click', ()=>{
@@ -7401,16 +7468,51 @@ function openSellerShop(sellerId){
   });
   const seeAll = $('#ssSeeAll');
   if(seeAll) seeAll.addEventListener('click', (e)=>{ e.preventDefault(); const t=$('#ssAllSec'); if(t) t.scrollIntoView({behavior:'smooth', block:'start'}); });
+  // подписка на магазин + счётчик подписчиков
+  const followersOf = ()=> Math.max(0, Number(isAdminShop ? (State.settings||{}).followersCount : ((State.sellersCache||{})[sellerId]||{}).followersCount) || 0);
+  const paintFollow = ()=>{
+    const n = followersOf(), on = !!(State.user && (State.user.following||[]).includes(sellerId));
+    const m10 = n%10, m100 = n%100;
+    const word = (m10===1 && m100!==11) ? 'подписчик' : ((m10>=2 && m10<=4 && (m100<12 || m100>14)) ? 'подписчика' : 'подписчиков');
+    $('#ssFollowTxt').innerHTML = `<b>${n.toLocaleString('ru-RU')}</b> ${word}`;
+    const fb = $('#ssFollowBtn'); fb.classList.toggle('on', on);
+    fb.innerHTML = on ? '<i class="fa-solid fa-check"></i> Вы подписаны' : '<i class="fa-solid fa-plus"></i> Подписаться';
+  };
+  paintFollow();
+  $('#ssFollowBtn').addEventListener('click', ()=>{ toggleFollowShop(sellerId); paintFollow(); });
   // Все товары — порциями по мере прокрутки (иначе на телефоне не хватает памяти: белый экран и перезагрузка)
   const shopGrid = $('#sellerShopGrid');
-  try{ const prev = gridProgState.get(shopGrid); if(prev && prev.io) prev.io.disconnect(); gridProgState.delete(shopGrid); }catch(e){}
+  let shopQ = '', shopCat = '';
+  const drawShop = ()=>{
+    try{ const prev = gridProgState.get(shopGrid); if(prev && prev.io) prev.io.disconnect(); gridProgState.delete(shopGrid); }catch(e){}
+    const ql = shopQ.trim().toLowerCase();
+    let list = sellerProducts;
+    if(shopCat) list = list.filter(p=>p.catalogId===shopCat);
+    if(ql) list = list.filter(p=>(p.name||'').toLowerCase().includes(ql) || (p.articul||'').toLowerCase().includes(ql) || (p.brand||'').toLowerCase().includes(ql));
+    const filtering = !!(ql || shopCat);
+    const pop = $('#ssPopSec'); if(pop) pop.style.display = filtering ? 'none' : '';
+    $('#ssAllTitle').textContent = filtering ? 'Найдено' : 'Все товары';
+    $('#ssCount').textContent = list.length;
+    if(list.length){ renderGridProgressive(shopGrid, list, p=>miniCardHtml(p,false)); }
+    else { shopGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>'+(filtering?'Ничего не найдено':'У продавца пока нет товаров')+'</div></div>'; }
+  };
+  let shopTimer = null;
+  const si = $('#ssSearch'), sc = $('#ssSearchClear');
+  si.addEventListener('input', ()=>{
+    shopQ = si.value; sc.style.display = shopQ ? 'flex' : 'none';
+    clearTimeout(shopTimer); shopTimer = setTimeout(drawShop, 200);
+  });
+  sc.addEventListener('click', ()=>{ si.value=''; shopQ=''; sc.style.display='none'; drawShop(); });
+  const catsEl = $('#ssCats');
+  if(catsEl) catsEl.addEventListener('click', (e)=>{
+    const b = e.target.closest('.ss-cat'); if(!b) return;
+    shopCat = b.getAttribute('data-cat') || '';
+    catsEl.querySelectorAll('.ss-cat').forEach(x=>x.classList.toggle('active', x===b));
+    drawShop();
+  });
   const sheet = $('#ovSellerShop .ss-sheet'); if(sheet) sheet.scrollTop = 0;
   openOv('ovSellerShop');
-  if(sellerProducts.length){
-    requestAnimationFrame(()=>{ try{ renderGridProgressive(shopGrid, sellerProducts, p=>miniCardHtml(p,false)); }catch(err){ console.warn('seller shop render failed', err); } });
-  } else {
-    shopGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>У продавца пока нет товаров</div></div>';
-  }
+  requestAnimationFrame(()=>{ try{ drawShop(); }catch(err){ console.warn('seller shop render failed', err); } });
 }
 document.addEventListener('click', (e)=>{
   const sl = e.target.closest('[data-openseller]');
@@ -8719,8 +8821,18 @@ $('#courierRateSubmitBtn').addEventListener('click', async ()=>{
 });
 
 let editPhotoData = '';
+let editCoverData = '';
+function hzSetCoverPreview(){
+  const box = $('#editCoverBox'), hint = $('#editCoverHint'), clr = $('#editCoverClear');
+  if(editCoverData){ box.style.backgroundImage = `url('${editCoverData}')`; hint.style.display='none'; clr.style.display='inline-block'; }
+  else { box.style.backgroundImage = ''; hint.style.display=''; clr.style.display='none'; }
+}
 document.addEventListener('click', (e)=>{
   if(e.target.closest('[data-open="ovEditProfile"]')){
+    const canCover = State.user && (State.user.role==='seller' || State.user.role==='admin');
+    $('#editCoverWrap').style.display = canCover ? 'block' : 'none';
+    editCoverData = (State.user.role==='admin' ? (State.settings.shopBanner||'') : '') || State.user.banner || '';
+    hzSetCoverPreview();
     $('#editFio').value = State.user.fio||'';
     $('#editBio').value = State.user.bio||'';
     $('#editPassword').value='';
@@ -8734,9 +8846,22 @@ $('#editPhotoInput').addEventListener('change', async (e)=>{
   editPhotoData = await compressImage(f, 400, 0.7);
   const prev = $('#editPhotoPreview'); prev.src = editPhotoData; prev.style.display='block';
 });
+$('#editCoverInput').addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  editCoverData = await compressImage(f, 1100, 0.72);
+  hzSetCoverPreview();
+});
+$('#editCoverClear').addEventListener('click', ()=>{ editCoverData=''; hzSetCoverPreview(); });
 $('#editProfileSaveBtn').addEventListener('click', async ()=>{
   const fio = $('#editFio').value.trim(); const bio = $('#editBio').value.trim(); const pass = $('#editPassword').value;
   const updates = {fio, bio, photo: editPhotoData||''};
+  if(State.user.role==='seller' || State.user.role==='admin') updates.banner = editCoverData||'';
+  if(State.user.role==='admin'){
+    // магазин администратора (HORIZON MARKET) берёт обложку и логотип из общих настроек
+    const sp = {shopBanner: editCoverData||'', shopLogo: editPhotoData||''};
+    Object.assign(State.settings, sp);
+    db.collection('settings').doc('main').set(sp, {merge:true}).catch(()=>{});
+  }
   if(pass) updates.password = pass;
   if(State.user.docId) await db.collection('users').doc(State.user.docId).update(updates).catch(()=>{});
   Object.assign(State.user, updates); saveLocalUser(State.user);
