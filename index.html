@@ -1786,35 +1786,17 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
 .mcard-qty{position:absolute; top:-5px; right:-5px; min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:#FF3D71; color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; box-sizing:border-box;}
 /* Убрана только «пружинка» (сжатие карточки при нажатии) */
 .card:active, .mcard:active{transform:none !important;}
-/* ===== Одинаковые карточки: всё стоит на одних и тех же местах ===== */
-.card-body{display:flex; flex-direction:column;}
+/* ===== Одинаковые и компактные карточки: без пустых мест ===== */
+.card-body{display:flex; flex-direction:column; padding:10px 12px 10px; gap:2px;}
 .card-name{display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; min-height:39px; max-height:39px;}
-.card-sub{min-height:32px; max-height:32px; overflow:hidden;}
-.card-bottom{margin-top:auto; display:flex; flex-direction:column; gap:3px;}
-.card-bottom .card-prices{min-height:46px; align-content:flex-start; margin-top:6px;}
-.card-bottom .card-low{min-height:16px; margin-top:0;}
-.card-bottom .card-footer{margin-top:0; padding-top:4px;}
-.card-bottom .card-footer .cart-add-btn, .card-bottom .card-footer .qty-stepper{height:42px;}
+.card-sub{display:block; height:16px; min-height:0; max-height:16px; margin-top:0; line-height:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.card-bottom{margin-top:auto; display:flex; flex-direction:column; gap:2px;}
+.card-bottom .card-prices{min-height:40px; align-content:flex-start; margin-top:4px;}
+.card-bottom .card-footer{margin-top:0; padding-top:2px;}
+.card-bottom .card-footer .cart-add-btn, .card-bottom .card-footer .qty-stepper{height:40px;}
+.card-img .card-low{position:absolute; right:8px; bottom:8px; z-index:3; margin:0; padding:4px 9px; border-radius:12px; font-size:11px; font-weight:700; color:#fff; background:rgba(255,120,20,.88);}
 .mcard-name{max-height:29px;}
 .mcard-sub{min-height:12px;}
-/* поиск и каталог внутри магазина продавца */
-.ss-tools{margin:14px 12px 0;}
-.ss-search{position:relative; display:flex; align-items:center; height:46px; border-radius:16px; background:var(--ss-card); border:1px solid var(--ss-line); box-shadow:0 6px 18px var(--ss-glow);}
-.ss-search > i{position:absolute; left:15px; font-size:15px; color:var(--ss-d); pointer-events:none;}
-.ss-search input{flex:1; min-width:0; height:100%; border:0; outline:0; background:transparent; color:var(--ss-t); font-family:inherit; font-size:15px; padding:0 40px 0 42px; border-radius:16px; -webkit-appearance:none; appearance:none;}
-.ss-search input::placeholder{color:var(--ss-d);}
-.ss-search input::-webkit-search-cancel-button{display:none;}
-.ss-search button{position:absolute; right:6px; width:34px; height:34px; border-radius:50%; align-items:center; justify-content:center; background:transparent; color:var(--ss-d); font-size:14px;}
-.ss-cats{display:flex; gap:8px; overflow-x:auto; padding:10px 0 2px; scrollbar-width:none;}
-.ss-cats::-webkit-scrollbar{display:none;}
-.ss-cat{flex-shrink:0; height:34px; padding:0 15px; border-radius:17px; font-size:13px; font-weight:600; font-family:inherit; color:var(--ss-t); background:var(--ss-chip); border:1px solid var(--ss-line); white-space:nowrap;}
-.ss-cat.active{color:#fff; background:linear-gradient(135deg,#8B5CFF,#4B30F0); border-color:transparent; box-shadow:0 6px 14px rgba(94,60,255,.4);}
-/* подписка */
-.ss-follow{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;}
-.ss-fcount{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ss-d); min-width:0;}
-.ss-fcount i{font-size:14px;} .ss-fcount b{color:var(--ss-t); font-size:15px;}
-.ss-fbtn{flex-shrink:0; height:38px; padding:0 18px; border-radius:19px; font-family:inherit; font-size:13.5px; font-weight:700; color:#fff; background:linear-gradient(135deg,#8B5CFF,#4B30F0); box-shadow:0 6px 16px rgba(94,60,255,.45); display:flex; align-items:center; gap:7px; border:1px solid transparent;}
-.ss-fbtn.on{background:var(--ss-chip); color:var(--ss-t); border-color:var(--ss-line); box-shadow:none;}
 </style>
 
 
@@ -2099,22 +2081,22 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
   <div class="sheet vf-card" id="vfCard">
     <button class="vf-x" data-close="ovRegVerify" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button>
     <div class="vf-handle"></div>
-    <div class="vf-lock"><span class="vf-lock-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g class="vf-shk"><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></g><rect x="5" y="11" width="14" height="9.5" rx="2.6"></rect></svg></span></div>
+    <div class="vf-lock"><span class="vf-lock-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g class="vf-shk"><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g><rect x="5" y="11" width="14" height="9.5" rx="2.6"/></svg></span></div>
     <h2 class="vf-title" id="vfTitle">Подтвердите номер</h2>
     <p class="vf-sub" id="vfSub">Мы отправили код в Telegram.<br>Подтверждение произойдёт сразу после ввода.</p>
-    <div class="vf-boxes" id="vfBoxes"><div class="vf-box on"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div>
+    <div class="vf-boxes" id="vfBoxes"><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div><i class="vf-link"></i><div class="vf-box"><span class="vf-d"></span></div>
       <input id="regVerifyCodeInput" class="vf-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Код из Telegram">
     </div>
-    <div class="vf-bar"><i id="vfBarFill" style="width: 0%;"></i></div>
+    <div class="vf-bar"><i id="vfBarFill"></i></div>
     <div class="vf-done">
       <div class="vf-ring"><span class="vf-spin"></span>
-        <svg class="vf-chk" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="29"></circle><path d="M20 33l8 8 16-17"></path></svg></div>
+        <svg class="vf-chk" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="29"/><path d="M20 33l8 8 16-17"/></svg></div>
       <div class="vf-secure"><i class="fa-solid fa-lock"></i> Подтверждено и защищено</div>
     </div>
     <p id="regVerifyStatus" class="vf-status"></p>
     <button class="vf-tg" id="regVerifyOpenBotBtn"><i class="fa-brands fa-telegram"></i> Открыть Telegram и получить код</button>
     <div class="vf-resend">Не получили код? <button id="regVerifyResendBtn" class="vf-rbtn" disabled="">Отправить снова</button> <span id="regVerifyTimer"></span></div>
-    <button id="regVerifyConfirmBtn" disabled="" hidden="">Подтвердить</button>
+    <button id="regVerifyConfirmBtn" disabled="" hidden>Подтвердить</button>
     <div class="vf-foot"><i class="fa-solid fa-shield-halved"></i> Защищено сквозным шифрованием</div>
   </div>
 </div>
@@ -2402,7 +2384,9 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
       <button class="btn btn-primary" id="pushEnableBtn" style="width:auto;padding:8px 14px;font-size:12.5px;white-space:nowrap;">Включить</button>
     </div>
     <button id="pushDiagBtn" style="display:none;align-items:center;gap:6px;justify-content:center;width:100%;padding:8px;margin-bottom:12px;border-radius:10px;background:none;border:1.5px dashed var(--border);color:var(--text-dim);font-size:11.5px;"><i class="fa-solid fa-stethoscope"></i> Диагностика push</button>
-    <button class="btn btn-outline notif-clear-btn hz-del" id="notifClearAllBtn" style="display:none;margin-bottom:12px;"><span class="hz-del-ico"><svg viewBox="0 0 24 24"><g class="hz-lid"><path d="M4 7h16"></path><path d="M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7"></path></g><path d="M6 7l.9 12.2c.1 1 .9 1.8 1.9 1.8h6.4c1 0 1.8-.8 1.9-1.8L18 7"></path><path d="M10 11v6M14 11v6"></path></svg></span><span class="hz-del-t">Очистить все уведомления</span></button>
+    <button class="btn btn-outline notif-clear-btn" id="notifClearAllBtn" style="display:none;margin-bottom:12px;">
+      <i class="fa-solid fa-trash-can"></i> Очистить все уведомления
+    </button>
     <div id="notifListBody"></div>
   </div>
 </div>
@@ -2507,7 +2491,7 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
     <div class="sheet-handle"></div>
     <div class="sheet-title">История заказов <button class="close-x" data-close="ovOrders"><i class="fa-solid fa-xmark"></i></button></div>
     <button class="btn btn-outline" id="ordersExportBtn" style="display:none;margin-bottom:10px;"><i class="fa-solid fa-file-export"></i> Экспорт в CSV</button>
-    <button class="btn btn-outline hz-del" id="ordersClearAllBtn" style="display:none;color:var(--danger);border-color:var(--danger);margin-bottom:12px;"><span class="hz-del-ico"><svg viewBox="0 0 24 24"><g class="hz-lid"><path d="M4 7h16"></path><path d="M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7"></path></g><path d="M6 7l.9 12.2c.1 1 .9 1.8 1.9 1.8h6.4c1 0 1.8-.8 1.9-1.8L18 7"></path><path d="M10 11v6M14 11v6"></path></svg></span><span class="hz-del-t">Очистить историю заказов</span></button>
+    <button class="btn btn-outline" id="ordersClearAllBtn" style="display:none;color:var(--danger);border-color:var(--danger);margin-bottom:12px;"><i class="fa-solid fa-trash-can"></i> Очистить историю заказов</button>
     <div id="ordersBody"></div>
   </div>
 </div>
@@ -2564,7 +2548,7 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
       <div class="field"><label>Юзернейм бота</label><input id="regBotUsernameInput" placeholder="Например: HorizonVerifyBot"></div>
       <div class="field"><label>Иконка чата HORIZON BANK</label>
         <div style="display:flex;align-items:center;gap:10px;"><img id="bankIconPreview" style="width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--surface-2);display:none;"><input id="bankIconFile" type="file" accept="image/*"></div></div>
-      <div class="field"><label>Ссылка на Telegram-канал <span style="color:var(--text-dim);font-weight:400;">(необязательно)</span></label><input id="telegramChannelLinkInput" placeholder="https://t.me/mychannel"></div>
+      <div class="field"><label>Ссылка на Telegram-канал <span style="color:var(--text-dim);font-weight:400;">(не используется: канал всегда https://t.me/horizonmarkettj)</span></label><input id="telegramChannelLinkInput" placeholder="https://t.me/mychannel"></div>
       <p style="color:var(--text-dim);font-size:11.5px;margin-top:-6px;">Эту ссылку с кнопкой «Подписаться» бот присылает клиенту сразу после включения уведомлений.</p>
       <div style="height:1px;background:var(--border);margin:16px 0;"></div>
       <div style="font-weight:800;font-size:15px;margin-bottom:2px;">Курьеры</div>
@@ -4466,6 +4450,24 @@ async function sendTelegram(token, chatId, text){
     return res.ok;
   }catch(e){ console.warn('Telegram error', e); return false; }
 }
+/* Канал HORIZON MARKET. Ссылка задана в коде (раньше бралась из настроек — из-за неверного значения кнопки
+   «Подписаться» и «Смотреть в Telegram» не открывали канал). */
+const HZ_CHANNEL_URL = 'https://t.me/horizonmarkettj';
+function hzChannelUrl(){ return HZ_CHANNEL_URL; }
+/* Сообщение с кнопками «Подписаться» (ссылка на канал) и «Я подписался» (бот проверяет подписку по callback 'subchk').
+   Если клиент не подписан, бот сам напоминает об этом каждые 4 часа. */
+async function sendTelegramSubscribePrompt(token, chatId){
+  if(!token || !chatId) return false;
+  try{
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: chatId, text:'📢 Подпишитесь на наш канал — там все новинки и акции первыми:', parse_mode:'HTML',
+        reply_markup:{inline_keyboard:[[{text:'📢 Подписаться', url:HZ_CHANNEL_URL}],[{text:'✅ Я подписался', callback_data:'subchk'}]]}})
+    });
+    if(!res.ok){ console.warn('Telegram subscribe prompt failed', await res.text().catch(()=>'')); }
+    return res.ok;
+  }catch(e){ console.warn('Telegram error', e); return false; }
+}
 async function sendTelegramWithButton(token, chatId, text, buttonText, buttonUrl){
   if(!token || !chatId || !buttonUrl) return false;
   try{
@@ -4558,7 +4560,7 @@ async function broadcastNewProductToTelegramClients(p){
     const snap = await db.collection('users').where('telegramNotifyEnabled','==',true).limit(500).get().catch(()=>null);
     if(!snap || snap.empty) return;
     const siteUrl = getProductUrl(p.id);
-    const channelUrl = State.settings.telegramChannelLink || null;
+    const channelUrl = hzChannelUrl();
     for(const doc of snap.docs){
       const u = doc.data();
       if(!u.telegramChatId) continue;
@@ -5367,6 +5369,7 @@ function cardHtml(p){
       ${badgesHtml}
       ${featsHtml}
       ${saleHtml}
+      ${lowStockHtml?`<div class="card-low">${lowStockHtml}</div>`:''}
       <div class="card-actions-top">
         <button class="fav-toggle ${isFav?'active':''}" data-fav="${p.id}"><i class="fa-${isFav?'solid':'regular'} fa-heart"></i></button>
       </div>
@@ -5378,7 +5381,6 @@ function cardHtml(p){
       <div class="card-bottom">
         <div class="card-prices"><span class="card-price">${priceVariesBySize(p)?'от ':''}${fmt(getMinPrice(p))}</span>${p.oldPrice?`<span class="card-oldprice">${fmt(p.oldPrice)}</span>`:''}</div>
         ${hzDeliveryHtml()}
-        <div class="card-low">${lowStockHtml}</div>
       <div class="card-footer">${cardFooterInnerHtml(p)}</div>
       </div>
     </div>
@@ -8129,9 +8131,7 @@ const NotifyOptIn = { token: null, pollTimer: null };
 const genNotifyToken = () => 'n' + Math.random().toString(36).slice(2) + Date.now().toString(36);
 async function sendTelegramNotifyEnabledMessages(chatId){
   await sendTelegram(State.settings.regBotToken, chatId, '✅ Уведомления включены! Теперь вы не пропустите новые товары и акции HORIZON MARKET.');
-  if(State.settings.telegramChannelLink){
-    await sendTelegramWithButton(State.settings.regBotToken, chatId, '📢 Подпишитесь на наш канал — там все новинки и акции первыми:', 'Подписаться', State.settings.telegramChannelLink);
-  }
+  await sendTelegramSubscribePrompt(State.settings.regBotToken, chatId);
 }
 function shouldShowNotifyPrompt(){
   if(!State.user || State.user.role!=='client') return false;
