@@ -1542,7 +1542,7 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 .card-oldprice{font-size:11.5px;}
 .card-low{font-size:11.5px; font-weight:700; color:#FF9A1F; margin-top:2px;}
 /* кнопка «В корзину» на всю ширину */
-.card-footer{position:static; margin-top:8px; width:100%;}
+.card-footer{position:static; margin-top:auto; padding-top:8px; width:100%; flex-shrink:0;}
 .cart-add-btn{width:100%; height:42px; border-radius:15px; gap:8px; font-size:13.5px; font-weight:700; font-family:inherit; background:linear-gradient(135deg,#8B5CFF 0%,#4B30F0 100%); box-shadow:0 8px 20px rgba(94,60,255,.40), inset 0 1px 0 rgba(255,255,255,.28);}
 .cart-add-btn i{font-size:15px;}
 .card-footer .qty-stepper{width:100%; height:42px; justify-content:space-between; padding:0 8px; border-radius:15px; background:linear-gradient(135deg,#8B5CFF 0%,#4B30F0 100%); box-shadow:0 8px 20px rgba(94,60,255,.40);}
@@ -1691,6 +1691,103 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 <style>
 @keyframes pushPromptIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 </style>
+<style id="hzPfLight">
+/* ===== ПРОФИЛЬ — светлая тема (раньше карточки оставались тёмными, текст не читался) ===== */
+body:not([data-theme="dark"]) .pf-h1{color:#1B1740;}
+body:not([data-theme="dark"]) .pf-sub{color:#6F6A96;}
+body:not([data-theme="dark"]) .pf-gear{background:#fff; border:1px solid rgba(120,95,255,.22); color:#4B30F0; box-shadow:0 6px 18px rgba(90,60,230,.14);}
+body:not([data-theme="dark"]) .pf-hero{background:linear-gradient(135deg,#FFFFFF 0%,#F1ECFF 100%); border:1px solid rgba(120,95,255,.25); box-shadow:0 10px 28px rgba(90,60,230,.14);}
+body:not([data-theme="dark"]) .pf-hero::before{background:radial-gradient(closest-side,rgba(140,100,255,.20),transparent 72%);}
+body:not([data-theme="dark"]) .pf-avatar{border-color:#fff;}
+body:not([data-theme="dark"]) .pf-av-badge{border-color:#fff;}
+body:not([data-theme="dark"]) .pf-avatar-wrap{box-shadow:0 6px 20px rgba(110,77,255,.35);}
+body:not([data-theme="dark"]) .pf-name{color:#1B1740;}
+body:not([data-theme="dark"]) .pf-role{color:#5B3DF0; background:rgba(110,80,255,.10); border:1px solid rgba(120,95,255,.30);}
+body:not([data-theme="dark"]) .pf-status{background:rgba(30,25,80,.05); border:1px solid rgba(120,95,255,.18); color:#2B2656;}
+body:not([data-theme="dark"]) .pf-chev{color:#6F6A96;}
+body:not([data-theme="dark"]) .pf-item{background:#fff; border:1px solid rgba(120,95,255,.18); box-shadow:0 4px 14px rgba(90,60,230,.09);}
+body:not([data-theme="dark"]) .pf-txt b{color:#1B1740;}
+body:not([data-theme="dark"]) .pf-txt small{color:#6F6A96;}
+body:not([data-theme="dark"]) .pf-item .pf-arrow{color:#9A94C4;}
+body:not([data-theme="dark"]) .pf-ico{box-shadow:0 6px 14px rgba(90,60,230,.25), inset 0 1px 0 rgba(255,255,255,.35); border:0;}
+body:not([data-theme="dark"]) .pf-item .theme-switch{background:#E3DEFA; border:1px solid rgba(120,95,255,.30);}
+body:not([data-theme="dark"]) .pf-item .theme-switch.on{background:linear-gradient(135deg,#7A55FF,#4B30F0); border-color:transparent;}
+body:not([data-theme="dark"]) .pf-item.pf-danger{background:linear-gradient(180deg,#FFF1F4,#FFE3E9); border-color:rgba(230,50,90,.35);}
+body:not([data-theme="dark"]) .pf-item.pf-danger .pf-ico{background:linear-gradient(145deg,#FF5C7C,#D92B52); color:#fff; border:0;}
+body:not([data-theme="dark"]) .pf-item.pf-danger .pf-txt b{color:#D81E4A;}
+body:not([data-theme="dark"]) .pf-item.pf-danger .pf-txt small{color:#B5667A;}
+body:not([data-theme="dark"]) .pf-invite{background:#fff; border:1px solid rgba(120,95,255,.22); box-shadow:0 6px 18px rgba(90,60,230,.10);}
+body:not([data-theme="dark"]) .pf-invite-t small{color:#6F6A96;}
+body:not([data-theme="dark"]) .pf-invite-arr{color:#9A94C4;}
+body:not([data-theme="dark"]) .pf-invite-ico{color:#fff;}
+</style>
+<style id="hzSellerShop">
+/* ===== СТРАНИЦА ПРОДАВЦА ===== */
+#ovSellerShop{--ss-card:linear-gradient(180deg,rgba(24,20,72,.94),rgba(9,8,32,.97)); --ss-line:rgba(125,100,255,.40); --ss-t:#fff; --ss-d:#A9A3D6; --ss-chip:rgba(16,13,52,.72); --ss-glow:rgba(90,60,230,.40); --ss-mc:linear-gradient(180deg,rgba(24,20,72,.92),rgba(10,9,34,.96)); --ss-mi:radial-gradient(circle at 70% 25%,#2A2570,#0E0C2C); --ss-link:#4DA3FF; --ss-h:#fff;}
+body:not([data-theme="dark"]) #ovSellerShop{--ss-card:#fff; --ss-line:rgba(120,95,255,.22); --ss-t:#1B1740; --ss-d:#6F6A96; --ss-chip:#F4F1FF; --ss-glow:rgba(110,80,255,.16); --ss-mc:#fff; --ss-mi:#F1EEFB; --ss-link:#5B3DF0; --ss-h:#1B1740;}
+#ovSellerShop .ss-sheet{background:transparent; padding:0 0 calc(var(--tabbar-h) + 24px);}
+.ss-banner{position:relative; height:215px; background:#0B0930 center/cover no-repeat; overflow:hidden;}
+.ss-banner-def{background:radial-gradient(circle at 78% 30%,rgba(140,90,255,.65),transparent 55%), radial-gradient(circle at 15% 80%,rgba(40,120,255,.5),transparent 55%), linear-gradient(135deg,#0B0930,#2A1380 60%,#1A0F5C);}
+body:not([data-theme="dark"]) .ss-banner-def{background:radial-gradient(circle at 78% 30%,rgba(190,150,255,.8),transparent 55%), linear-gradient(135deg,#7A55FF,#4B30F0 70%,#6C4DFF);}
+.ss-banner::after{content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,0) 38%,rgba(0,0,0,.18) 100%);}
+.ss-banner-brand{position:absolute; left:18px; bottom:56px; right:18px; z-index:1; font-size:30px; font-weight:800; letter-spacing:-.5px; color:#fff; text-shadow:0 4px 24px rgba(120,80,255,.9); line-height:1.1;}
+.ss-top{position:absolute; left:14px; right:14px; top:calc(12px + env(safe-area-inset-top)); display:flex; justify-content:space-between; z-index:3;}
+.ss-top-r{display:flex; gap:10px;}
+.ss-btn{width:42px; height:42px; border-radius:50%; background:rgba(10,8,34,.62); border:1px solid rgba(255,255,255,.2); color:#fff; font-size:16px; display:flex; align-items:center; justify-content:center; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);}
+.ss-card{position:relative; z-index:3; margin:-40px 12px 0; padding:14px; border-radius:26px; background:var(--ss-card); border:1px solid var(--ss-line); box-shadow:0 14px 40px var(--ss-glow), inset 0 1px 0 rgba(255,255,255,.06);}
+.ss-head{display:flex; align-items:center; gap:12px;}
+.ss-avatar{width:78px; height:78px; border-radius:50%; padding:3px; flex-shrink:0; background:conic-gradient(from 200deg,#6C4DFF,#B04CF0,#4F7BFF,#6C4DFF); box-shadow:0 0 22px rgba(110,77,255,.55);}
+.ss-avatar > *{width:100%; height:100%; border-radius:50%; object-fit:cover; display:flex; align-items:center; justify-content:center; background:#0E0B26; color:#fff; font-size:30px; font-weight:800; border:3px solid #0E0B26; box-sizing:border-box;}
+body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#7A55FF,#4B30F0); border-color:#fff;}
+.ss-id{min-width:0; flex:1;}
+.ss-name{margin:0; font-size:20px; font-weight:800; line-height:1.15; color:var(--ss-t); display:flex; align-items:center; gap:7px; letter-spacing:-.2px;}
+.ss-name span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.ss-name i{color:#3AA0FF; font-size:17px; flex-shrink:0;}
+.ss-sub{margin-top:3px; font-size:13px; line-height:1.3; color:var(--ss-d);}
+.ss-chips{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;}
+.ss-chip{display:flex; align-items:center; gap:8px; padding:7px 10px 7px 8px; border-radius:18px; background:var(--ss-chip); border:1px solid var(--ss-line); min-width:0;}
+.ss-chip > i{width:32px; height:32px; border-radius:50%; border:1px solid var(--ss-line); display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--ss-d); flex-shrink:0;}
+.ss-chip > div{min-width:0;}
+.ss-chip small{display:block; font-size:10.5px; color:var(--ss-d); line-height:1.2;}
+.ss-chip b{display:block; font-size:14px; color:var(--ss-t); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.25;}
+.ss-slogan{display:flex; align-items:center; justify-content:center; gap:8px; margin:12px 0 0; font-size:13.5px; color:var(--ss-d); font-weight:500; text-align:center;}
+.ss-slogan i{color:#FFC83D; font-size:15px;}
+.ss-bio{margin-top:10px; font-size:12.5px; line-height:1.45; color:var(--ss-d); text-align:center; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;}
+.ss-socs{display:grid; gap:8px; margin-top:14px;}
+.ss-soc{display:flex; align-items:center; gap:6px; padding:8px 6px; overflow:hidden; border-radius:16px; text-decoration:none; color:#fff; min-width:0; border:1px solid transparent;}
+.ss-soc-ico{width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:17px; color:#fff;}
+.ss-soc-t{min-width:0; flex:1;} .ss-soc-t b{display:block; font-size:11.5px; font-weight:700; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;} .ss-soc-t small{display:block; font-size:10px; opacity:.78; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.ss-soc.tg{background:linear-gradient(135deg,#1F45C9,#16296F); border-color:#3E7BFF; box-shadow:0 0 14px rgba(60,120,255,.45);} .ss-soc.tg .ss-soc-ico{background:#2AABEE;}
+.ss-soc.ig{background:linear-gradient(135deg,#8A2A9E,#B3205F 60%,#C2561A); border-color:#E04BC0; box-shadow:0 0 14px rgba(220,70,190,.4);} .ss-soc.ig .ss-soc-ico{background:linear-gradient(45deg,#F9A83B,#E1306C 55%,#833AB4);}
+.ss-soc.wa{background:linear-gradient(135deg,#0F6B43,#0A3A2A); border-color:#2FD27A; box-shadow:0 0 14px rgba(47,210,122,.4);} .ss-soc.wa .ss-soc-ico{background:#25D366;}
+.ss-feats{display:grid; grid-template-columns:repeat(4,1fr); margin-top:14px; padding:12px 2px; border-radius:20px; background:var(--ss-chip); border:1px solid var(--ss-line);}
+.ss-feat{display:flex; flex-direction:column; align-items:center; gap:7px; padding:0 4px; text-align:center; font-size:10.5px; font-weight:600; line-height:1.2; color:var(--ss-t); border-left:1px solid var(--ss-line);}
+.ss-feat:first-child{border-left:0;}
+.ss-feat i{width:38px; height:38px; border-radius:50%; border:1.5px solid var(--ss-line); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ss-t);}
+.ss-sec{margin:20px 12px 0;}
+.ss-sec-h{display:flex; align-items:center; justify-content:space-between; margin:0 4px 10px;}
+.ss-sec-h h3{margin:0; font-size:19px; font-weight:800; color:var(--ss-h);}
+.ss-sec-h a{font-size:13px; font-weight:600; color:var(--ss-link); text-decoration:none;}
+.ss-count{font-size:13px; font-weight:700; color:var(--ss-d);}
+.ss-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px;}
+.mcard{position:relative; display:flex; flex-direction:column; min-width:0; padding:6px; border-radius:17px; background:var(--ss-mc); border:1px solid var(--ss-line); box-shadow:0 8px 20px var(--ss-glow);}
+.mcard-img{position:relative; aspect-ratio:1/1.1; border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--ss-mi); cursor:pointer;}
+.mcard-img img{width:100%; height:100%; object-fit:contain; padding:6px; box-sizing:border-box;}
+.mcard-noimg{font-size:22px; color:var(--ss-d);}
+.mcard-badge{position:absolute; left:5px; top:5px; max-width:calc(100% - 36px); padding:3px 8px; border-radius:10px; font-size:10px; font-weight:700; line-height:1.2; color:#fff; background:linear-gradient(135deg,#7A4DFF,#4B30F0); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; z-index:1;}
+.mcard-fav{position:absolute; right:4px; top:4px; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; background:rgba(10,8,34,.62); border:1px solid rgba(255,255,255,.16); z-index:1;}
+.mcard-fav.active{color:#FF4D7E;}
+.mcard-name{margin-top:6px; font-size:12px; font-weight:700; line-height:1.2; color:var(--ss-t); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:29px; cursor:pointer;}
+.mcard-sub{margin-top:2px; font-size:10px; color:var(--ss-d); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.mcard-foot{display:flex; align-items:flex-end; justify-content:space-between; gap:4px; margin-top:auto; padding-top:6px;}
+.mcard-price{min-width:0; font-size:12.5px; font-weight:800; line-height:1.15; color:var(--ss-t);}
+.mcard-cart{position:relative; width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; background:linear-gradient(135deg,#8B5CFF,#4B30F0); box-shadow:0 4px 10px rgba(94,60,255,.45);}
+.mcard-cart.off{background:rgba(120,110,170,.45); box-shadow:none;}
+.mcard-qty{position:absolute; top:-5px; right:-5px; min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:#FF3D71; color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; box-sizing:border-box;}
+/* Убрана только «пружинка» (сжатие карточки при нажатии) */
+.card:active, .mcard:active{transform:none !important;}
+</style>
+
 
 <!-- TOPBAR -->
 <header class="topbar">
@@ -2873,13 +2970,8 @@ Xiaomi Redmi Note 13"></textarea></div>
 
 <!-- SELLER SHOP -->
 <div class="overlay page-overlay" id="ovSellerShop">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Магазин продавца <button class="close-x" data-close="ovSellerShop"><i class="fa-solid fa-xmark"></i></button></div>
-    <div class="seller-shop-head" id="sellerShopHead"></div>
-    <div class="seller-shop-bio" id="sellerShopBio" style="display:none;"></div>
-    <div id="sellerShopReviewBtnWrap" style="margin-bottom:12px;"></div>
-    <div class="grid" id="sellerShopGrid" style="padding:0;"></div>
+  <div class="sheet ss-sheet">
+    <div class="ss-page" id="sellerShopPage"></div>
   </div>
 </div>
 
@@ -5257,14 +5349,34 @@ function cardHtml(p){
       <div class="card-prices"><span class="card-price">${priceVariesBySize(p)?'от ':''}${fmt(getMinPrice(p))}</span>${p.oldPrice?`<span class="card-oldprice">${fmt(p.oldPrice)}</span>`:''}</div>
       ${hzDeliveryHtml()}
       ${lowStockHtml}
-      <div class="card-footer">
-        ${p.inStock===false ? `<div style="display:flex;gap:6px;align-items:center;"><span class="out-of-stock-tag">Нет в наличии</span><button class="mini-icon-btn ${isNotifySub?'active':''}" data-notifystock="${p.id}" title="${isNotifySub?'Отменить уведомление':'Уведомить о поступлении'}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i></button></div>`
-          : (hasVariants ? `<button class="cart-add-btn" data-openvariant="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`
-          : (inCart ? `<div class="qty-stepper"><button data-qty="-1" data-id="${p.id}">-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${p.id}">+</button></div>`
-                    : `<button class="cart-add-btn" data-addcart="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`))}
-      </div>
+      <div class="card-footer">${cardFooterInnerHtml(p)}</div>
     </div>
   </div>`;
+}
+/* Содержимое футера карточки (кнопка «В корзину» / счётчик). Вынесено отдельно, чтобы при
+   добавлении в корзину обновлять только футер, а не перерисовывать всю сетку товаров. */
+function cardFooterInnerHtml(p){
+  const hasVariants = (p.sizes&&p.sizes.length) || (p.colors&&p.colors.length);
+  const inCart = !hasVariants ? State.cart.find(c=>c.productId===p.id && !c.wholesale) : null;
+  const isNotifySub = State.user && (State.user.stockNotify||[]).includes(p.id);
+  return p.inStock===false ? `<div style="display:flex;gap:6px;align-items:center;"><span class="out-of-stock-tag">Нет в наличии</span><button class="mini-icon-btn ${isNotifySub?'active':''}" data-notifystock="${p.id}" title="${isNotifySub?'Отменить уведомление':'Уведомить о поступлении'}"><i class="fa-${isNotifySub?'solid':'regular'} fa-bell"></i></button></div>`
+    : (hasVariants ? `<button class="cart-add-btn" data-openvariant="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`
+    : (inCart ? `<div class="qty-stepper"><button data-qty="-1" data-id="${p.id}">-</button><span>${inCart.qty}</span><button data-qty="1" data-id="${p.id}">+</button></div>`
+              : `<button class="cart-add-btn" data-addcart="${p.id}"><i class="fa-solid fa-cart-shopping"></i> В корзину</button>`));
+}
+function updateCardFooters(pid){
+  const p = State.products.find(pp=>pp.id===pid);
+  if(!p) return;
+  document.querySelectorAll('.card[data-id="'+pid+'"] .card-footer').forEach(f=>{ f.innerHTML = cardFooterInnerHtml(p); });
+  document.querySelectorAll('.mcard[data-id="'+pid+'"] .mcard-cart').forEach(b=>{ b.outerHTML = miniCartBtnHtml(p); });
+}
+/* Сердечко «в избранное» обновляем на месте, без перерисовки всей сетки (иначе список прыгает) */
+function updateFavButtons(pid){
+  const isFav = !!(State.user && (State.user.favorites||[]).includes(pid));
+  document.querySelectorAll('[data-fav="'+pid+'"]').forEach(b=>{
+    b.classList.toggle('active', isFav);
+    const i = b.querySelector('i'); if(i) i.className = 'fa-'+(isFav?'solid':'regular')+' fa-heart';
+  });
 }
 function skeletonCardsHtml(n){
   return Array.from({length:n}).map(()=>'<div class="skel-card"><div class="skel-img"></div><div class="skel-line w60"></div><div class="skel-line w40"></div></div>').join('');
@@ -5388,7 +5500,8 @@ function renderGrid(list, sel){
    Сначала показываем 6 карточек, при прокрутке вниз дорисовываем по 6 следующих. */
 const GRID_BATCH = 6;
 const gridProgState = new WeakMap();
-function renderGridProgressive(grid, list){
+function renderGridProgressive(grid, list, renderer){
+  const cardFn = renderer || cardHtml;
   const prev = gridProgState.get(grid);
   if(prev && prev.io) prev.io.disconnect();
   const key = list.slice(0,3).map(p=>p.id).join('|');
@@ -5397,9 +5510,9 @@ function renderGridProgressive(grid, list){
   count = Math.min(count, list.length);
   const st = {key, count, io:null};
   gridProgState.set(grid, st);
-  grid.innerHTML = list.slice(0, count).map(cardHtml).join('');
+  grid.innerHTML = list.slice(0, count).map(cardFn).join('');
   if(count >= list.length || !('IntersectionObserver' in window)){
-    if(count < list.length){ grid.insertAdjacentHTML('beforeend', list.slice(count).map(cardHtml).join('')); st.count = list.length; }
+    if(count < list.length){ grid.insertAdjacentHTML('beforeend', list.slice(count).map(cardFn).join('')); st.count = list.length; }
     return;
   }
   const sentinel = document.createElement('div');
@@ -5410,7 +5523,7 @@ function renderGridProgressive(grid, list){
   const loadMore = ()=>{
     if(gridProgState.get(grid)!==st) return;
     const next = Math.min(st.count + GRID_BATCH, list.length);
-    sentinel.insertAdjacentHTML('beforebegin', list.slice(st.count, next).map(cardHtml).join(''));
+    sentinel.insertAdjacentHTML('beforebegin', list.slice(st.count, next).map(cardFn).join(''));
     st.count = next;
     if(next >= list.length){ st.io.disconnect(); sentinel.remove(); return; }
     // если sentinel всё ещё на экране (большой экран) — сразу подгружаем дальше
@@ -6192,7 +6305,7 @@ function toggleFavorite(pid){
   State.user.favoritePriceSnapshot = priceSnap;
   saveLocalUser(State.user);
   if(State.user.role==='client' && State.user.docId){ db.collection('users').doc(State.user.docId).update({favorites: State.user.favorites, favoritePriceSnapshot: priceSnap}).catch(()=>{}); }
-  filterAndRenderGrid({});
+  updateFavButtons(pid);
   renderFavorites();
 }
 /* ============ BACK-IN-STOCK NOTIFY ============ */
@@ -6238,7 +6351,7 @@ function addToCart(pid, size, color){
   size = size||null; color = color||null;
   const existing = State.cart.find(c=>c.productId===pid && !c.wholesale && c.size===size && c.color===color);
   if(existing) existing.qty++; else State.cart.push({productId:pid, qty:1, size, color});
-  persistCart(); updateCartBadge(); filterAndRenderGrid({});
+  persistCart(); updateCartBadge(); updateCardFooters(pid);
   toast('Добавлено в корзину', '', 'fa-cart-shopping');
   if($('#ovProduct').classList.contains('open') && State.activeProductId===pid){
     const p = State.products.find(pp=>pp.id===pid);
@@ -6253,7 +6366,7 @@ function addWholesaleToCart(pid, qtyPacks){
   const qty = Math.max(min, qtyPacks||min);
   const existing = State.cart.find(c=>c.productId===pid && c.wholesale);
   if(existing) existing.qty = qty; else State.cart.push({productId:pid, qty, wholesale:true});
-  persistCart(); updateCartBadge(); filterAndRenderGrid({});
+  persistCart(); updateCartBadge(); updateCardFooters(pid);
   toast('Оптовый заказ добавлен в корзину', '', 'fa-boxes-stacked');
 }
 function changeCartQty(pid, delta, wholesale, size, color){
@@ -6268,7 +6381,7 @@ function changeCartQty(pid, delta, wholesale, size, color){
   }
   item.qty += delta;
   if(wholesale ? item.qty<min : item.qty<=0) State.cart = State.cart.filter(c=>c!==item);
-  persistCart(); updateCartBadge(); filterAndRenderGrid({}); renderCart();
+  persistCart(); updateCartBadge(); updateCardFooters(pid); renderCart();
   if($('#ovProduct').classList.contains('open') && State.activeProductId===pid && p){ refreshPdCartControls(p); }
 }
 function persistCart(){ localStorage.setItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'), JSON.stringify(State.cart)); markCartActivity(); syncCartToServer(); }
@@ -7165,37 +7278,149 @@ function checkSharedProductInUrl(){
 }
 
 /* ============ SELLER SHOP ============ */
+function hzEsc(v){ return String(v==null?'':v).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function hzSocialUrl(kind, v){
+  v = (v||'').trim(); if(!v) return '';
+  if(/^https?:\/\//i.test(v)) return v.replace(/"/g,'%22');
+  if(kind==='telegram') return 'https://t.me/'+v.replace(/^@/,'').replace(/^(https?:\/\/)?(www\.)?t\.me\//i,'').replace(/[^\w.\-+]/g,'');
+  if(kind==='instagram') return 'https://instagram.com/'+v.replace(/^@/,'').replace(/^(https?:\/\/)?(www\.)?instagram\.com\//i,'').replace(/[^\w.\-]/g,'');
+  if(kind==='whatsapp'){
+    if(/wa\.me|whatsapp/i.test(v)) return 'https://'+v.replace(/^\/+/,'').replace(/"/g,'%22');
+    const d = v.replace(/\D/g,''); return d.length>=9 ? 'https://wa.me/'+d : '';
+  }
+  return '';
+}
+function miniCartBtnHtml(p){
+  if(p.inStock===false) return `<button class="mcard-cart off mcard-cart-off" data-notifystock="${p.id}" title="Нет в наличии"><i class="fa-regular fa-bell"></i></button>`;
+  const hasVariants = (p.sizes&&p.sizes.length) || (p.colors&&p.colors.length);
+  const qty = State.cart.filter(c=>c.productId===p.id && !c.wholesale).reduce((s,c)=>s+c.qty,0);
+  const attr = hasVariants ? `data-openvariant="${p.id}"` : `data-addcart="${p.id}"`;
+  return `<button class="mcard-cart${qty?' in':''}" ${attr} aria-label="В корзину"><i class="fa-solid fa-cart-shopping"></i>${qty?`<span class="mcard-qty">${qty}</span>`:''}</button>`;
+}
+/* Компактная карточка товара (3 в ряд) — для страницы продавца */
+function miniCardHtml(p, hit){
+  const img = (p.images && p.images[0]) || '';
+  const isFav = !!(State.user && (State.user.favorites||[]).includes(p.id));
+  const sale = p.oldPrice && Number(p.oldPrice) > Number(p.price) ? Math.round(100 - (p.price/p.oldPrice*100)) : 0;
+  let badge = '';
+  if(hit===true) badge = 'Хит';
+  else if(p.promoLabel) badge = p.promoLabel.split('|')[0].trim();
+  else if(sale>0) badge = '-'+sale+'%';
+  const sub = (()=>{ const f=(p.subtitle||(p.desc||'').split(/[.!?\n]/)[0]||'').trim(); return f.length>38?f.slice(0,36)+'…':f; })();
+  const price = (priceVariesBySize(p)?'от ':'') + fmt(getMinPrice(p)).replace(/,00(?=\s)/,'');
+  return `<div class="mcard" data-id="${p.id}">
+    <div class="mcard-img" data-openpd="${p.id}">
+      ${img ? `<img src="${img}" loading="lazy" draggable="false" alt="">` : '<i class="fa-solid fa-image mcard-noimg"></i>'}
+      ${badge ? `<span class="mcard-badge">${hzEsc(badge)}</span>` : ''}
+      <button class="mcard-fav ${isFav?'active':''}" data-fav="${p.id}" aria-label="В избранное"><i class="fa-${isFav?'solid':'regular'} fa-heart"></i></button>
+    </div>
+    <div class="mcard-name" data-openpd="${p.id}">${hzEsc(p.name)}</div>
+    ${sub ? `<div class="mcard-sub">${hzEsc(sub)}</div>` : ''}
+    <div class="mcard-foot"><div class="mcard-price">${price}</div>${miniCartBtnHtml(p)}</div>
+  </div>`;
+}
 function openSellerShop(sellerId){
   if(!sellerId) return;
   const isAdminShop = sellerId==='admin';
   const seller = (!isAdminShop && State.sellersCache) ? State.sellersCache[sellerId] : null;
-  const sellerName = isAdminShop ? 'HORIZON MARKET' : (seller ? seller.fio : 'Продавец');
+  const S = State.settings || {};
+  const about = S.about || {};
+  const sellerName = isAdminShop ? 'HORIZON MARKET' : (seller ? (seller.shopName || seller.fio) : 'Продавец');
   const sellerProducts = isAdminShop ? State.products.filter(p=>!p.sellerId || p.sellerId==='admin') : State.products.filter(p=>p.sellerId===sellerId);
-  const avatarHtml = isAdminShop
-    ? `<div class="seller-shop-avatar"><i class="fa-solid fa-diamond"></i></div>`
-    : (seller && seller.photo ? `<img class="seller-shop-avatar" src="${seller.photo}" style="object-fit:cover;">` : `<div class="seller-shop-avatar">${(sellerName||'S')[0]}</div>`);
-  const ratingHtml = (!isAdminShop && seller && seller.sellerRatingCount)
-    ? `<div style="font-size:12px;color:var(--text-dim);margin-top:2px;"><i class="fa-solid fa-star" style="color:#FFA800;"></i> ${(seller.sellerRating||5).toFixed(1)} · ${seller.sellerRatingCount} оценок продавца</div>`
-    : (!isAdminShop ? `<div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Пока нет оценок продавца</div>` : '');
-  $('#sellerShopHead').innerHTML = `
-    ${avatarHtml}
-    <div>
-      <div style="font-weight:800;font-size:16px;">${sellerName} ${(!isAdminShop && seller && seller.verified) ? '<i class="fa-solid fa-circle-check" style="color:#3AA0FF;font-size:14px;" title="Проверенный продавец"></i>' : ''}</div>
-      <div style="color:var(--text-dim);font-size:12px;">${sellerProducts.length} товар(ов) в магазине</div>
-      ${ratingHtml}
+  const verified = isAdminShop || !!(seller && seller.verified);
+  const director = isAdminShop ? (about.director || about.owner || 'HORIZON MARKET') : (seller && seller.fio) || '—';
+  let shopNo = isAdminShop ? (about.shopNumber || '1') : (seller && (seller.shopNumber || seller.number));
+  if(!shopNo && !isAdminShop){
+    const ids = Object.keys(State.sellersCache||{}).sort();
+    const idx = ids.indexOf(sellerId); shopNo = idx>=0 ? idx+1 : '—';
+  }
+  const bioText = isAdminShop ? (about.text || '') : ((seller && seller.bio) || '');
+  const subtitle = (seller && (seller.tagline || seller.shopDescription)) || (isAdminShop ? (about.tagline || 'Магазин техники и аксессуаров') : 'Магазин продавца');
+  const slogan = (seller && seller.slogan) || (isAdminShop && about.slogan) || 'Всё, что нужно — в одном месте!';
+  const banner = (seller && (seller.banner || seller.cover)) || (isAdminShop && (S.shopBanner || about.banner)) || '';
+  const ratingTxt = (!isAdminShop && seller && seller.sellerRatingCount) ? ` · <i class="fa-solid fa-star" style="color:#FFB020;"></i> ${(seller.sellerRating||5).toFixed(1)} (${seller.sellerRatingCount})` : '';
+  const avatar = isAdminShop
+    ? `<div><i class="fa-solid fa-diamond"></i></div>`
+    : (seller && seller.photo ? `<img src="${seller.photo}" alt="">` : `<div>${hzEsc((sellerName||'S')[0])}</div>`);
+  // соцсети: сначала свои у продавца, иначе общие настройки магазина
+  const soc = Object.assign({}, S.social||{}, isAdminShop ? {} : Object.fromEntries(['telegram','instagram','whatsapp'].filter(k=>seller && (seller[k] || (seller.social&&seller.social[k]))).map(k=>[k, seller[k] || seller.social[k]])));
+  const tg = hzSocialUrl('telegram', soc.telegram), ig = hzSocialUrl('instagram', soc.instagram), wa = hzSocialUrl('whatsapp', soc.whatsapp);
+  const socHtml = [
+    tg ? `<a class="ss-soc tg" href="${tg}" target="_blank" rel="noopener"><span class="ss-soc-ico"><i class="fa-brands fa-telegram"></i></span><span class="ss-soc-t"><b>Telegram</b><small>Написать нам</small></span></a>` : '',
+    ig ? `<a class="ss-soc ig" href="${ig}" target="_blank" rel="noopener"><span class="ss-soc-ico"><i class="fa-brands fa-instagram"></i></span><span class="ss-soc-t"><b>Instagram</b><small>Подписаться</small></span></a>` : '',
+    wa ? `<a class="ss-soc wa" href="${wa}" target="_blank" rel="noopener"><span class="ss-soc-ico"><i class="fa-brands fa-whatsapp"></i></span><span class="ss-soc-t"><b>WhatsApp</b><small>Написать нам</small></span></a>` : ''
+  ].filter(Boolean);
+  const canRate = !isAdminShop && State.user && State.user.role==='client';
+  const popular = sellerProducts.length>3 ? sellerProducts.slice().sort((a,b)=>(Number(b.viewCount)||0)-(Number(a.viewCount)||0)).slice(0,3) : [];
+  const bannerStyle = banner ? ` style="background-image:url('${String(banner).replace(/'/g,'%27')}')"` : '';
+  $('#sellerShopPage').innerHTML = `
+    <div class="ss-banner${banner?'':' ss-banner-def'}"${bannerStyle}>
+      <div class="ss-top">
+        <button class="ss-btn" data-close="ovSellerShop" aria-label="Назад"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="ss-top-r">
+          <button class="ss-btn" id="ssShareBtn" aria-label="Поделиться"><i class="fa-solid fa-share"></i></button>
+          ${canRate ? `<button class="ss-btn" data-rateseller="${sellerId}" data-sellername="${hzEsc(sellerName)}" aria-label="Оценить продавца"><i class="fa-solid fa-ellipsis"></i></button>` : ''}
+        </div>
+      </div>
+      ${banner ? '' : `<div class="ss-banner-brand">${hzEsc(sellerName)}</div>`}
+    </div>
+    <div class="ss-card">
+      <div class="ss-head">
+        <div class="ss-avatar">${avatar}</div>
+        <div class="ss-id">
+          <h2 class="ss-name"><span>${hzEsc(sellerName)}</span>${verified ? '<i class="fa-solid fa-circle-check" title="Проверенный продавец"></i>' : ''}</h2>
+          <div class="ss-sub">${hzEsc(subtitle)}${ratingTxt}</div>
+        </div>
+      </div>
+      <div class="ss-chips">
+        <div class="ss-chip"><i class="fa-solid fa-shop"></i><div><small>Директор магазина</small><b>${hzEsc(director)}</b></div></div>
+        <div class="ss-chip"><i class="fa-solid fa-shop"></i><div><small>Номер магазина</small><b>#${hzEsc(shopNo)}</b></div></div>
+      </div>
+      <div class="ss-slogan"><i class="fa-solid fa-crown"></i><span>${hzEsc(slogan)}</span></div>
+      ${bioText ? `<div class="ss-bio">${hzEsc(bioText).replace(/\n/g,'<br>')}</div>` : ''}
+      ${socHtml.length ? `<div class="ss-socs" style="grid-template-columns:repeat(${socHtml.length},minmax(0,1fr));">${socHtml.join('')}</div>` : ''}
+      <div class="ss-feats">
+        <div class="ss-feat"><i class="fa-solid fa-shield-halved"></i><span>Оригинальная продукция</span></div>
+        <div class="ss-feat"><i class="fa-solid fa-truck-fast"></i><span>Быстрая доставка</span></div>
+        <div class="ss-feat"><i class="fa-solid fa-percent"></i><span>Лучшие цены</span></div>
+        <div class="ss-feat"><i class="fa-solid fa-headset"></i><span>Поддержка 24/7</span></div>
+      </div>
+    </div>
+    ${popular.length ? `<div class="ss-sec">
+      <div class="ss-sec-h"><h3>Популярные товары</h3><a href="#" id="ssSeeAll">Смотреть все <i class="fa-solid fa-arrow-right"></i></a></div>
+      <div class="ss-grid" id="sellerShopPopular">${popular.map(p=>miniCardHtml(p,true)).join('')}</div>
+    </div>` : ''}
+    <div class="ss-sec" id="ssAllSec">
+      <div class="ss-sec-h"><h3>Все товары</h3><span class="ss-count">${sellerProducts.length}</span></div>
+      <div class="ss-grid" id="sellerShopGrid"></div>
     </div>`;
-  $('#sellerShopReviewBtnWrap').innerHTML = (!isAdminShop && State.user && State.user.role==='client')
-    ? `<button class="tiny-btn primary" id="sellerShopRateBtn" data-rateseller="${sellerId}" data-sellername="${sellerName.replace(/"/g,'&quot;')}"><i class="fa-solid fa-star"></i> Оценить продавца</button>`
-    : '';
-  const bioText = isAdminShop ? (State.settings.about && State.settings.about.text) : (seller && seller.bio);
-  $('#sellerShopBio').innerHTML = bioText ? bioText.replace(/</g,'&lt;').replace(/\n/g,'<br>') : '';
-  $('#sellerShopBio').style.display = bioText ? 'block' : 'none';
-  $('#sellerShopGrid').innerHTML = sellerProducts.map(cardHtml).join('') || '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>У продавца пока нет товаров</div></div>';
+  $('#ssShareBtn').addEventListener('click', ()=>{
+    const url = location.origin + location.pathname;
+    if(navigator.share){ navigator.share({title: sellerName, url}).catch(()=>{}); }
+    else if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>toast('Ссылка скопирована','','fa-link')).catch(()=>{}); }
+  });
+  const seeAll = $('#ssSeeAll');
+  if(seeAll) seeAll.addEventListener('click', (e)=>{ e.preventDefault(); const t=$('#ssAllSec'); if(t) t.scrollIntoView({behavior:'smooth', block:'start'}); });
+  // Все товары — порциями по мере прокрутки (иначе на телефоне не хватает памяти: белый экран и перезагрузка)
+  const shopGrid = $('#sellerShopGrid');
+  try{ const prev = gridProgState.get(shopGrid); if(prev && prev.io) prev.io.disconnect(); gridProgState.delete(shopGrid); }catch(e){}
+  const sheet = $('#ovSellerShop .ss-sheet'); if(sheet) sheet.scrollTop = 0;
   openOv('ovSellerShop');
+  if(sellerProducts.length){
+    requestAnimationFrame(()=>{ try{ renderGridProgressive(shopGrid, sellerProducts, p=>miniCardHtml(p,false)); }catch(err){ console.warn('seller shop render failed', err); } });
+  } else {
+    shopGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fa-solid fa-box-open"></i><div>У продавца пока нет товаров</div></div>';
+  }
 }
 document.addEventListener('click', (e)=>{
   const sl = e.target.closest('[data-openseller]');
-  if(sl){ closeOv('ovProduct'); openSellerShop(sl.getAttribute('data-openseller')); }
+  if(sl){
+    const sid = sl.getAttribute('data-openseller');
+    // сначала закрываем карточку товара, а магазин открываем чуть позже —
+    // чтобы операции с историей браузера (кнопка «Назад») не наслаивались друг на друга
+    closeOv('ovProduct');
+    setTimeout(()=>{ try{ openSellerShop(sid); }catch(err){ console.warn('openSellerShop failed', err); } }, 60);
+  }
 });
 
 /* ============ REVIEWS ============ */
@@ -11872,8 +12097,12 @@ db.collection('products').orderBy('createdAt','desc').onSnapshot(snap=>{
   }
   newList.forEach(p=>{ State.seenProductIds.add(p.id); State.productStockCache[p.id] = (p.inStock!==false); State.productPriceCache[p.id] = Number(p.price); });
   State.firstProductsLoad = false;
+  // Перемешиваем порядок только если изменился набор товаров. Иначе любое обновление счётчика
+  // (cartCount/viewCount при добавлении в корзину) заново тасовало витрину, и товар "пропадал" с места.
+  const prevIds = (State.products||[]).map(p=>p.id).sort().join('|');
+  const newIds = newList.map(p=>p.id).sort().join('|');
   State.products = newList;
-  State.mixedOrderDirty = true;
+  if(prevIds !== newIds) State.mixedOrderDirty = true;
   filterAndRenderGrid({});
   if(State.user){ renderFavorites(); }
   checkSharedProductInUrl();
