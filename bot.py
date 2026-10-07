@@ -42,6 +42,8 @@ if PUBLIC_URL:
     PUBLIC_URL = "https://" + re.sub(r"^https?://", "", PUBLIC_URL, flags=re.I).rstrip("/")
 BANK = "horizon_bank"
 DEFAULT_LIMIT = 500
+CHANNEL = os.environ.get("CHANNEL_USERNAME", "horizonmarkettj").strip().lstrip("@")  # публичный канал для проверки подписки
+CHANNEL_URL = "https://t.me/" + CHANNEL
 POOL = ThreadPoolExecutor(max_workers=6)
 BOT_USERNAME = ""
 if not TOKEN:
@@ -267,6 +269,8 @@ def claim(tx, ref, new_status, admin):
 
 
 def on_callback(cb):
+    if (cb.get("data") or "") == "subchk":
+        return on_subcheck(cb)  # кнопка «Я подписался» доступна любому клиенту
     uid = cb["from"]["id"]
     act, _, oid = (cb.get("data") or "").partition(":")
     kyc_acts = ("kok", "kno", "kback", "kr", "ip")
@@ -1048,10 +1052,64 @@ def scheduler():
             if 9 <= now.hour < 21:  # ночью клиентам не пишем
                 kyc_abandon_reminders()
                 installment_reminders(now)
+                channel_reminders()
         except Exception:
             log.exception("scheduler")
             report_exc("планировщик напоминаний")
         time.sleep(1800)
+
+
+# ---------- подписка на канал: проверка и напоминания каждые 4 часа ----------
+def subscribe_markup():
+    return {"inline_keyboard": [[{"text": "📢 Подписаться", "url": CHANNEL_URL}], [{"text": "✅ Я подписался", "callback_data": "subchk"}]]}
+
+
+def channel_subscribed(user_id):
+    """True/False — подписан ли пользователь на канал; None — проверить не удалось (бот не админ канала и т.п.)."""
+    r = tg("getChatMember", chat_id="@" + CHANNEL, user_id=user_id)
+    if r is None:
+        return None
+    st = r.get("status")
+    return st in ("creator", "administrator", "member") or (st == "restricted" and bool(r.get("is_member")))
+
+
+def on_subcheck(cb):
+    uid = cb["from"]["id"]
+    st = channel_subscribed(uid)
+    if st is None:
+        notify_admins("Бот не может проверить подписку на канал @%s: <code>%s</code>\nДобавьте бота администратором канала." % (esc(CHANNEL), esc(LAST_TG_ERR["text"])), key="chanperm", every=21600)
+        return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Не удалось проверить подписку. Попробуйте чуть позже.", show_alert=True)
+    if not st:
+        return tg("answerCallbackQuery", callback_query_id=cb["id"], text="Вы ещё не подписаны. Нажмите «Подписаться», затем снова «Я подписался».", show_alert=True)
+    now = int(time.time() * 1000)
+    try:
+        for d in db.collection("users").where("telegramChatId", "==", uid).limit(3).stream():
+            d.reference.update({"chSub": True, "chCheckedAt": now})
+    except Exception:
+        log.exception("subcheck users")
+    tg("editMessageText", chat_id=cb["message"]["chat"]["id"], message_id=cb["message"]["message_id"], text="✅ Спасибо! Вы подписаны на канал HORIZON MARKET.")
+    tg("answerCallbackQuery", callback_query_id=cb["id"], text="Спасибо за подписку!")
+
+
+def channel_reminders():
+    """Каждые ~4 часа проверяем клиентов с включёнными уведомлениями; не подписанным шлём сообщение с кнопкой «Подписаться»."""
+    now = int(time.time() * 1000)
+    for d in db.collection("users").where("telegramNotifyEnabled", "==", True).stream():
+        u = d.to_dict() or {}
+        chat = u.get("telegramChatId")
+        if not chat or u.get("role") in ("admin", "seller"):
+            continue
+        gap = 24 * 3600000 if u.get("chSub") else 4 * 3600000 - 60000  # подписанных перепроверяем раз в сутки
+        if now - int(u.get("chCheckedAt") or 0) < gap:
+            continue
+        st = channel_subscribed(chat)
+        if st is None:
+            notify_admins("Бот не может проверить подписку на канал @%s: <code>%s</code>\nДобавьте бота администратором канала (хватит права «просмотр участников»)." % (esc(CHANNEL), esc(LAST_TG_ERR["text"])), key="chanperm", every=21600)
+            return
+        d.reference.update({"chSub": st, "chCheckedAt": now})
+        if not st:
+            say(chat, "📢 Вы ещё не подписаны на наш канал — там все новинки и акции первыми. Подпишитесь, чтобы ничего не пропустить!", reply_markup=subscribe_markup())
+        time.sleep(0.05)
 
 
 # ---------- команды клиента ----------
