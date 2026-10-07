@@ -4557,19 +4557,8 @@ async function broadcastNewProductToTelegramClients(p){
     // Публикуем товар в Telegram-канал (если бот публикации настроен), чтобы кнопка
     // "Смотреть в Telegram" вела на канал, где этот товар уже есть свежим постом.
     if(State.settings.productsBotToken) publishProductToTelegram(p).catch(()=>{});
-    const snap = await db.collection('users').where('telegramNotifyEnabled','==',true).limit(500).get().catch(()=>null);
-    if(!snap || snap.empty) return;
-    const siteUrl = getProductUrl(p.id);
-    const channelUrl = hzChannelUrl();
-    for(const doc of snap.docs){
-      const u = doc.data();
-      if(!u.telegramChatId) continue;
-      const cur = u.countryCode==='+7' ? currencyForCountryCode('RU') : u.countryCode==='+998' ? currencyForCountryCode('UZ') : currencyForCountryCode('TJ');
-      const priceStr = fmtInCurrency(p.price, cur);
-      const tpl = PRODUCT_PROMO_TEXT_TEMPLATES[Math.floor(Math.random()*PRODUCT_PROMO_TEXT_TEMPLATES.length)];
-      const text = fillPromoTemplate(tpl, escapeHtmlTg(p.name), priceStr);
-      sendTelegramWith2Buttons(State.settings.regBotToken, u.telegramChatId, text, '📢 Смотреть в Telegram', channelUrl, '🌐 Смотреть на сайте', siteUrl).catch(()=>{});
-    }
+    // Рассылка клиентам в личные сообщения теперь делает бот на сервере (bot.py): ИИ пишет текст под товар,
+    // токен бота больше не нужен в браузере для массовой отправки.
   }catch(e){ console.warn('broadcastNewProductToTelegramClients failed', e); }
 }
 
@@ -4585,6 +4574,17 @@ function dataUrlToBlob(dataUrl){
   const bytes = new Uint8Array(binary.length);
   for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
   return new Blob([bytes], {type: mime});
+}
+/* Адрес сайта для бота: когда приложение открывает админ, сохраняем его в settings/main.siteUrl —
+   бот использует его для кнопки «Смотреть на сайте» в рассылке о новых товарах (или берёт SITE_URL из Railway). */
+function syncSiteUrl(){
+  try{
+    const u = new URL(window.location.href); u.search=''; u.hash='';
+    const base = u.toString();
+    if(!/^https:/i.test(base) || /localhost|127\.0\.0\.1/.test(base)) return;
+    if(State.settings && State.settings.siteUrl === base) return;
+    db.collection('settings').doc('main').set({siteUrl: base}, {merge:true}).then(()=>{ State.settings.siteUrl = base; }).catch(()=>{});
+  }catch(e){}
 }
 function getProductUrl(pid){
   const url = new URL(window.location.href);
@@ -8222,6 +8222,7 @@ function refreshUserUI(){
   filterAndRenderGrid({}); renderProfile(); updateChatBadgeVisibility(); loadNotifications();
   if(State.user && State.user.docId) setupMessageNotifications();
   if(State.user && State.user.docId) setupOrderStatusNotifications();
+  if(State.user && State.user.role==='admin') syncSiteUrl();
   if(State.user && State.user.docId) startPresenceHeartbeat(); else stopPresenceHeartbeat();
   if(State.user && State.user.courierStatus==='active') startCourierLocationTracking(); else stopCourierLocationTracking();
   syncPushTokenAfterAuth();
