@@ -10940,12 +10940,19 @@ async function importProductsFromPdf(file){
     const catIds = new Set(State.catalogs.map(c=>c.id));
     const seen = new Set();
     const newDrafts = [];
+    // уже добавленные товары: совпадение по названию (без учёта регистра/пробелов/знаков) или по артикулу
+    const normKey = t=>String(t||'').toLowerCase().replace(/[^a-z0-9а-яё]+/gi,'');
+    const existNames = new Set(), existArts = new Set();
+    (State.products||[]).forEach(p=>{ const k = normKey(p.name); if(k) existNames.add(k); const a = normKey(p.articul); if(a) existArts.add(a); });
+    let skippedExisting = 0;
     for(const pr of found){
       const name = String(pr.name||'').replace(/[<>]/g,'').replace(/\s+/g,' ').trim();
       if(name.length < 2) continue;
       const priceNum = parseFloat(String(pr.price==null?'':pr.price).replace(/\s/g,'').replace(',','.'));
       const key = name.toLowerCase()+'|'+(isNaN(priceNum)?'':priceNum);
       if(seen.has(key)) continue; seen.add(key);
+      const nk = normKey(name), ak = normKey(pr.articul);
+      if((nk && existNames.has(nk)) || (ak && existArts.has(ak))){ skippedExisting++; continue; }
       let catalogId = catIds.has(String(pr.catalogId)) ? String(pr.catalogId) : defCat;
       let sub = State.subcatalogs.find(s=>s.id===String(pr.subcatalogId) && s.catalogId===catalogId);
       if(!sub && catalogId===defCat && !catIds.has(String(pr.catalogId))) sub = State.subcatalogs.find(s=>s.catalogId===catalogId);
@@ -10957,11 +10964,15 @@ async function importProductsFromPdf(file){
       });
       if(newDrafts.length >= 300) break;
     }
-    if(!newDrafts.length){ pdfSetProgress(''); toast('Товары в PDF не найдены', 'Проверьте файл или добавьте названия вручную', 'fa-triangle-exclamation'); return; }
+    if(!newDrafts.length){
+      pdfSetProgress(skippedExisting ? `Все ${skippedExisting} товаров из PDF уже есть в магазине — новых нет.` : '');
+      toast(skippedExisting ? 'Новых товаров нет' : 'Товары в PDF не найдены', skippedExisting ? `Уже добавлено: ${skippedExisting}` : 'Проверьте файл или добавьте названия вручную', 'fa-triangle-exclamation');
+      return;
+    }
     bulkDrafts = newDrafts;
     renderBulkDrafts();
     const withImg = newDrafts.filter(d=>d.image).length;
-    toast(`Найдено товаров: ${newDrafts.length}`, `с фото: ${withImg}. Сейчас ИИ напишет описания и характеристики`, 'fa-circle-check');
+    toast(`Новых товаров: ${newDrafts.length}`, `с фото: ${withImg}`+(skippedExisting?`, уже были в магазине и пропущены: ${skippedExisting}`:'')+'. Сейчас ИИ напишет описания и характеристики', 'fa-circle-check');
     // 4) описания и характеристики — по 3 параллельно
     let done = 0, idx = 0;
     const worker = async ()=>{
@@ -10977,7 +10988,7 @@ async function importProductsFromPdf(file){
     await Promise.all([worker(), worker(), worker()]);
     const noPrice = bulkDrafts.filter(d=>!d.price).length;
     const errs = bulkDrafts.filter(d=>d.status==='error').length;
-    pdfSetProgress(`<i class="fa-solid fa-circle-check" style="color:var(--accent);"></i> Готово: ${bulkDrafts.length} товаров, с фото ${bulkDrafts.filter(d=>d.image).length}`+(noPrice?`, без цены: ${noPrice}`:'')+(errs?`, без описания: ${errs}`:'')+'. Проверьте карточки ниже и нажмите «Сохранить все товары».');
+    pdfSetProgress(`<i class="fa-solid fa-circle-check" style="color:var(--accent);"></i> Готово: ${bulkDrafts.length} товаров, с фото ${bulkDrafts.filter(d=>d.image).length}`+(noPrice?`, без цены: ${noPrice}`:'')+(errs?`, без описания: ${errs}`:'')+(skippedExisting?`. Пропущено уже существующих: ${skippedExisting}`:'')+'. Проверьте карточки ниже и нажмите «Сохранить все товары».');
   }catch(e){
     console.warn('Импорт из PDF не удался', e);
     pdfSetProgress('');
