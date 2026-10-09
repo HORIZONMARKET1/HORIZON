@@ -2773,7 +2773,13 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
 <div class="overlay center" id="ovBulkCreate">
   <div class="sheet" style="border-radius:24px;max-width:640px;">
     <div class="sheet-title">Массовое добавление товаров <button class="close-x" data-close="ovBulkCreate"><i class="fa-solid fa-xmark"></i></button></div>
-    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Впишите названия товаров — по одному на строку. ИИ подберёт описание и характеристики для каждого; каталог, цену, артикул, бренд и фото укажите вручную перед сохранением.</p>
+    <div style="border:1.5px dashed var(--border);border-radius:14px;padding:12px;margin-bottom:14px;">
+      <b style="display:block;margin-bottom:4px;"><i class="fa-solid fa-file-pdf" style="color:var(--accent);"></i> Импорт из PDF-прайса</b>
+      <p style="color:var(--text-dim);font-size:12px;margin:0 0 10px;">Загрузите PDF со списком товаров (до 100+ позиций). ИИ сам найдёт названия, цены, артикулы и фото, разложит по вашим каталогам и подкаталогам и подберёт описание с характеристиками. Всё покажется карточками — проверьте и нажмите «Сохранить все товары».</p>
+      <label class="btn btn-primary" style="margin:0;cursor:pointer;"><i class="fa-solid fa-upload"></i> Выбрать PDF<input type="file" accept="application/pdf,.pdf" class="hidden" id="bulkPdfInput"></label>
+      <div id="bulkPdfProgress" style="display:none;color:var(--text-dim);font-size:12.5px;margin-top:10px;"></div>
+    </div>
+    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Или впишите названия товаров вручную — по одному на строку. ИИ подберёт описание и характеристики для каждого; каталог, цену, артикул, бренд и фото укажите вручную перед сохранением.</p>
     <div class="field"><label>Названия товаров (по одному на строку)</label><textarea id="bulkNamesInput" rows="5" placeholder="iPhone 15 Pro 256GB
 Samsung Galaxy S24
 Xiaomi Redmi Note 13"></textarea></div>
@@ -10329,8 +10335,9 @@ function updateAiKeyHint(){
   hint.innerHTML = keyLine + corsWarning;
 }
 $('#aiProviderInput')?.addEventListener('change', updateAiKeyHint);
-function buildAiPrompt(productName){
-  return `Ты — опытный копирайтер интернет-магазина. Для товара с названием "${productName}" верни строго JSON без markdown-обёртки и без пояснений, в формате:
+function buildAiPrompt(productName, hint){
+  const hintLine = hint ? `\nИз прайс-листа поставщика известно о товаре: "${hint}". Обязательно используй эти данные в характеристиках и не противоречь им.\n` : '';
+  return `Ты — опытный копирайтер интернет-магазина. Для товара с названием "${productName}" верни строго JSON без markdown-обёртки и без пояснений, в формате:${hintLine}
 {"description":"подробное продающее описание товара на русском языке","characteristics":[{"key":"Название параметра","value":"Значение"}, ...]}
 
 Требования к description:
@@ -10470,8 +10477,8 @@ async function triggerAiSemanticFallback(query, candidates, myAiToken){
   }
 }
 
-async function fetchProductAiData(productName){
-  const text = await callAiRaw(buildAiPrompt(productName), null, true);
+async function fetchProductAiData(productName, hint){
+  const text = await callAiRaw(buildAiPrompt(productName, hint), null, true);
   return parseAiJsonResponse(text);
 }
 $('#pfAiFillBtn').addEventListener('click', async ()=>{
@@ -10581,7 +10588,7 @@ async function bulkGenerateOne(i){
   updateBulkDraftRow(i);
   try{
     const result = await Promise.race([
-      fetchProductAiData(bulkDrafts[i].name),
+      fetchProductAiData(bulkDrafts[i].name, bulkDrafts[i].hint),
       new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 25000))
     ]);
     bulkDrafts[i].desc = result.description;
@@ -10691,6 +10698,304 @@ $('#bulkSaveAllBtn').addEventListener('click', async ()=>{
     bulkDrafts = [];
     if(typeof adminActiveTab!=='undefined' && adminActiveTab==='products') renderAdminTab();
   }
+});
+
+/* ============ ИМПОРТ ТОВАРОВ ИЗ PDF-ПРАЙСА ============
+   1) pdf.js читает текст страниц и вытаскивает встроенные картинки с их координатами;
+   2) ИИ по кускам текста находит товары (название, цена, артикул, бренд, детали) и раскладывает
+      их по существующим каталогам/подкаталогам;
+   3) каждому товару подбирается фото — ближайшая к названию картинка на странице;
+   4) для каждого товара по очереди ИИ пишет описание и характеристики (с учётом данных из прайса);
+   5) всё попадает в те же карточки, что и «Массовое добавление» — проверка и «Сохранить все товары».
+   Если PDF — скан без текстового слоя, страницы отправляются в ИИ как картинки (фото товаров при этом не извлекаются). */
+const PDFJS_VER = '3.11.174';
+let _pdfJsPromise = null;
+function loadPdfJs(){
+  if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if(_pdfJsPromise) return _pdfJsPromise;
+  _pdfJsPromise = new Promise((resolve, reject)=>{
+    const s = document.createElement('script');
+    s.src = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VER}/pdf.min.js`;
+    s.onload = ()=>{
+      try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VER}/pdf.worker.min.js`; }catch(e){}
+      resolve(window.pdfjsLib);
+    };
+    s.onerror = ()=>{ _pdfJsPromise = null; reject(new Error('pdfjs-load')); };
+    document.head.appendChild(s);
+  });
+  return _pdfJsPromise;
+}
+function pdfGetObj(page, name){
+  return new Promise(resolve=>{
+    const t = setTimeout(()=>resolve(null), 4000);
+    try{
+      const store = String(name).startsWith('g_') ? page.commonObjs : page.objs;
+      store.get(name, o=>{ clearTimeout(t); resolve(o||null); });
+    }catch(e){ clearTimeout(t); resolve(null); }
+  });
+}
+function pdfImgToDataUrl(obj, maxSide=700){
+  try{
+    let src = null;
+    if(obj.bitmap){ src = obj.bitmap; }
+    else if(obj.data && obj.width && obj.height){
+      const w = obj.width, h = obj.height, n = obj.data.length;
+      const rgba = new Uint8ClampedArray(w*h*4);
+      if(n === w*h*4){ rgba.set(obj.data); }
+      else if(n === w*h*3){ for(let i=0,j=0;i<n;i+=3,j+=4){ rgba[j]=obj.data[i]; rgba[j+1]=obj.data[i+1]; rgba[j+2]=obj.data[i+2]; rgba[j+3]=255; } }
+      else if(n === w*h){ for(let i=0,j=0;i<n;i++,j+=4){ rgba[j]=rgba[j+1]=rgba[j+2]=obj.data[i]; rgba[j+3]=255; } }
+      else return null; // 1-битные маски и экзотика пропускаем
+      const c0 = document.createElement('canvas'); c0.width = w; c0.height = h;
+      c0.getContext('2d').putImageData(new ImageData(rgba, w, h), 0, 0);
+      src = c0;
+    }
+    if(!src) return null;
+    const w = src.width, h = src.height;
+    if(w < 80 || h < 80) return null; // иконки и декор
+    const k = Math.min(1, maxSide / Math.max(w, h));
+    const c = document.createElement('canvas');
+    c.width = Math.round(w*k); c.height = Math.round(h*k);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(src, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.82);
+  }catch(e){ return null; }
+}
+/* Текстовые сегменты страницы (кусок текста в одной строке без больших разрывов) + картинки с положением. */
+async function pdfExtractPage(pdf, pageNum, sigCount){
+  const page = await pdf.getPage(pageNum);
+  const vp = page.getViewport({scale:1});
+  const H = vp.height, W = vp.width;
+  const tc = await page.getTextContent();
+  const raw = tc.items.filter(it=>it.str && it.str.trim()).map(it=>({str:it.str, x:it.transform[4], y:H-it.transform[5], w:it.width||0}));
+  raw.sort((a,b)=> (Math.abs(a.y-b.y)<3 ? a.x-b.x : a.y-b.y));
+  const segs = [];
+  for(const it of raw){
+    const last = segs[segs.length-1];
+    if(last && Math.abs(last.y-it.y)<3 && it.x - (last.x1) < 14){
+      last.text += (it.x - last.x1 > 1.5 ? ' ' : '') + it.str;
+      last.x1 = it.x + it.w;
+    } else segs.push({text:it.str, x:it.x, y:it.y, x1:it.x+it.w});
+  }
+  // картинки
+  const images = [];
+  try{
+    const ops = await page.getOperatorList();
+    const OPS = pdfjsLib.OPS, Util = pdfjsLib.Util;
+    let ctm = [1,0,0,1,0,0]; const stack = [];
+    const found = [];
+    for(let i=0;i<ops.fnArray.length;i++){
+      const fn = ops.fnArray[i], a = ops.argsArray[i];
+      if(fn===OPS.save) stack.push(ctm.slice());
+      else if(fn===OPS.restore) ctm = stack.pop() || [1,0,0,1,0,0];
+      else if(fn===OPS.transform) ctm = Util.transform(ctm, a);
+      else if(fn===OPS.paintFormXObjectBegin){ stack.push(ctm.slice()); if(a && a[0]) ctm = Util.transform(ctm, a[0]); }
+      else if(fn===OPS.paintFormXObjectEnd) ctm = stack.pop() || [1,0,0,1,0,0];
+      else if(fn===OPS.paintImageXObject){ found.push({name:a[0], m:ctm.slice()}); }
+    }
+    for(const f of found){
+      const [a,b,c,d,e,ff] = f.m;
+      const xs = [e, e+a, e+c, e+a+c], ys = [ff, ff+b, ff+d, ff+b+d];
+      const x0 = Math.min(...xs), x1 = Math.max(...xs);
+      const top = H - Math.max(...ys), bottom = H - Math.min(...ys);
+      if(x1-x0 < 30 || bottom-top < 30) continue;          // слишком мелко на странице
+      if((x1-x0) > W*0.92 && (bottom-top) > H*0.6) continue; // фон страницы
+      const obj = await pdfGetObj(page, f.name);
+      if(!obj) continue;
+      const sig = obj.width+'x'+obj.height+':'+(obj.data ? Array.prototype.slice.call(obj.data,0,48).join(',') : f.name);
+      sigCount[sig] = (sigCount[sig]||0)+1;
+      const dataUrl = pdfImgToDataUrl(obj);
+      if(dataUrl) images.push({dataUrl, x0, x1, top, bottom, sig});
+    }
+  }catch(e){ console.warn('PDF: не удалось извлечь картинки со страницы', pageNum, e); }
+  return {pageNum, segs, images, page};
+}
+async function pdfRenderPageToDataUrl(page, scale=1.5){
+  const vp = page.getViewport({scale});
+  const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+  await page.render({canvasContext:c.getContext('2d'), viewport:vp}).promise;
+  return c.toDataURL('image/jpeg', 0.8);
+}
+function pdfCatalogListText(){
+  return State.catalogs.map(c=>{
+    const subs = State.subcatalogs.filter(s=>s.catalogId===c.id).map(s=>`    подкаталог ${s.id} | ${s.name}`).join('\n');
+    return `каталог ${c.id} | ${c.name}` + (subs ? '\n'+subs : '');
+  }).join('\n');
+}
+function pdfBuildExtractPrompt(bodyText, withSeg){
+  return `Ты разбираешь прайс-лист магазина. Ниже ${withSeg ? 'текст страниц PDF, разбитый на сегменты вида "S12: текст"' : 'страница прайса на изображении'}. Найди ВСЕ товарные позиции и верни строго JSON без markdown и пояснений:
+{"products":[{${withSeg?'"seg":"S12",':''}"name":"полное название товара","price":123.5,"articul":"","brand":"","details":"характеристики и параметры, указанные в прайсе (объём, размер, цвет, материал, комплектация и т.п.), одной строкой","catalogId":"","subcatalogId":""}]}
+
+Правила:
+- ${withSeg?'seg — id сегмента, где начинается название товара (по нему подбирается фото).':''}
+- Товар — это конкретная позиция для продажи. Заголовки разделов, телефоны, адреса, условия оплаты, итоги — не товары.
+- price — число без валюты и пробелов; если указано несколько цен (опт/розница), бери розничную; если цены нет — null.
+- Не выдумывай данные: чего нет в прайсе — пустая строка. Название оставляй как в прайсе (можно исправить явные опечатки/переносы).
+- catalogId и subcatalogId выбери СТРОГО из списка ниже (только id), по смыслу товара. Если ничего не подходит — пустая строка.
+
+Список каталогов:
+${pdfCatalogListText() || '(каталогов нет)'}
+
+${withSeg ? 'Текст страниц:\n'+bodyText : ''}`;
+}
+function pdfParseProducts(text){
+  const cleaned = (text||'').trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'');
+  let p; try{ p = JSON.parse(cleaned); }catch(e){ throw new Error('bad-json'); }
+  const arr = Array.isArray(p) ? p : (Array.isArray(p&&p.products) ? p.products : null);
+  if(!arr) throw new Error('bad-shape');
+  return arr;
+}
+function pdfAssignImages(pageProducts, images, sigCount, segById){
+  // жадное сопоставление «товар ↔ ближайшая картинка», каждая картинка используется один раз
+  const pairs = [];
+  pageProducts.forEach((pr, pi)=>{
+    const sg = segById[pr.seg]; if(!sg) return;
+    images.forEach((im, ii)=>{
+      if((sigCount[im.sig]||0) > 4) return; // повторяется на многих страницах — логотип/водяной знак
+      const dx = sg.x < im.x0 ? im.x0 - sg.x : (sg.x > im.x1 ? sg.x - im.x1 : 0);
+      let dy;
+      if(sg.y >= im.top && sg.y <= im.bottom) dy = 0;
+      else if(sg.y > im.bottom) dy = sg.y - im.bottom;      // подпись под фото — обычный случай
+      else dy = (im.top - sg.y) * 1.8;                      // фото ниже названия — менее вероятно
+      pairs.push({pi, ii, dist: Math.hypot(dx, dy)});
+    });
+  });
+  pairs.sort((a,b)=>a.dist-b.dist);
+  const usedP = new Set(), usedI = new Set();
+  for(const pr of pairs){
+    if(pr.dist > 260) break;
+    if(usedP.has(pr.pi) || usedI.has(pr.ii)) continue;
+    usedP.add(pr.pi); usedI.add(pr.ii);
+    pageProducts[pr.pi].image = images[pr.ii].dataUrl;
+  }
+}
+function pdfSetProgress(html){
+  const el = $('#bulkPdfProgress');
+  if(!el) return;
+  el.style.display = html ? '' : 'none';
+  el.innerHTML = html || '';
+}
+async function importProductsFromPdf(file){
+  if(!(State.settings.aiApiKey || State.settings.geminiApiKey)){ toast('API ключ ИИ не настроен', 'Профиль → Telegram-бот → ИИ', 'fa-circle-exclamation'); return; }
+  if(!State.catalogs.length){ toast('Сначала создайте каталоги', 'ИИ раскладывает товары по существующим каталогам', 'fa-circle-exclamation'); return; }
+  const input = $('#bulkPdfInput');
+  const spin = '<i class="fa-solid fa-spinner fa-spin"></i> ';
+  const found = [];
+  try{
+    pdfSetProgress(spin+'Открываю PDF…');
+    const lib = await loadPdfJs();
+    const buf = await file.arrayBuffer();
+    const pdf = await lib.getDocument({data: buf}).promise;
+    if(pdf.numPages > 60){ toast('В PDF '+pdf.numPages+' страниц', 'Обрабатываю первые 60', 'fa-circle-info'); }
+    const nPages = Math.min(pdf.numPages, 60);
+    const sigCount = {};
+    const pages = [];
+    for(let p=1;p<=nPages;p++){
+      pdfSetProgress(spin+`Читаю страницы ${p}/${nPages}…`);
+      pages.push(await pdfExtractPage(pdf, p, sigCount));
+    }
+    // 1) текстовые страницы → куски по ~7000 знаков
+    const textPages = pages.filter(pg=>pg.segs.reduce((n,s)=>n+s.text.length,0) >= 15);
+    const scanPages = pages.filter(pg=>!textPages.includes(pg));
+    let segCounter = 0;
+    const chunks = []; let cur = {pages:[], text:'', segById:{}, pageBySeg:{}};
+    for(const pg of textPages){
+      let pageText = '';
+      const localSeg = {};
+      for(const s of pg.segs){ const id = 'S'+(++segCounter); localSeg[id] = s; pageText += `${id}: ${s.text}\n`; }
+      if(cur.text.length && cur.text.length + pageText.length > 7000){ chunks.push(cur); cur = {pages:[], text:'', segById:{}, pageBySeg:{}}; }
+      cur.pages.push(pg); cur.text += `--- страница ${pg.pageNum} ---\n` + pageText;
+      Object.assign(cur.segById, localSeg);
+      Object.keys(localSeg).forEach(id=>{ cur.pageBySeg[id] = pg; });
+    }
+    if(cur.text.length) chunks.push(cur);
+    const totalSteps = chunks.length + scanPages.length;
+    let step = 0;
+    for(const ch of chunks){
+      step++;
+      pdfSetProgress(spin+`ИИ ищет товары в прайсе: часть ${step}/${totalSteps}… (найдено: ${found.length})`);
+      let arr;
+      try{
+        const text = await Promise.race([callAiRaw(pdfBuildExtractPrompt(ch.text, true), null, true), new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),90000))]);
+        arr = pdfParseProducts(text);
+      }catch(e){ console.warn('PDF: ИИ не разобрал часть', step, e); toast('Часть прайса не удалось разобрать', 'Страницы: '+ch.pages.map(p=>p.pageNum).join(', '), 'fa-triangle-exclamation'); continue; }
+      // картинки: сопоставляем постранично
+      const byPage = new Map();
+      arr.forEach(pr=>{ const pg = ch.pageBySeg[pr.seg]; if(!pg) return; if(!byPage.has(pg)) byPage.set(pg, []); byPage.get(pg).push(pr); });
+      byPage.forEach((prs, pg)=>{ pdfAssignImages(prs, pg.images, sigCount, ch.segById); });
+      found.push(...arr);
+    }
+    // 2) сканы — через vision
+    for(const pg of scanPages){
+      step++;
+      pdfSetProgress(spin+`ИИ читает отсканированную страницу ${pg.pageNum} (${step}/${totalSteps})…`);
+      try{
+        const dataUrl = await pdfRenderPageToDataUrl(pg.page);
+        const text = await Promise.race([callAiRaw(pdfBuildExtractPrompt('', false), dataUrl, true), new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),90000))]);
+        found.push(...pdfParseProducts(text));
+      }catch(e){ console.warn('PDF: скан-страница не разобрана', pg.pageNum, e); }
+    }
+    // 3) в черновики
+    const defCat = State.catalogs[0].id;
+    const catIds = new Set(State.catalogs.map(c=>c.id));
+    const seen = new Set();
+    const newDrafts = [];
+    for(const pr of found){
+      const name = String(pr.name||'').replace(/[<>]/g,'').replace(/\s+/g,' ').trim();
+      if(name.length < 2) continue;
+      const priceNum = parseFloat(String(pr.price==null?'':pr.price).replace(/\s/g,'').replace(',','.'));
+      const key = name.toLowerCase()+'|'+(isNaN(priceNum)?'':priceNum);
+      if(seen.has(key)) continue; seen.add(key);
+      let catalogId = catIds.has(String(pr.catalogId)) ? String(pr.catalogId) : defCat;
+      let sub = State.subcatalogs.find(s=>s.id===String(pr.subcatalogId) && s.catalogId===catalogId);
+      if(!sub && catalogId===defCat && !catIds.has(String(pr.catalogId))) sub = State.subcatalogs.find(s=>s.catalogId===catalogId);
+      newDrafts.push({
+        name, desc:'', chars:[], catalogId, subcatalogId: sub ? sub.id : ((State.subcatalogs.find(s=>s.catalogId===catalogId)||{}).id || ''),
+        price: (!isNaN(priceNum) && priceNum>0) ? String(priceNum) : '',
+        articul: String(pr.articul||'').trim(), brand: String(pr.brand||'').trim(),
+        image: pr.image || null, hint: String(pr.details||'').trim(), status:'pending'
+      });
+      if(newDrafts.length >= 300) break;
+    }
+    if(!newDrafts.length){ pdfSetProgress(''); toast('Товары в PDF не найдены', 'Проверьте файл или добавьте названия вручную', 'fa-triangle-exclamation'); return; }
+    bulkDrafts = newDrafts;
+    renderBulkDrafts();
+    const withImg = newDrafts.filter(d=>d.image).length;
+    toast(`Найдено товаров: ${newDrafts.length}`, `с фото: ${withImg}. Сейчас ИИ напишет описания и характеристики`, 'fa-circle-check');
+    // 4) описания и характеристики — по 3 параллельно
+    let done = 0, idx = 0;
+    const worker = async ()=>{
+      while(idx < bulkDrafts.length){
+        const i = idx++;
+        if(!bulkDrafts[i]) continue;
+        await bulkGenerateOne(i);
+        done++;
+        pdfSetProgress(spin+`Описания и характеристики: ${done}/${newDrafts.length}…`);
+      }
+    };
+    pdfSetProgress(spin+`Описания и характеристики: 0/${newDrafts.length}…`);
+    await Promise.all([worker(), worker(), worker()]);
+    const noPrice = bulkDrafts.filter(d=>!d.price).length;
+    const errs = bulkDrafts.filter(d=>d.status==='error').length;
+    pdfSetProgress(`<i class="fa-solid fa-circle-check" style="color:var(--accent);"></i> Готово: ${bulkDrafts.length} товаров, с фото ${bulkDrafts.filter(d=>d.image).length}`+(noPrice?`, без цены: ${noPrice}`:'')+(errs?`, без описания: ${errs}`:'')+'. Проверьте карточки ниже и нажмите «Сохранить все товары».');
+  }catch(e){
+    console.warn('Импорт из PDF не удался', e);
+    pdfSetProgress('');
+    const code = e && e.message || '';
+    let title = 'Не удалось обработать PDF', detail = 'Проверьте файл и попробуйте ещё раз';
+    if(code==='pdfjs-load'){ title = 'Не загрузился модуль чтения PDF'; detail = 'Проверьте интернет и повторите'; }
+    else if(code==='no-api-key'){ title = 'API ключ не настроен'; detail = 'Профиль → Telegram-бот → ИИ'; }
+    else if(code==='network-error'){ title = 'Нет связи с сервером ИИ'; detail = 'Проверьте интернет и провайдера (OpenAI не работает напрямую с сайта — выберите OpenRouter или Gemini)'; }
+    else if(/^api-error-(401|403)$/.test(code)){ title = 'Ключ ИИ отклонён'; detail = 'Проверьте API ключ'; }
+    else if(code==='api-error-429'){ title = 'Превышен лимит ИИ'; detail = 'Проверьте баланс/лимиты провайдера'; }
+    toast(title, detail, 'fa-triangle-exclamation');
+  }finally{
+    if(input) input.value = '';
+  }
+}
+$('#bulkPdfInput').addEventListener('change', (e)=>{
+  const f = e.target.files && e.target.files[0];
+  if(f) importProductsFromPdf(f);
 });
 
 /* ---- sizes / variants (size, memory GB, RAM...) ---- */
