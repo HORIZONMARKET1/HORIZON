@@ -1232,6 +1232,9 @@ button, .btn, .pillbtn, .iconbtn, .chip-opt, .tiny-btn{min-width:0;}
 .wc-sign-cap{font-family:'Manrope',sans-serif; font-size:10px; letter-spacing:.6px; color:#6B7797; margin-top:6px; border-top:1px solid #CBD6EC; padding-top:5px;}
 .wc-sign-cap b{color:#0B1F4D;}
 .wc-footer-strip{position:relative; z-index:1; text-align:center; font-family:'Manrope',sans-serif; font-size:9.5px; color:#A3ADC7; margin-top:24px; letter-spacing:.4px;}
+
+/* оптовый режим: метка «ОПТ» у цен */
+body.ws-on .card-price::after, body.ws-on .mcard-price::after, body.ws-on .pd-price::after{content:"ОПТ"; display:inline-block; margin-left:6px; padding:1px 5px; border-radius:6px; font-size:9px; font-weight:800; letter-spacing:.3px; vertical-align:middle; background:var(--magenta,#d62fa6); color:#fff;}
 </style>
 <style id="hzPhotoStyle">
 /* ===== ДИЗАЙН КНОПОК ПРОФИЛЯ — как на фото ===== */
@@ -1960,6 +1963,7 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
         <span style="font-weight:700;">Итого за сборку</span>
         <span style="font-weight:800;font-size:19px;" id="pcBuilderTotal">0 ₽</span>
       </div>
+      <div id="pcBuilderDiscNote" style="display:none;color:var(--success);font-size:12.5px;font-weight:700;margin:-6px 0 12px;"></div>
       <button class="btn btn-outline" id="pcBuilderShareBtn" style="margin-bottom:10px;"><i class="fa-solid fa-share-nodes"></i> Поделиться сборкой</button>
       <button class="btn btn-primary" id="pcBuilderOrderBtn"><i class="fa-solid fa-cart-shopping"></i> Заказать сборку</button>
     </div>
@@ -2619,6 +2623,7 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
       <div class="field"><label>Цена (TJS)</label><input id="pfPrice" type="number"></div>
       <div class="field"><label>Старая цена (акция)</label><input id="pfOldPrice" type="number" placeholder="необязательно"></div>
     </div>
+    <div class="field"><label>Оптовая цена (TJS) <span style="color:var(--text-dim);font-weight:400;">— её видят клиенты, включившие оптовый промокод</span></label><input id="pfOptPrice" type="number" min="0" placeholder="необязательно"></div>
     <div class="field" style="display:flex;align-items:center;gap:8px;">
       <input type="checkbox" id="pfInStock" style="width:auto;" checked="">
       <label style="margin:0;">Товар в наличии</label>
@@ -2786,6 +2791,27 @@ Xiaomi Redmi Note 13"></textarea></div>
     <button class="btn btn-primary" id="bulkGenerateBtn" style="margin-bottom:14px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Заполнить через ИИ</button>
     <div id="bulkDraftsList"></div>
     <button class="btn btn-primary" id="bulkSaveAllBtn" style="display:none;"><i class="fa-solid fa-check-double"></i> Сохранить все товары</button>
+  </div>
+</div>
+
+<!-- WHOLESALE PROMO -->
+<div class="overlay center" id="ovWholesale">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Оптовые цены <button class="close-x" data-close="ovWholesale"><i class="fa-solid fa-xmark"></i></button></div>
+    <p id="wsStatusText" style="color:var(--text-dim);font-size:13px;margin:0 0 14px;"></p>
+    <div class="field" id="wsInputField"><label>Оптовый промокод</label><input id="wsCodeInput" placeholder="Введите промокод" style="text-transform:uppercase;" autocomplete="off"></div>
+    <button class="btn btn-primary" id="wsApplyBtn"><i class="fa-solid fa-boxes-stacked"></i> Включить оптовые цены</button>
+    <button class="btn btn-outline" id="wsOffBtn" style="display:none;"><i class="fa-solid fa-xmark"></i> Выключить оптовые цены</button>
+  </div>
+</div>
+
+<!-- DELETE ACCOUNT -->
+<div class="overlay center" id="ovDeleteAccount">
+  <div class="sheet" style="border-radius:24px;">
+    <div class="sheet-title">Удалить аккаунт <button class="close-x" data-close="ovDeleteAccount"><i class="fa-solid fa-xmark"></i></button></div>
+    <p id="delAccText" style="color:var(--text-dim);font-size:13px;margin:0 0 12px;"></p>
+    <div class="field"><label>Пароль для подтверждения</label><input type="password" id="delAccPass" autocomplete="current-password"></div>
+    <button class="btn btn-primary" id="delAccConfirmBtn" style="background:var(--danger);border-color:var(--danger);"><i class="fa-solid fa-trash"></i> Удалить навсегда</button>
   </div>
 </div>
 
@@ -3599,18 +3625,86 @@ function fmtInCurrency(n, cur){
 /* Возвращает цену товара с учётом выбранного варианта (например, объёма памяти) —
    если у товара задана своя цена для этого варианта в sizePrices, используем её,
    иначе — обычную цену товара. */
-function getVariantPrice(p, size){
+function hzRetailVariantPrice(p, size){
   if(p && p.sizePrices && size && p.sizePrices[size]!=null && !isNaN(p.sizePrices[size])) return Number(p.sizePrices[size]);
   return Number(p ? p.price : 0);
 }
 /* Минимальная цена среди всех вариантов товара — используется в карточке в каталоге,
    чтобы показать "от ..." если у вариантов разные цены. */
-function getMinPrice(p){
+function hzRetailMinPrice(p){
   if(!p) return 0;
   if(!p.sizePrices || !p.sizes || !p.sizes.length) return Number(p.price);
   let min = Number(p.price);
   p.sizes.forEach(s=>{ if(p.sizePrices[s]!=null && !isNaN(p.sizePrices[s]) && Number(p.sizePrices[s])<min) min = Number(p.sizePrices[s]); });
   return min;
+}
+/* ============ ОПТОВЫЕ ЦЕНЫ ПО ПРОМОКОДУ ============
+   Админ задаёт у товара «Оптовую цену» и создаёт промокод типа «Оптовые цены» (можно для конкретных
+   пользователей по телефону). Клиент вводит код — и везде видит и платит оптовую цену. */
+function hzNormPhone(v){ return String(v==null?'':v).replace(/\D+/g,''); }
+function wsPromoOf(u){ if(!u || !u.wsPromoId) return null; return (State.promocodes||[]).find(x=>x.id===u.wsPromoId) || null; }
+function wsUserAllowed(promo, u){
+  const allowed = (promo && promo.allowedUsers) || [];
+  if(!allowed.length) return true;
+  if(!u) return false;
+  const myPhone = hzNormPhone(u.fullPhone || ((u.countryCode||'')+(u.phone||''))), myId = String(u.docId||'');
+  return allowed.some(a=>{
+    const raw = String(a).trim();
+    if(/^[+\d\s()-]+$/.test(raw)) return myPhone && hzNormPhone(raw)===myPhone;
+    return raw===myId;
+  });
+}
+function wsPromoValid(promo, u){
+  if(!promo || promo.type!=='wholesale' || promo.active===false) return false;
+  if(promo.expiresAt){ const ms = promo.expiresAt.toMillis ? promo.expiresAt.toMillis() : new Date(promo.expiresAt).getTime(); if(Date.now() > ms) return false; }
+  return wsUserAllowed(promo, u);
+}
+function wsActive(){ const u = State.user; if(!u || u.role==='admin') return false; return wsPromoValid(wsPromoOf(u), u); }
+function wsOptPrice(p){ return (p && Number(p.optPrice)>0 && wsActive()) ? Number(p.optPrice) : null; }
+function getVariantPrice(p, size){
+  const base = hzRetailVariantPrice(p, size);
+  const opt = wsOptPrice(p);
+  if(opt==null) return base;
+  const rp = Number(p.price)||0;
+  return (rp>0 && base!==rp) ? Math.round(base*opt/rp) : opt;
+}
+function getMinPrice(p){
+  const base = hzRetailMinPrice(p);
+  const opt = wsOptPrice(p);
+  if(opt==null) return base;
+  const rp = Number(p.price)||0;
+  return (rp>0 && base!==rp) ? Math.round(base*opt/rp) : opt;
+}
+/* ============ СКИДКА НА СБОРКУ ПК ============
+   Комплектующие, отправленные в корзину из «Собрать ПК», считаются со скидкой (по умолчанию 5%,
+   процент меняется в админке: Сборка ПК). */
+let pcDisc = {};
+try{ pcDisc = JSON.parse(localStorage.getItem('hz_pcdisc')||'{}') || {}; }catch(e){ pcDisc = {}; }
+function pcDiscPct(){
+  const raw = State.settings && State.settings.pcBuilderDiscountPct;
+  const v = (raw===undefined || raw===null || raw==='') ? 5 : Number(raw);
+  return isFinite(v) ? Math.max(0, Math.min(50, v)) : 5;
+}
+function hzApplyPcDisc(price){ const pct = pcDiscPct(); return pct>0 ? Math.round(Number(price)*(1-pct/100)) : Number(price); }
+function hzPcDiscCleanup(){
+  try{
+    const inCart = new Set((State.cart||[]).map(c=>c.productId));
+    Object.keys(pcDisc).forEach(id=>{ if(!inCart.has(id)) delete pcDisc[id]; });
+    localStorage.setItem('hz_pcdisc', JSON.stringify(pcDisc));
+  }catch(e){}
+}
+function cartUnitPrice(c, p){
+  if(c.wholesale && p.wholesale) return Number(p.wholesale.price)||0;
+  let price = getVariantPrice(p, c.size);
+  if(pcDisc[c.productId]) price = hzApplyPcDisc(price);
+  return price;
+}
+function hzCartTags(c, p){
+  if(c.wholesale) return '';
+  let t = '';
+  if(wsOptPrice(p)!=null) t += ' <span style="color:var(--magenta);font-size:11px;font-weight:700;">ОПТ</span>';
+  if(pcDisc[c.productId] && pcDiscPct()>0) t += ` <span style="color:var(--success);font-size:11px;font-weight:700;">−${pcDiscPct()}% сборка ПК</span>`;
+  return t;
 }
 function priceVariesBySize(p){
   if(!p || !p.sizePrices || !p.sizes) return false;
@@ -3620,6 +3714,7 @@ function priceVariesBySize(p){
 const HZ_GEO_CACHE_KEY = 'hz_geo_country_v1';
 const HZ_GEO_CACHE_TTL_MS = 24*60*60*1000; // сутки — потом переспросим на случай VPN/переезда
 function refreshPricesForGeo(){
+  try{ document.body.classList.toggle('ws-on', wsActive()); }catch(e){}
   // Пересчитываем всё, что уже могло отрисоваться с валютой по умолчанию (₽), в актуальную региональную
   try{ if(State.products && State.products.length) filterAndRenderGrid({}); }catch(e){}
   try{ renderBanner(); }catch(e){}
@@ -4030,6 +4125,13 @@ function closeOv(id, fromPop){
       el.classList.remove('open');
       if(el.dataset.zset){ el.style.zIndex = ''; delete el.dataset.zset; }
     }
+  }
+  if(id==='ovProduct'){
+    State.activeProductId = null;
+    try{
+      const u = new URL(window.location.href);
+      if(u.searchParams.has('product')){ u.searchParams.delete('product'); window.history.replaceState(window.history.state, '', u); }
+    }catch(e){}
   }
   if(id==='ovChatThread'){
     try{ cancelVoiceRecording(); stopVoicePlayback(); }catch(e){}
@@ -5938,7 +6040,7 @@ function pcSlotQty(slot){ return slot.multi ? Math.max(1, pcQty[slot.key]||1) : 
 function pcBuilderTotal(){
   return PC_BUILDER_SLOTS.reduce((sum,slot)=>{
     const p = pcBuild[slot.key] ? State.products.find(pp=>pp.id===pcBuild[slot.key]) : null;
-    return sum + (p ? getMinPrice(p)*pcSlotQty(slot) : 0);
+    return sum + (p ? hzApplyPcDisc(getMinPrice(p))*pcSlotQty(slot) : 0);
   },0);
 }
 /* --- проверка совместимости: данные берём из названия, бренда, описания и характеристик товара --- */
@@ -5986,7 +6088,7 @@ function renderPcBuilder(){
       </div>
       ${p
         ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
-            <span style="font-weight:700;font-size:13px;">${fmt(getMinPrice(p)*q)}</span>
+            <span style="font-weight:700;font-size:13px;">${fmt(hzApplyPcDisc(getMinPrice(p))*q)}</span>
             <div style="display:flex;align-items:center;gap:6px;">
               ${slot.multi?`<button class="tiny-btn" data-pcqty="${slot.key}:-1">−</button><b style="min-width:16px;text-align:center;">${q}</b><button class="tiny-btn" data-pcqty="${slot.key}:1">+</button>`:''}
               <button class="tiny-btn" data-pcchange="${slot.key}">Изменить</button>
@@ -5996,6 +6098,8 @@ function renderPcBuilder(){
     </div>`;
   }).join('');
   $('#pcBuilderTotal').textContent = fmt(pcBuilderTotal());
+  const pcNote = $('#pcBuilderDiscNote');
+  if(pcNote){ const pct = pcDiscPct(); const any = PC_BUILDER_SLOTS.some(sl=>pcBuild[sl.key]); pcNote.style.display = (pct>0 && any) ? '' : 'none'; pcNote.innerHTML = `<i class="fa-solid fa-tag"></i> Скидка на сборку −${pct}% уже учтена в ценах`; }
 }
 function openPcPicker(slotKey){
   pcPickerState = {slotKey, query:'', sort:'', brand:''}; $('#pcPickerSort').value='';
@@ -6073,9 +6177,10 @@ $('#pcBuilderOrderBtn').addEventListener('click', ()=>{
     if(!p || p.inStock===false) return;
     const existing = State.cart.find(c=>c.productId===pid && !c.wholesale && !c.size && !c.color);
     if(existing) existing.qty+=q; else State.cart.push({productId:pid, qty:q, size:null, color:null});
+    pcDisc[pid] = true;
   });
   persistCart(); updateCartBadge(); filterAndRenderGrid({});
-  toast('Комплектующие добавлены в корзину', 'Оформите заказ в корзине', 'fa-cart-shopping');
+  toast('Комплектующие добавлены в корзину', pcDiscPct()>0 ? `Скидка на сборку −${pcDiscPct()}% применена` : 'Оформите заказ в корзине', 'fa-cart-shopping');
   closeOv('ovPcBuilder');
   renderCart(); openOv('ovCart');
 });
@@ -6142,7 +6247,7 @@ document.addEventListener('click',(e)=>{
 
 /* ============ ШЕРИНГ СБОРКИ ПК ============ */
 $('#pcBuilderShareBtn').addEventListener('click', async ()=>{
-  const lines=[]; PC_BUILDER_SLOTS.forEach(sl=>{ const p=pcBuild[sl.key]&&State.products.find(pp=>pp.id===pcBuild[sl.key]); if(p){ const q=pcSlotQty(sl); lines.push(`• ${sl.label}: ${p.name}${q>1?' ×'+q:''} — ${fmt(getMinPrice(p)*q)}`); } });
+  const lines=[]; PC_BUILDER_SLOTS.forEach(sl=>{ const p=pcBuild[sl.key]&&State.products.find(pp=>pp.id===pcBuild[sl.key]); if(p){ const q=pcSlotQty(sl); lines.push(`• ${sl.label}: ${p.name}${q>1?' ×'+q:''} — ${fmt(hzApplyPcDisc(getMinPrice(p))*q)}`); } });
   if(!lines.length){ toast('Сначала выберите комплектующие','','fa-circle-exclamation'); return; }
   const text = 'Моя сборка ПК в HORIZON MARKET:\n'+lines.join('\n')+'\n\nИтого: '+fmt(pcBuilderTotal());
   try{ if(navigator.share){ await navigator.share({title:'Сборка ПК', text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
@@ -6428,7 +6533,7 @@ function changeCartQty(pid, delta, wholesale, size, color){
   persistCart(); updateCartBadge(); updateCardFooters(pid); renderCart();
   if($('#ovProduct').classList.contains('open') && State.activeProductId===pid && p){ refreshPdCartControls(p); }
 }
-function persistCart(){ localStorage.setItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'), JSON.stringify(State.cart)); markCartActivity(); syncCartToServer(); }
+function persistCart(){ hzPcDiscCleanup(); localStorage.setItem('hz_cart_'+(State.user?State.user.docId||'guest':'guest'), JSON.stringify(State.cart)); markCartActivity(); syncCartToServer(); }
 let cartSyncTimer = null;
 function syncCartToServer(){
   // Только для авторизованных: серверная функция шлёт push через OneSignal по external_user_id
@@ -6478,7 +6583,7 @@ function updateCartBadge(){ $('#cartBadge').textContent = State.cart.reduce((s,c
 function cartTotal(){
   return State.cart.reduce((sum,c)=>{
     const p = State.products.find(pp=>pp.id===c.productId); if(!p) return sum;
-    const price = (c.wholesale && p.wholesale) ? p.wholesale.price : getVariantPrice(p, c.size);
+    const price = cartUnitPrice(c, p);
     return sum + price*c.qty;
   },0);
 }
@@ -6494,7 +6599,7 @@ function renderCart(){
       if(!p) return '';
       const seller = State.sellersCache && State.sellersCache[p.sellerId];
       const isW = !!c.wholesale;
-      const price = isW && p.wholesale ? p.wholesale.price : getVariantPrice(p, c.size);
+      const price = cartUnitPrice(c, p);
       const wAttr = isW ? ' data-wholesale="1"' : '';
       const sizeAttr = c.size ? ` data-size="${c.size}"` : '';
       const colorAttr = c.color ? ` data-color="${c.color}"` : '';
@@ -6502,7 +6607,7 @@ function renderCart(){
       return `<div class="cart-item">
         <img src="${(p.images&&p.images[0])||''}">
         <div class="cart-item-body">
-          <div class="cart-item-name">${p.name}${isW?' <span style="color:var(--magenta);font-size:11px;font-weight:700;">ОПТ</span>':''}</div>
+          <div class="cart-item-name">${p.name}${hzCartTags(c,p)}${isW?' <span style="color:var(--magenta);font-size:11px;font-weight:700;">ОПТ</span>':''}</div>
           <div class="cart-item-seller">Продавец: ${seller?seller.fio:'HORIZON MARKET'}${isW?` · ${fmt(price)}/пачка`:''}</div>
           ${variantTxt?`<div class="cart-item-seller">${variantTxt}</div>`:''}
           <div class="qty-stepper" style="width:fit-content;"><button data-qty="-1" data-id="${p.id}"${wAttr}${sizeAttr}${colorAttr}>-</button><span>${c.qty}</span><button data-qty="1" data-id="${p.id}"${wAttr}${sizeAttr}${colorAttr}>+</button></div>
@@ -6778,6 +6883,14 @@ $('#coPromoApplyBtn').addEventListener('click', ()=>{
   const promo = State.promocodes.find(p=>p.code===code);
   const subtotal = cartTotal();
   if(!promo || promo.active===false){ statusEl.style.color='var(--danger)'; statusEl.textContent='Промокод не найден или отключён'; appliedPromo=null; recalcCheckoutTotals(); return; }
+  if(promo.type==='wholesale'){
+    appliedPromo = null;
+    const res = wsTryActivate(promo);
+    statusEl.style.color = res.ok ? 'var(--success)' : 'var(--danger)';
+    statusEl.textContent = res.ok ? 'Оптовые цены включены — цены в заказе пересчитаны' : res.msg;
+    if(res.ok) $('#coPromoInput').value = '';
+    recalcCheckoutTotals(); return;
+  }
   if(promo.expiresAt){
     const expMs = promo.expiresAt.toMillis ? promo.expiresAt.toMillis() : new Date(promo.expiresAt).getTime();
     if(Date.now() > expMs){ statusEl.style.color='var(--danger)'; statusEl.textContent='Срок действия промокода истёк'; appliedPromo=null; recalcCheckoutTotals(); return; }
@@ -6916,7 +7029,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const deliveryMethodLabel = deliveryMethodInput ? deliveryMethodInput.getAttribute('data-title') : null;
   const items = State.cart.map(c=>{
     const p = State.products.find(pp=>pp.id===c.productId);
-    const price = (c.wholesale && p && p.wholesale) ? (p.wholesale.price||0) : (p ? getVariantPrice(p, c.size) : 0);
+    const price = p ? cartUnitPrice(c, p) : 0;
     return {productId:c.productId, name:p?p.name:'', price, qty:c.qty, sellerId:(p && p.sellerId) || 'admin', wholesale: !!c.wholesale, size:c.size||null, color:c.color||null};
   });
   const subtotal = cartTotal();
@@ -6936,7 +7049,7 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const paymentMethod = payMethodInput ? payMethodInput.value : 'card';
   const installmentProvider = paymentMethod==='installment' ? $('#coInstallmentProvider').value : null;
   const initialStatus = paymentMethod==='installment' ? 'Ожидает оформления рассрочки' : 'Ожидает оплаты';
-  const order = stripUndefinedDeep({clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, receiveMethod, receiveMethodLabel, pickupAddress: receiveMethod==='pickup' ? (State.settings.pickupAddress||null) : null, needsCourier:false, deliveryMethod, deliveryMethodLabel, address, addressLat: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lat : null, addressLng: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lng : null, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, installmentProvider, installmentTerm: hzc?hzc.term.short:null, installmentRate: hzc?hzc.rate:null, installmentMarkup: hzc?hzc.markup:null, installmentParts: hzc?hzc.parts:null, installmentPerPayment: hzc?hzc.perPart:null, passportRequired: hzc?true:null, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
+  const order = stripUndefinedDeep({wsPromoCode: (wsActive() ? (State.user.wsPromoCode||null) : null), clientId: State.user.docId||'guest', clientName:name, clientPhone: code+phone, country, receiveMethod, receiveMethodLabel, pickupAddress: receiveMethod==='pickup' ? (State.settings.pickupAddress||null) : null, needsCourier:false, deliveryMethod, deliveryMethodLabel, address, addressLat: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lat : null, addressLng: (receiveMethod==='delivery' && coAddressCoords) ? coAddressCoords.lng : null, items, subtotal, deliveryFee, promoCode: appliedPromo?appliedPromo.code:null, promoDiscount, firstOrderDiscount, bonusUsed, total, paymentMethod, installmentProvider, installmentTerm: hzc?hzc.term.short:null, installmentRate: hzc?hzc.rate:null, installmentMarkup: hzc?hzc.markup:null, installmentParts: hzc?hzc.parts:null, installmentPerPayment: hzc?hzc.perPart:null, passportRequired: hzc?true:null, status:initialStatus, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
   window.hzOrderAnim && hzOrderAnim.start();   // анимация кнопки: коробка → грузовик → галочка
   const orderRef = db.collection('orders').doc();
   try{
@@ -7026,6 +7139,8 @@ $('#coSubmitBtn').addEventListener('click', async ()=>{
   const okSub = paymentMethod==='installment' ? `Продавец свяжется с вами в чате, чтобы оформить рассрочку через ${installmentProvider}` : 'Продавец скоро с вами свяжется';
   if(window.hzOrderAnim) await hzOrderAnim.success(okSub, toast); else toast('Ваш заказ принят!', okSub, 'fa-circle-check');
   closeOv('ovCheckout');
+  // страница товара/корзина могли остаться открытыми под оформлением — после заказа возвращаем на главную, а не в товар
+  ['ovProduct','ovCart'].forEach(id=>{ const el = document.getElementById(id); if(el && el.classList.contains('open') && !el.classList.contains('closing')) closeOv(id); });
 
   // SMS клиенту: спасибо за заказ + ссылки на Telegram/WhatsApp
   const social = State.settings.social || {};
@@ -7310,9 +7425,13 @@ function checkReferralInUrl(){
 }
 checkReferralInUrl();
 function checkSharedProductInUrl(){
+  // Только один раз при запуске. Раньше функция вызывалась при каждом обновлении списка товаров из базы
+  // (а оно приходит после любого добавления в корзину/заказа) и заново открывала товар из адреса.
+  if(State._sharedProductHandled) return;
   const params = new URLSearchParams(window.location.search);
   const pid = params.get('product');
   if(pid){
+    State._sharedProductHandled = true;
     const tryOpen = ()=>{
       if(State.products.find(pp=>pp.id===pid)){ openProductDetail(pid); }
       else setTimeout(tryOpen, 400);
@@ -8262,6 +8381,7 @@ function renderProfile(){
   menu += item(fa('fa-pen'),'Редактировать профиль','Измените свои данные и фото','data-open="ovEditProfile"');
   if(u.role==='client' || u.role==='seller'){
     menu += item(fa('fa-box-open'),'Мои заказы','История покупок и статусы','id="openOrdersBtn"');
+    menu += item(fa('fa-boxes-stacked'),'Оптовые цены', wsActive() ? ('Включены по промокоду '+hzEsc(u.wsPromoCode||'')) : 'Введите промокод для оптового прайса','id="openWholesaleBtn"');
   }
   if(u.role==='client'){
     if(!u.courierStatus || u.courierStatus==='rejected'){
@@ -8290,6 +8410,7 @@ function renderProfile(){
     menu += item(fa('fa-credit-card'),'Способы оплаты','Настройте удобные способы оплаты','id="openPaymentMethodsBtn"');
     menu += item(fa('fa-paper-plane'),'Telegram-бот (главный)','Получайте уведомления и поддержку','id="openBotSettingsBtn"');
   }
+  if(u.role!=='admin' && u.docId){ menu += `<div class="pf-item pf-danger" id="deleteAccountBtn"><span class="pf-ico">${fa('fa-user-xmark')}</span><span class="pf-txt"><b>Удалить аккаунт</b><small>Безвозвратно удалить профиль и данные</small></span>${arrow}</div>`; }
   menu += `<div class="pf-item pf-danger" id="logoutBtn"><span class="pf-ico">${fa('fa-right-from-bracket')}</span><span class="pf-txt"><b>Выйти</b><small>Завершить сессию</small></span>${arrow}</div>`;
   const bioHtml = u.bio ? `<div class="seller-shop-bio" style="margin:0 0 14px;">${u.bio.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>` : '';
   const loyaltyHtml = (u.role==='client' && u.docId) ? `
@@ -8330,6 +8451,8 @@ function renderProfile(){
   body.innerHTML = `${profileTopHtml(true)}${hero}${bioHtml}${loyaltyHtml}${courierBannerHtml}${menu}`;
   $('#shareReferralBtn')?.addEventListener('click', ()=>shareReferralLink());
   $('#logoutBtn')?.addEventListener('click', logout);
+  $('#openWholesaleBtn')?.addEventListener('click', openWholesaleModal);
+  $('#deleteAccountBtn')?.addEventListener('click', openDeleteAccountModal);
   $('#openAboutMenuBtn')?.addEventListener('click', ()=>{ renderAbout(); openOv('ovAbout'); });
   $('#openOrdersBtn')?.addEventListener('click', ()=>{ renderOrders(); openOv('ovOrders'); });
   $('#openBotSettingsBtn')?.addEventListener('click', ()=>{
@@ -9073,6 +9196,7 @@ async function renderOrders(){
       <div class="row" style="color:var(--text-dim)"><span>${o.clientPhone} · ${o.country}</span><span>${fmt(o.total)}</span></div>
       ${o.paymentMethod==='card' ? `<div style="font-size:11.5px;color:var(--violet);"><i class="fa-solid fa-credit-card"></i> Оплата на карту</div>` : ''}
       ${o.paymentMethod==='installment' ? `<div style="font-size:11.5px;color:var(--violet);"><i class="fa-solid fa-calendar-days"></i> Рассрочка${o.installmentProvider?` (${o.installmentProvider})`:''}</div>` : ''}
+      ${o.wsPromoCode ? `<div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-boxes-stacked"></i> Оптовый прайс (${hzEsc(o.wsPromoCode)})</div>` : ''}
       ${o.promoCode ? `<div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-tag"></i> Промокод ${o.promoCode}: -${fmt(o.promoDiscount||0)}</div>` : ''}
       ${o.bonusUsed ? `<div style="font-size:11.5px;color:var(--success);"><i class="fa-solid fa-coins"></i> Списано бонусов: -${fmt(o.bonusUsed)}</div>` : ''}
       ${o.receiveMethodLabel ? `<div style="font-size:11.5px;color:var(--text-dim);"><i class="fa-solid ${o.receiveMethod==='delivery'?'fa-motorcycle':'fa-store'}"></i> ${o.receiveMethodLabel}${o.receiveMethod==='delivery' && !o.courierId ? ' · сумма договорная' : ''}</div>` : ''}
@@ -10560,6 +10684,7 @@ function bulkDraftCardHtml(d, i){
       <div class="field"><label>Артикул</label><input data-bulkart="${i}" value="${(d.articul||'').replace(/"/g,'&quot;')}"></div>
     </div>
     <div class="field"><label>Бренд</label><input data-bulkbrand="${i}" value="${(d.brand||'').replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>Оптовая цена (для клиентов с оптовым промокодом)</label><input type="number" data-bulkopt="${i}" value="${d.optPrice||''}"></div>
     <div class="field"><label>Фото</label>
       <div style="display:flex;gap:8px;align-items:center;">
         ${d.image ? `<div class="img-thumb" style="width:60px;height:60px;position:relative;"><img src="${d.image}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-bulkimgrm="${i}">✕</span></div>` : ''}
@@ -10636,6 +10761,7 @@ document.addEventListener('input', (e)=>{
   else if(e.target.matches('[data-bulkprice]')) bulkDrafts[e.target.getAttribute('data-bulkprice')].price = e.target.value;
   else if(e.target.matches('[data-bulkart]')) bulkDrafts[e.target.getAttribute('data-bulkart')].articul = e.target.value;
   else if(e.target.matches('[data-bulkbrand]')) bulkDrafts[e.target.getAttribute('data-bulkbrand')].brand = e.target.value;
+  else if(e.target.matches('[data-bulkopt]')) bulkDrafts[e.target.getAttribute('data-bulkopt')].optPrice = e.target.value;
   else if(e.target.matches('[data-bulkcharkey]')){ const [i,ci] = e.target.getAttribute('data-bulkcharkey').split(':').map(Number); bulkDrafts[i].chars[ci].key = e.target.value; }
   else if(e.target.matches('[data-bulkcharval]')){ const [i,ci] = e.target.getAttribute('data-bulkcharval').split(':').map(Number); bulkDrafts[i].chars[ci].value = e.target.value; }
 });
@@ -10667,7 +10793,7 @@ $('#bulkSaveAllBtn').addEventListener('click', async ()=>{
     try{
       const data = {
         name: d.name, price: parseFloat(d.price), articul: d.articul.trim()||null, brand: d.brand.trim()||null,
-        oldPrice: null, inStock: true, stockQty: null, promoLabel: null,
+        oldPrice: null, optPrice: d.optPrice ? (parseFloat(d.optPrice)||null) : null, inStock: true, stockQty: null, promoLabel: null,
         desc: d.desc.trim(), catalogId: d.catalogId||'', subcatalogId: d.subcatalogId||'',
         characteristics: (d.chars||[]).filter(c=>c.key), images: d.image ? [d.image] : [],
         sizes: [], colors: [], sizePrices: null, wholesale: null,
@@ -10824,12 +10950,12 @@ function pdfCatalogListText(){
 }
 function pdfBuildExtractPrompt(bodyText, withSeg){
   return `Ты разбираешь прайс-лист магазина. Ниже ${withSeg ? 'текст страниц PDF, разбитый на сегменты вида "S12: текст"' : 'страница прайса на изображении'}. Найди ВСЕ товарные позиции и верни строго JSON без markdown и пояснений:
-{"products":[{${withSeg?'"seg":"S12",':''}"name":"полное название товара","price":123.5,"articul":"","brand":"","details":"характеристики и параметры, указанные в прайсе (объём, размер, цвет, материал, комплектация и т.п.), одной строкой","catalogId":"","subcatalogId":""}]}
+{"products":[{${withSeg?'"seg":"S12",':''}"name":"полное название товара","price":123.5,"optPrice":null,"articul":"","brand":"","details":"характеристики и параметры, указанные в прайсе (объём, размер, цвет, материал, комплектация и т.п.), одной строкой","catalogId":"","subcatalogId":""}]}
 
 Правила:
 - ${withSeg?'seg — id сегмента, где начинается название товара (по нему подбирается фото).':''}
 - Товар — это конкретная позиция для продажи. Заголовки разделов, телефоны, адреса, условия оплаты, итоги — не товары.
-- price — число без валюты и пробелов; если указано несколько цен (опт/розница), бери розничную; если цены нет — null.
+- price — розничная цена: число без валюты и пробелов. optPrice — оптовая цена, если в прайсе указаны обе (розница и опт). Если какой-то цены нет — null.
 - Не выдумывай данные: чего нет в прайсе — пустая строка. Название оставляй как в прайсе (можно исправить явные опечатки/переносы).
 - catalogId и subcatalogId выбери СТРОГО из списка ниже (только id), по смыслу товара. Если ничего не подходит — пустая строка.
 
@@ -10959,6 +11085,7 @@ async function importProductsFromPdf(file){
       newDrafts.push({
         name, desc:'', chars:[], catalogId, subcatalogId: sub ? sub.id : ((State.subcatalogs.find(s=>s.catalogId===catalogId)||{}).id || ''),
         price: (!isNaN(priceNum) && priceNum>0) ? String(priceNum) : '',
+        optPrice: (()=>{ const v = parseFloat(String(pr.optPrice==null?'':pr.optPrice).replace(/\s/g,'').replace(',','.')); return (!isNaN(v) && v>0) ? String(v) : ''; })(),
         articul: String(pr.articul||'').trim(), brand: String(pr.brand||'').trim(),
         image: pr.image || null, hint: String(pr.details||'').trim(), status:'pending'
       });
@@ -11008,6 +11135,114 @@ $('#bulkPdfInput').addEventListener('change', (e)=>{
   const f = e.target.files && e.target.files[0];
   if(f) importProductsFromPdf(f);
 });
+
+/* ============ ОПТОВЫЕ ЦЕНЫ: включение по промокоду ============ */
+function wsRefreshUi(){
+  try{ document.body.classList.toggle('ws-on', wsActive()); }catch(e){}
+  try{ refreshPricesForGeo(); }catch(e){}
+  try{ renderProfile(); }catch(e){}
+}
+function wsTryActivate(promo){
+  const u = State.user;
+  if(!u || !u.docId) return {ok:false, msg:'Войдите в аккаунт, чтобы включить оптовые цены'};
+  if(u.role==='admin') return {ok:false, msg:'Для администратора оптовый режим не нужен'};
+  if(!wsPromoValid(promo, u)) return {ok:false, msg:'Этот промокод недоступен для вашего аккаунта или срок действия истёк'};
+  const firstTime = u.wsPromoId !== promo.id;
+  if(firstTime && promo.usageLimit && (promo.usedCount||0) >= promo.usageLimit) return {ok:false, msg:'Лимит использований промокода исчерпан'};
+  u.wsPromoId = promo.id; u.wsPromoCode = promo.code; saveLocalUser(u);
+  db.collection('users').doc(u.docId).update({wsPromoId: promo.id, wsPromoCode: promo.code}).catch(()=>{});
+  if(firstTime) db.collection('promocodes').doc(promo.id).update({usedCount: firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+  wsRefreshUi();
+  return {ok:true};
+}
+function wsDeactivate(){
+  const u = State.user; if(!u) return;
+  delete u.wsPromoId; delete u.wsPromoCode; saveLocalUser(u);
+  if(u.docId && u.docId!=='admin') db.collection('users').doc(u.docId).update({wsPromoId: firebase.firestore.FieldValue.delete(), wsPromoCode: firebase.firestore.FieldValue.delete()}).catch(()=>{});
+  wsRefreshUi();
+}
+function wsPaintModal(){
+  const on = wsActive();
+  $('#wsStatusText').innerHTML = on
+    ? `<i class="fa-solid fa-circle-check" style="color:var(--success);"></i> Оптовые цены включены по промокоду <b>${hzEsc((State.user&&State.user.wsPromoCode)||'')}</b>. В каталоге, корзине и заказах вы видите оптовые цены.`
+    : 'Введите оптовый промокод, который вам выдал администратор, — и в каталоге, корзине и заказах вы будете видеть оптовые цены.';
+  $('#wsInputField').style.display = on ? 'none' : '';
+  $('#wsApplyBtn').style.display = on ? 'none' : '';
+  $('#wsOffBtn').style.display = on ? '' : 'none';
+  $('#wsCodeInput').value = '';
+}
+function openWholesaleModal(){
+  if(!State.user){ openOv('ovAuthChoice'); return; }
+  wsPaintModal(); openOv('ovWholesale');
+}
+$('#wsApplyBtn').addEventListener('click', ()=>{
+  const code = $('#wsCodeInput').value.trim().toUpperCase();
+  if(!code){ toast('Введите промокод','','fa-circle-exclamation'); return; }
+  const promo = (State.promocodes||[]).find(x=>x.code===code && x.type==='wholesale' && x.active!==false);
+  if(!promo){ toast('Оптовый промокод не найден','Проверьте код','fa-circle-exclamation'); return; }
+  const res = wsTryActivate(promo);
+  if(!res.ok){ toast('Не удалось включить', res.msg, 'fa-circle-exclamation'); return; }
+  toast('Оптовые цены включены','Цены в каталоге и корзине обновлены','fa-circle-check');
+  closeOv('ovWholesale');
+});
+$('#wsCodeInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#wsApplyBtn').click(); } });
+$('#wsOffBtn').addEventListener('click', ()=>{ wsDeactivate(); toast('Оптовые цены выключены','Снова розничные цены','fa-circle-info'); closeOv('ovWholesale'); });
+
+/* ============ УДАЛЕНИЕ АККАУНТА ============ */
+function openDeleteAccountModal(){
+  const u = State.user;
+  if(!u || !u.docId || u.role==='admin') return;
+  $('#delAccText').innerHTML = 'Аккаунт будет удалён <b>безвозвратно</b>: профиль, избранное, бонусы, сохранённые адреса и переписки. '
+    + (u.role==='seller' ? '<b>Все ваши товары и магазин тоже будут удалены.</b> ' : '')
+    + 'В истории заказов у продавцов останутся только сами заказы — без ваших имени, телефона и адреса.';
+  $('#delAccPass').value = '';
+  openOv('ovDeleteAccount');
+}
+async function deleteMyAccount(){
+  const u = State.user;
+  if(!u || !u.docId || u.role==='admin') return;
+  const pass = $('#delAccPass').value;
+  if(!pass){ toast('Введите пароль','','fa-circle-exclamation'); return; }
+  const btn = $('#delAccConfirmBtn'); const orig = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Проверяю…';
+  try{
+    const snap = await db.collection('users').doc(u.docId).get();
+    if(!snap.exists){ throw new Error('no-user'); }
+    if(snap.data().password !== pass){ toast('Неверный пароль','','fa-circle-exclamation'); return; }
+    if(!confirm('Удалить аккаунт навсегда? Это действие нельзя отменить.')) return;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Удаляю…';
+    const id = u.docId;
+    // 1) главное — сам профиль: если не удалился, ничего больше не трогаем
+    await db.collection('users').doc(id).delete();
+    // 2) остальное — по возможности, ошибки не останавливают
+    const step = async (fn)=>{ try{ await fn(); }catch(e){ console.warn('Удаление аккаунта: шаг не выполнен', e); } };
+    const batchRun = async (docs, fn)=>{ for(let i=0;i<docs.length;i+=400){ const b = db.batch(); docs.slice(i,i+400).forEach(d=>fn(b,d)); await b.commit(); } };
+    const delQuery = async (q)=>{ const s = await q.get(); await batchRun(s.docs, (b,d)=>b.delete(d.ref)); };
+    if(u.role==='seller') await step(()=>delQuery(db.collection('products').where('sellerId','==',id)));
+    await step(()=>delQuery(db.collection('users').doc(id).collection('sellerReviews')));
+    for(const field of ['clientId','sellerId']){
+      await step(async ()=>{
+        const s = await db.collection('chats').where(field,'==',id).get();
+        for(const d of s.docs){ await step(()=>delQuery(d.ref.collection('messages'))); await d.ref.delete(); }
+      });
+    }
+    await step(async ()=>{
+      const s = await db.collection('orders').where('clientId','==',id).get();
+      await batchRun(s.docs, (b,d)=>b.update(d.ref, {clientName:'Удалённый пользователь', clientPhone:'', address:'', addressLat:null, addressLng:null, clientDeleted:true}));
+    });
+    await step(()=>db.collection('abandonedCarts').doc(id).delete());
+    try{ localStorage.removeItem('hz_cart_'+id); }catch(e){}
+    closeOv('ovDeleteAccount');
+    logout();
+    toast('Аккаунт удалён','Все ваши данные стёрты','fa-circle-check');
+  }catch(e){
+    console.warn('Не удалось удалить аккаунт', e);
+    toast('Не удалось удалить аккаунт','Проверьте интернет и попробуйте ещё раз','fa-triangle-exclamation');
+  }finally{
+    btn.disabled = false; btn.innerHTML = orig;
+  }
+}
+$('#delAccConfirmBtn').addEventListener('click', deleteMyAccount);
 
 /* ---- sizes / variants (size, memory GB, RAM...) ---- */
 function renderPfSizes(){
@@ -11150,6 +11385,7 @@ function openProductForm(productId){
   $('#pfBrand').value = p?p.brand||'':'';
   $('#pfPrice').value = p?p.price:'';
   $('#pfOldPrice').value = p&&p.oldPrice?p.oldPrice:'';
+  $('#pfOptPrice').value = p&&p.optPrice?p.optPrice:'';
   $('#pfInStock').checked = p ? (p.inStock !== false) : true;
   $('#pfStockQty').value = (p && p.stockQty!=null) ? p.stockQty : '';
   const presetLabels = ['Распродажа','Акция','Хит продаж','Новинка'];
@@ -11201,7 +11437,7 @@ $('#pfSaveBtn').addEventListener('click', async ()=>{
   const stockQtyRaw = $('#pfStockQty').value.trim();
   const stockQty = stockQtyRaw!=='' ? Math.max(0, parseInt(stockQtyRaw)) : null;
   const data = {
-    name, price, articul: $('#pfArticul').value.trim() || null, brand: $('#pfBrand').value.trim() || null, oldPrice: $('#pfOldPrice').value ? parseFloat($('#pfOldPrice').value) : null,
+    name, price, articul: $('#pfArticul').value.trim() || null, brand: $('#pfBrand').value.trim() || null, oldPrice: $('#pfOldPrice').value ? parseFloat($('#pfOldPrice').value) : null, optPrice: $('#pfOptPrice').value ? (parseFloat($('#pfOptPrice').value)||null) : null,
     inStock: stockQty!=null ? stockQty>0 : $('#pfInStock').checked,
     stockQty,
     promoLabel: promoLabel || null,
@@ -11444,7 +11680,7 @@ function renderAdminTab(){
       <div class="field"><label>Код (латиницей, без пробелов)</label><input id="promoCodeInput" placeholder="SALE2026" style="text-transform:uppercase;"></div>
       <div class="field-row">
         <div class="field"><label>Тип скидки</label>
-          <select id="promoTypeInput"><option value="percent">Процент, %</option><option value="fixed">Фикс. сумма, ₽</option></select>
+          <select id="promoTypeInput"><option value="percent">Процент, %</option><option value="fixed">Фикс. сумма, ₽</option><option value="wholesale">Оптовые цены (вместо скидки)</option></select>
         </div>
         <div class="field"><label>Размер скидки</label><input id="promoValueInput" type="number" min="0" placeholder="10"></div>
       </div>
@@ -11453,6 +11689,7 @@ function renderAdminTab(){
         <div class="field"><label>Лимит использований</label><input id="promoUsageLimitInput" type="number" min="0" placeholder="Без ограничений"></div>
       </div>
       <div class="field"><label>Действует до (необязательно)</label><input id="promoExpiresInput" type="date"></div>
+      <div class="field"><label>Для кого — только для типа «Оптовые цены» (необязательно)</label><textarea id="promoUsersInput" rows="2" placeholder="Телефоны с кодом страны через запятую или с новой строки, например +992901234567. Пусто — любой, кто знает код."></textarea></div>
       <button class="btn btn-primary" id="addPromoBtn"><i class="fa-solid fa-plus"></i> Создать промокод</button>
       <div id="promoList" style="margin-top:14px;"></div>`;
     $('#addPromoBtn').addEventListener('click', async ()=>{
@@ -11462,14 +11699,15 @@ function renderAdminTab(){
       const minOrder = $('#promoMinOrderInput').value ? Number($('#promoMinOrderInput').value) : null;
       const usageLimit = $('#promoUsageLimitInput').value ? Number($('#promoUsageLimitInput').value) : null;
       const expiresAtStr = $('#promoExpiresInput').value;
-      if(!code || !value){ toast('Укажите код и размер скидки','','fa-circle-exclamation'); return; }
+      const allowedUsers = ($('#promoUsersInput').value||'').split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
+      if(!code || (type!=='wholesale' && !value)){ toast('Укажите код и размер скидки','','fa-circle-exclamation'); return; }
       if(State.promocodes.some(p=>p.code===code)){ toast('Такой промокод уже существует','','fa-circle-exclamation'); return; }
       await db.collection('promocodes').add(stripUndefinedDeep({
-        code, type, value, minOrder, usageLimit, usedCount:0, active:true,
+        code, type, value: type==='wholesale' ? 0 : value, minOrder, usageLimit, usedCount:0, active:true, allowedUsers: type==='wholesale' ? allowedUsers : null,
         expiresAt: expiresAtStr ? new Date(expiresAtStr+'T23:59:59') : null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }));
-      $('#promoCodeInput').value=''; $('#promoValueInput').value=''; $('#promoMinOrderInput').value=''; $('#promoUsageLimitInput').value=''; $('#promoExpiresInput').value='';
+      $('#promoCodeInput').value=''; $('#promoValueInput').value=''; $('#promoMinOrderInput').value=''; $('#promoUsageLimitInput').value=''; $('#promoExpiresInput').value=''; $('#promoUsersInput').value='';
       toast('Промокод создан','','fa-circle-check');
     });
     renderAdminPromoList();
@@ -11586,12 +11824,15 @@ function renderAdminTab(){
           </div>
         `).join('')}
       </div>
+      <div class="field"><label>Скидка на сборку ПК, %</label><input id="pcbDiscountInput" type="number" min="0" max="50" step="0.5" value="${pcDiscPct()}"><p style="color:var(--text-dim);font-size:11.5px;margin:4px 0 0;">Применяется к комплектующим, которые клиент отправил в корзину через «Собрать ПК». 0 — без скидки.</p></div>
       <button class="btn btn-primary" id="savePcbMapBtn"><i class="fa-solid fa-floppy-disk"></i> Сохранить</button>`;
     $('#savePcbMapBtn').addEventListener('click', async ()=>{
       const newMap = {};
       $$('[data-pcbslot]').forEach(sel=>{ if(sel.value) newMap[sel.getAttribute('data-pcbslot')] = sel.value; });
-      await db.collection('settings').doc('main').set({pcBuilderMap: newMap}, {merge:true});
-      State.settings.pcBuilderMap = newMap;
+      const pcbRaw = $('#pcbDiscountInput').value;
+      const pcbPct = pcbRaw==='' ? 5 : Math.max(0, Math.min(50, Number(pcbRaw)||0));
+      await db.collection('settings').doc('main').set({pcBuilderMap: newMap, pcBuilderDiscountPct: pcbPct}, {merge:true});
+      State.settings.pcBuilderMap = newMap; State.settings.pcBuilderDiscountPct = pcbPct;
       toast('Настройки сборки ПК сохранены','','fa-circle-check');
     });
   } else if(adminActiveTab==='about'){
@@ -11761,8 +12002,8 @@ function renderAdminPromoList(){
   if(State.promocodes.length===0){ wrap.innerHTML = '<div class="empty-state"><i class="fa-solid fa-tags"></i><div>Промокодов пока нет</div></div>'; return; }
   wrap.innerHTML = State.promocodes.slice().sort((a,b)=>(b.createdAt?b.createdAt.toMillis():0)-(a.createdAt?a.createdAt.toMillis():0)).map(p=>{
     const expTxt = p.expiresAt ? `· до ${new Date(p.expiresAt.toMillis?p.expiresAt.toMillis():p.expiresAt).toLocaleDateString('ru-RU')}` : '';
-    const limitTxt = p.usageLimit ? `${p.usedCount||0}/${p.usageLimit} исп.` : `${p.usedCount||0} исп.`;
-    const valTxt = p.type==='percent' ? `-${p.value}%` : `-${fmt(p.value)}`;
+    const limitTxt = (p.usageLimit ? `${p.usedCount||0}/${p.usageLimit} исп.` : `${p.usedCount||0} исп.`) + (p.type==='wholesale' ? ((p.allowedUsers&&p.allowedUsers.length) ? ` · для ${p.allowedUsers.length} польз.` : ' · для всех, кто знает код') : '');
+    const valTxt = p.type==='wholesale' ? 'ОПТ-цены' : (p.type==='percent' ? `-${p.value}%` : `-${fmt(p.value)}`);
     return `<div class="list-row">
       <div><div class="list-row-title">${p.code} <span style="color:var(--violet);font-weight:800;">${valTxt}</span></div>
         <div class="list-row-sub">${limitTxt} ${p.minOrder?`· от ${fmt(p.minOrder)}`:''} ${expTxt} ${p.active===false?'· <span style="color:var(--danger);">выключен</span>':''}</div></div>
@@ -12494,6 +12735,7 @@ db.collection('subcatalogs').onSnapshot(snap=>{
 });
 db.collection('promocodes').onSnapshot(snap=>{
   State.promocodes = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  try{ if(State.user && State.user.wsPromoId) wsRefreshUi(); }catch(e){}
   if($('#ovAdmin').classList.contains('open') && adminActiveTab==='promocodes') renderAdminPromoList();
 }, ()=>{});
 db.collection('products').orderBy('createdAt','desc').onSnapshot(snap=>{
