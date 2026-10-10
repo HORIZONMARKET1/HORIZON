@@ -174,7 +174,31 @@ a{color:inherit; text-decoration:none;}
   background:var(--surface); border:1px solid var(--border); border-radius:16px;
   box-shadow:0 10px 28px rgba(0,0,0,.18); padding:10px 6px; display:none;
 }
-.search-history-dropdown.open{display:block;}
+.search-history-dropdown.open{display:block; max-height:70vh; overflow-y:auto;}
+.sg-chips{display:flex; flex-wrap:wrap; gap:6px; padding:2px 6px 8px;}
+.sg-chip{display:inline-flex; align-items:center; gap:6px; padding:6px 11px; border-radius:999px; background:var(--surface-2); font-size:12.5px; font-weight:700; cursor:pointer;}
+.sg-chip i{color:var(--violet); font-size:11.5px;}
+.sg-chip small{color:var(--text-dim); font-weight:600; font-size:10.5px;}
+.sg-prod{display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:12px; cursor:pointer;}
+.sg-prod:active{background:var(--surface-2);}
+.sg-img{width:46px; height:46px; border-radius:10px; background:var(--surface-2); overflow:hidden; flex:none; display:flex; align-items:center; justify-content:center; color:var(--text-dim);}
+.sg-img img{width:100%; height:100%; object-fit:cover;}
+.sg-body{flex:1; min-width:0;}
+.sg-name{font-size:13.5px; font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+.sg-sub{font-size:11.5px; color:var(--text-dim);}
+.sg-price{font-size:13.5px; font-weight:800; flex:none;}
+.sg-all{text-align:center; padding:10px; font-size:13px; font-weight:800; color:var(--violet); cursor:pointer;}
+.sg-empty{padding:14px 10px; font-size:13px; color:var(--text-dim); text-align:center;}
+.me-block{border:1.5px solid var(--border); border-radius:14px; padding:12px; margin-bottom:12px;}
+.me-block h4{margin:0 0 10px; font-size:13.5px; display:flex; align-items:center; gap:8px;}
+.me-block h4 i{color:var(--violet);}
+.me-block .btn{margin-top:4px;}
+.me-chk{display:flex; align-items:center; gap:8px; font-size:12.5px; margin:0 0 8px;}
+.psel{display:flex; align-items:center; padding-right:10px; cursor:pointer; flex:none;}
+.psel input{width:19px; height:19px; accent-color:var(--violet);}
+.psel-bar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 4px 10px; position:sticky; top:0; z-index:5; background:var(--bg);}
+.psel-bar .tiny-btn{flex:none;}
+.psel-bar .psel-n{font-size:12.5px; color:var(--text-dim); font-weight:700; flex:1; min-width:90px;}
 .search-history-head{display:flex; align-items:center; justify-content:space-between; padding:2px 10px 8px; font-size:11.5px; font-weight:700; color:var(--text-dim);}
 .search-history-clear{color:var(--violet); font-weight:700; cursor:pointer;}
 .search-history-item{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; font-size:13.5px;}
@@ -1790,6 +1814,21 @@ body.ws-on .card-price::after, body.ws-on .mcard-price::after, body.ws-on .pd-pr
 .cm-menu button i{width:20px; text-align:center; color:#B9A4FF; font-size:16px;}
 .cm-menu button.danger, .cm-menu button.danger i{color:#FF5A78;}
 .cm-menu.flat{background:rgba(28,24,86,.98);}
+
+#ovChatThread .chat-prod-bar{display:none; align-items:center; gap:10px; padding:8px 10px; margin:0 0 8px; border-radius:16px; background:var(--cx-card); border:1px solid var(--cx-line);}
+#ovChatThread .chat-prod-bar.open{display:flex;}
+.cpb-img{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.08) center/cover no-repeat;flex:none;}
+.cpb-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.cpb-body b{font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cpb-body span{font-size:12.5px;color:#C9BFFF;font-weight:700;}
+#cpbSend{border:0;border-radius:12px;padding:9px 12px;font-weight:800;font-size:12px;color:#fff;background:var(--cx-grad);cursor:pointer;flex:none;}
+#cpbClose{border:0;background:transparent;color:var(--cx-dim);font-size:15px;padding:6px;cursor:pointer;flex:none;}
+.msg-prod{display:flex;gap:10px;align-items:center;margin-bottom:7px;padding:8px;border-radius:13px;background:rgba(8,7,32,.55);border:1px solid rgba(125,105,255,.3);cursor:pointer;text-align:left;}
+.msg-prod .mp-img{width:56px;height:56px;border-radius:10px;background:rgba(255,255,255,.08) center/cover no-repeat;flex:none;}
+.msg-prod .mp-name{font-size:13px;font-weight:700;line-height:1.3;color:#fff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.msg-prod .mp-price{font-size:13.5px;font-weight:800;color:#C9BFFF;margin-top:2px;}
+.msg-prod .mp-price s{font-weight:500;opacity:.6;margin-left:6px;font-size:12px;}
+.msg-prod .mp-open{font-size:11px;color:#9F8CFF;margin-top:2px;}
 </style>
 </head>
 <body data-theme="light">
@@ -2581,6 +2620,7 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
     <div class="chat-thread">
       <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-reply-bar" id="chatReplyBar"><i class="fa-solid fa-reply crb-ico" id="crbIco"></i><div class="crb-body"><b id="crbName"></b><span id="crbText"></span></div><button type="button" id="crbClose" aria-label="Отменить"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="chat-prod-bar" id="chatProdBar"><div class="cpb-img" id="cpbImg"></div><div class="cpb-body"><b id="cpbName"></b><span id="cpbPrice"></span></div><button type="button" id="cpbSend">Отправить товар</button><button type="button" id="cpbClose" aria-label="Скрыть"><i class="fa-solid fa-xmark"></i></button></div>
       <div class="ct-emoji" id="chatEmojiPanel"></div>
       <div class="chat-input-row">
         <label class="chat-attach-btn" for="chatImageInput" title="Отправить чек/фото" style="display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="fa-solid fa-paperclip"></i></label>
@@ -2942,6 +2982,30 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
   </div>
 </div>
 
+<!-- MASS EDIT PRODUCTS -->
+<div class="overlay" id="ovMassEdit">
+  <div class="sheet" style="max-height:92vh;overflow-y:auto;">
+    <div class="sheet-title">Изменить выбранные <button class="close-x" data-close="ovMassEdit"><i class="fa-solid fa-xmark"></i></button></div>
+    <p id="meCount" style="color:var(--text-dim);font-size:12.5px;margin:0 0 10px;"></p>
+    <div class="me-block"><h4><i class="fa-solid fa-folder-tree"></i> Каталог</h4>
+      <div class="field"><select id="meCat"></select></div><div class="field"><select id="meSub"></select></div>
+      <button class="btn btn-outline" data-me="cat">Перенести в этот каталог</button></div>
+    <div class="me-block"><h4><i class="fa-solid fa-percent"></i> Наценка / скидка на цену</h4>
+      <div class="field"><input id="mePct" type="number" step="0.5" placeholder="Например: 15 (наценка) или -10 (снизить)"></div>
+      <label class="me-chk"><input type="checkbox" id="meRound" checked> Округлять до целого</label>
+      <button class="btn btn-outline" data-me="markup">Применить к цене</button></div>
+    <div class="me-block"><h4><i class="fa-solid fa-boxes-stacked"></i> Наличие</h4>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-outline" style="flex:1;min-width:130px;" data-me="instock">В наличии</button><button class="btn btn-outline" style="flex:1;min-width:130px;" data-me="outstock">Нет в наличии</button></div>
+      <div class="field" style="margin-top:8px;"><input id="meQty" type="number" min="0" placeholder="Количество на складе"></div>
+      <button class="btn btn-outline" data-me="qty">Установить количество</button></div>
+    <div class="me-block"><h4><i class="fa-solid fa-fire"></i> Акция</h4>
+      <div class="field"><input id="meSale" type="number" min="1" max="95" placeholder="Скидка, % (старая цена сохранится зачёркнутой)"></div>
+      <div class="field"><input id="meLabel" placeholder="Метка на карточке (необязательно), например ХИТ"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-primary" style="flex:1;min-width:130px;" data-me="sale">Включить акцию</button><button class="btn btn-outline" style="flex:1;min-width:130px;" data-me="unsale">Снять акцию</button></div></div>
+    <button class="btn btn-outline" style="color:var(--danger);border-color:var(--danger);" data-me="delete"><i class="fa-solid fa-trash"></i> Удалить выбранные</button>
+  </div>
+</div>
+
 <!-- BULK PRICE CHANGE -->
 <div class="overlay center" id="ovBulkPrice">
   <div class="sheet" style="border-radius:24px;">
@@ -2960,10 +3024,14 @@ body:not([data-theme="dark"]) .ss-avatar > *{background:linear-gradient(145deg,#
     <div style="border:1.5px dashed var(--border);border-radius:14px;padding:12px;margin-bottom:14px;">
       <b style="display:block;margin-bottom:4px;"><i class="fa-solid fa-file-pdf" style="color:var(--accent);"></i> Импорт из PDF-прайса</b>
       <p style="color:var(--text-dim);font-size:12px;margin:0 0 10px;">Загрузите PDF со списком товаров (до 100+ позиций). ИИ сам найдёт названия, цены, артикулы и фото, разложит по вашим каталогам и подкаталогам и подберёт описание с характеристиками. Всё покажется карточками — проверьте и нажмите «Сохранить все товары».</p>
-      <label class="btn btn-primary" style="margin:0;cursor:pointer;"><i class="fa-solid fa-upload"></i> Выбрать PDF<input type="file" accept="application/pdf,.pdf" class="hidden" id="bulkPdfInput"></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <label class="btn btn-primary" style="margin:0;cursor:pointer;flex:1;min-width:150px;"><i class="fa-solid fa-upload"></i> Выбрать PDF<input type="file" accept="application/pdf,.pdf" class="hidden" id="bulkPdfInput"></label>
+      <label class="btn btn-primary" style="margin:0;cursor:pointer;flex:1;min-width:150px;"><i class="fa-solid fa-file-excel"></i> Excel / CSV<input type="file" accept=".xlsx,.xls,.csv,.tsv,.txt" class="hidden" id="bulkSheetInput"></label>
+      </div>
+      <p style="color:var(--text-dim);font-size:11.5px;margin:8px 0 0;">Excel/CSV: ИИ сам поймёт, в каких колонках название, цена, артикул, бренд, количество, фото (ссылка), и разложит товары по каталогам. Колонки могут называться как угодно.</p>
       <div id="bulkPdfProgress" style="display:none;color:var(--text-dim);font-size:12.5px;margin-top:10px;"></div>
     </div>
-    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Или впишите названия товаров вручную — по одному на строку. ИИ подберёт описание и характеристики для каждого; каталог, цену, артикул, бренд и фото укажите вручную перед сохранением.</p>
+    <p style="color:var(--text-dim);font-size:12px;margin-top:-8px;">Или впишите названия товаров вручную — по одному на строку. ИИ сам определит каталог и подкаталог и подберёт описание с характеристиками; цену, старую цену, количество и до 4 фото укажите в карточках перед сохранением.</p>
     <div class="field"><label>Названия товаров (по одному на строку)</label><textarea id="bulkNamesInput" rows="5" placeholder="iPhone 15 Pro 256GB
 Samsung Galaxy S24
 Xiaomi Redmi Note 13"></textarea></div>
@@ -4313,7 +4381,7 @@ function closeOv(id, fromPop){
     }catch(e){}
   }
   if(id==='ovChatThread'){
-    try{ chatCloseMenu(); chatClearComposeMode(); chatSearchReset(); }catch(e){}
+    try{ chatCloseMenu(); chatClearComposeMode(); chatSearchReset(); chatHideProdBar(); }catch(e){}
     try{ cancelVoiceRecording(); stopVoicePlayback(); }catch(e){}
     State.activeOpenChatDocId = null;
     if(chatTypingCheckInterval){ clearInterval(chatTypingCheckInterval); chatTypingCheckInterval = null; }
@@ -6194,8 +6262,35 @@ let searchDebounce;
 $('#searchInput').addEventListener('input', (e)=>{
   clearTimeout(searchDebounce);
   searchDebounce = setTimeout(()=>filterAndRenderGrid({search:e.target.value, catalogId:null, subcatalogId:null}), 250);
-  if(e.target.value.trim()) hideSearchHistory(); else renderSearchHistoryDropdown();
+  if(e.target.value.trim()) renderSearchSuggest(e.target.value); else renderSearchHistoryDropdown();
 });
+/* ---- живые подсказки: категории, бренды и товары с фото и ценой ---- */
+function renderSearchSuggest(q){
+  const dd = $('#searchHistoryDropdown');
+  const nq = hzNorm(q); if(!nq){ renderSearchHistoryDropdown(); return; }
+  let res = hzSearchPass(State.products, q);
+  if(!res.full.length && !res.partial.length){ const sw = hzSwapLayout(q); if(sw!==q.toLowerCase()) res = hzSearchPass(State.products, sw); }
+  const sortFn=(a,b)=>b.score-a.score;
+  const prods = res.full.sort(sortFn).concat(res.partial.sort(sortFn)).slice(0,6).map(x=>x.p);
+  const totalCnt = res.full.length;
+  const tk = nq.split(' ').filter(Boolean).map(w=>hzStem(HZ_ALIAS[w]||w));
+  const hit = (name)=>{ const n = hzNorm(name); return n && tk.every(t=>n.includes(t)); };
+  const rows = [];
+  (State.subcatalogs||[]).filter(sc=>hit(sc.name)).slice(0,2).forEach(sc=>{ const c=State.catalogs.find(x=>x.id===sc.catalogId); rows.push(`<div class="sg-chip" data-sg-cat="${sc.catalogId}" data-sg-sub="${sc.id}"><i class="fa-solid fa-folder-open"></i>${hzEsc(sc.name)}${c?`<small>${hzEsc(c.name)}</small>`:''}</div>`); });
+  (State.catalogs||[]).filter(c=>hit(c.name)).slice(0,2).forEach(c=>rows.push(`<div class="sg-chip" data-sg-cat="${c.id}" data-sg-sub=""><i class="fa-solid fa-layer-group"></i>${hzEsc(c.name)}<small>Каталог</small></div>`));
+  const brands = Array.from(new Set(State.products.map(p=>(p.brand||'').trim()).filter(Boolean))).filter(b=>hit(b)).slice(0,3);
+  brands.forEach(b=>rows.push(`<div class="sg-chip" data-sg-brand="${hzEsc(b)}"><i class="fa-solid fa-tag"></i>${hzEsc(b)}<small>Бренд</small></div>`));
+  if(!prods.length && !rows.length){
+    dd.innerHTML = `<div class="sg-empty"><i class="fa-solid fa-magnifying-glass"></i> Ничего не найдено — попробуйте изменить запрос</div>`;
+    dd.classList.add('open'); return;
+  }
+  const prodHtml = prods.map(p=>{
+    const im = (p.images||[])[0];
+    return `<div class="sg-prod" data-sg-pid="${p.id}"><div class="sg-img">${im?`<img src="${im}" loading="lazy" alt="">`:'<i class="fa-solid fa-image"></i>'}</div><div class="sg-body"><div class="sg-name">${hzEsc(p.name||'')}</div><div class="sg-sub">${p.brand?hzEsc(p.brand):''}</div></div><div class="sg-price">${fmt(getMinPrice(p))}</div></div>`;
+  }).join('');
+  dd.innerHTML = (rows.length?`<div class="sg-chips">${rows.join('')}</div>`:'')+prodHtml+(totalCnt>prods.length||res.partial.length?`<div class="sg-all" data-sg-all="1">Показать все результаты <i class="fa-solid fa-chevron-right"></i></div>`:'');
+  dd.classList.add('open');
+}
 
 /* ============ ИСТОРИЯ ПОИСКА ============ */
 const HZ_SEARCH_HISTORY_KEY = 'hz_search_history';
@@ -6224,7 +6319,7 @@ function renderSearchHistoryDropdown(){
   dd.classList.add('open');
 }
 function hideSearchHistory(){ $('#searchHistoryDropdown').classList.remove('open'); }
-$('#searchInput').addEventListener('focus', ()=>{ if(!$('#searchInput').value.trim()) renderSearchHistoryDropdown(); });
+$('#searchInput').addEventListener('focus', ()=>{ const v=$('#searchInput').value.trim(); if(!v) renderSearchHistoryDropdown(); else renderSearchSuggest(v); });
 $('#searchInput').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ saveSearchHistoryEntry(e.target.value); hideSearchHistory(); e.target.blur(); }
 });
@@ -6249,6 +6344,13 @@ $('#searchHistoryDropdown').addEventListener('click', (e)=>{
   if(rm){ e.stopPropagation(); removeSearchHistoryEntry(rm.getAttribute('data-history-remove')); return; }
   const clearBtn = e.target.closest('#clearSearchHistoryBtn');
   if(clearBtn){ try{ localStorage.removeItem(HZ_SEARCH_HISTORY_KEY); }catch(err){} hideSearchHistory(); return; }
+  const sgP = e.target.closest('[data-sg-pid]');
+  if(sgP){ saveSearchHistoryEntry($('#searchInput').value); hideSearchHistory(); $('#searchInput').blur(); openProductDetail(sgP.getAttribute('data-sg-pid')); return; }
+  const sgC = e.target.closest('[data-sg-cat]');
+  if(sgC){ $('#searchInput').value=''; hideSearchHistory(); $('#searchInput').blur(); filterAndRenderGrid({search:'', catalogId:sgC.getAttribute('data-sg-cat'), subcatalogId:sgC.getAttribute('data-sg-sub')||null}); $('#gridTitle').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  const sgB = e.target.closest('[data-sg-brand]');
+  if(sgB){ const b = sgB.getAttribute('data-sg-brand').replace(/&amp;/g,'&'); $('#searchInput').value=b; saveSearchHistoryEntry(b); hideSearchHistory(); $('#searchInput').blur(); filterAndRenderGrid({search:b, catalogId:null, subcatalogId:null}); return; }
+  if(e.target.closest('[data-sg-all]')){ saveSearchHistoryEntry($('#searchInput').value); hideSearchHistory(); $('#searchInput').blur(); $('#gridTitle').scrollIntoView({behavior:'smooth',block:'start'}); return; }
   const item = e.target.closest('[data-history-query]');
   if(item){
     const q = item.getAttribute('data-history-query');
@@ -6629,6 +6731,11 @@ document.addEventListener('click', (e)=>{
       if(slot) slot.insertAdjacentHTML('afterbegin', `<button class="mini-icon-btn" style="position:static;width:32px;height:32px;" title="Сравнить" data-cmp="${pid}"><i class="fa-solid fa-scale-balanced"></i></button>`);
       let dl = $('#pdDeliveryLine'); if(!dl){ dl = document.createElement('div'); dl.id='pdDeliveryLine'; $('#pdLowStock').insertAdjacentElement('afterend', dl); }
       dl.innerHTML = hzDeliveryHtml().replace('margin-top:3px','margin:2px 0 8px;font-size:13px');
+      let ask = $('#pdAskSeller'); if(!ask){ ask = document.createElement('button'); ask.id='pdAskSeller'; ask.type='button'; ask.className='btn btn-outline'; ask.style.cssText='margin:4px 0 10px;width:100%;'; dl.insertAdjacentElement('afterend', ask); }
+      const sObj = p.sellerId && State.sellersCache && State.sellersCache[p.sellerId];
+      ask.innerHTML = '<i class="fa-solid fa-comment-dots"></i> Спросить продавца об этом товаре';
+      ask.setAttribute('data-chat-seller', p.sellerId||'admin'); ask.setAttribute('data-seller-name', (sObj&&sObj.fio)||'HORIZON MARKET');
+      ask.setAttribute('data-chat-product', pid); ask.setAttribute('data-chat-product-name', p.name||'');
       cmpUpdateUi();
     }catch(e){ console.error(e); }
     return r;
@@ -9915,6 +10022,7 @@ function openChatThread(otherId, otherName, productId, productName, otherPhoto){
   $('#chatInputMsg').value = '';
   $('#chatSendBtn').disabled = true;
   chatClearComposeMode(); $('#chatEmojiPanel').classList.remove('open');
+  try{ chatShowProdBar(State.activeChatProductId); }catch(e){}
   openOv('ovChatThread'); $('#ovChatThread').style.zIndex = 60; syncChatViewport();
   setTimeout(()=>$('#chatInputMsg').focus(), 300);
   const chatDocId = [State.user.docId, otherId].sort().join('_');
@@ -9988,7 +10096,7 @@ function openChatThread(otherId, otherName, productId, productName, otherPhoto){
           <span class="msg-swipe-ico"><i class="fa-solid fa-reply"></i></span>
           <div class="msg ${mine?'out':'in'}">
             ${m.replyTo?chatQuoteHtml(m.replyTo):''}
-            ${m.productName?`<div style="font-size:11px;opacity:.8;margin-bottom:3px;"><i class="fa-solid fa-tag"></i> ${m.productName}</div>`:''}
+            ${m.productCard?chatProductCardHtml(m.productCard):(m.productName?`<div style="font-size:11px;opacity:.8;margin-bottom:3px;"><i class="fa-solid fa-tag"></i> ${m.productName}</div>`:'')}
             ${m.image?`<img class="chat-img" src="${m.image}" data-lightbox-img="${m.image}">`:''}
             ${m.audio?(voiceStore[d.id]=m.audio,`<div class="chat-voice" data-voice-id="${d.id}" data-dur="${m.audioDur||0}"><button type="button" class="voice-play"><i class="fa-solid fa-play"></i></button><div class="voice-bar"><span></span></div><span class="voice-time">${fmtVoice(m.audioDur||0)}</span></div>`):''}
             ${m.fileURL?`<div class="chat-file">
@@ -10084,6 +10192,7 @@ function sendChatMessage(imageData, voice){
   if(imageData) msgData.image = imageData;
   if(voice){ msgData.audio = voice.src; msgData.audioDur = Math.round(voice.dur*10)/10; }
   if(State.activeChatProductId){ msgData.productId = State.activeChatProductId; msgData.productName = State.activeChatProductName||''; }
+  if(State.chatProdCtx && !voice){ msgData.productCard = State.chatProdCtx; if(!text && !imageData) chatMeta.lastMessageText = '🛍 '+State.chatProdCtx.name; db.collection('chats').doc(chatDocId).set({lastMessageText: chatMeta.lastMessageText}, {merge:true}); }
   db.collection('chats').doc(chatDocId).collection('messages').add(msgData).then(()=>{
     if(State.user.role==='client'){
       maybeTriggerSellerAutoReply(chatDocId, State.activeChatSellerId);
@@ -10092,6 +10201,7 @@ function sendChatMessage(imageData, voice){
   });
   if(!voice){ $('#chatInputMsg').value=''; }
   State.chatReply = null; chatHideBanner(); $('#chatEmojiPanel').classList.remove('open');
+  if(State.chatProdCtx && !voice) chatHideProdBar();
   $('#chatSendBtn').disabled = !$('#chatInputMsg').value.trim();
 }
 /* ============ ГОЛОСОВЫЕ СООБЩЕНИЯ ============ */
@@ -10382,6 +10492,111 @@ function renderAbout(){
   `;
 }
 
+
+/* ============ МАССОВОЕ РЕДАКТИРОВАНИЕ ТОВАРОВ ============ */
+function prodSelBarHtml(list){
+  if(!list.length) return '';
+  const ids = new Set(list.map(p=>p.id));
+  State.prodSel.forEach(id=>{ if(!State.products.some(p=>p.id===id)) State.prodSel.delete(id); });
+  const n = State.prodSel.size, allSel = list.every(p=>State.prodSel.has(p.id));
+  return `<div class="psel-bar" id="pselBar"><button type="button" class="tiny-btn" data-psel-all="1">${allSel?'Снять выделение':'Выбрать все ('+list.length+')'}</button><span class="psel-n">${n?('Выбрано: '+n):'Отметьте товары галочками'}</span>${n?`<button type="button" class="tiny-btn primary" data-psel-act="1"><i class="fa-solid fa-sliders"></i> Изменить (${n})</button>`:''}</div>`;
+}
+function prodSelRefresh(){
+  const adminOpen = $('#adminProductList'), sellerOpen = $('#sellerProductsList');
+  if(adminOpen && adminOpen.offsetParent!==null) renderAdminProductList();
+  else if(sellerOpen) renderSellerProducts();
+}
+document.addEventListener('change', (e)=>{
+  const cb = e.target.closest('[data-psel]'); if(!cb) return;
+  const id = cb.getAttribute('data-psel');
+  if(cb.checked) State.prodSel.add(id); else State.prodSel.delete(id);
+  const bar = $('#pselBar'); if(bar){ const tmp = document.createElement('div'); tmp.innerHTML = prodSelBarHtml((State.prodListIds||[]).map(i=>State.products.find(p=>p.id===i)).filter(Boolean)); bar.replaceWith(tmp.firstElementChild); }
+});
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('[data-psel-all]')){
+    const ids = State.prodListIds||[];
+    const all = ids.length && ids.every(id=>State.prodSel.has(id));
+    ids.forEach(id=>{ if(all) State.prodSel.delete(id); else State.prodSel.add(id); });
+    prodSelRefresh(); return;
+  }
+  if(e.target.closest('[data-psel-act]')) openMassEdit();
+});
+function openMassEdit(){
+  const n = State.prodSel.size; if(!n) return;
+  $('#meCount').textContent = `Изменения применятся к выбранным товарам: ${n}`;
+  $('#meCat').innerHTML = '<option value="">— выберите каталог —</option>' + State.catalogs.map(c=>`<option value="${c.id}">${hzEsc(c.name)}</option>`).join('');
+  $('#meSub').innerHTML = '<option value="">— подкаталог —</option>';
+  ['mePct','meQty','meSale','meLabel'].forEach(id=>$('#'+id).value='');
+  openOv('ovMassEdit');
+}
+document.addEventListener('change', (e)=>{
+  if(e.target.id!=='meCat') return;
+  $('#meSub').innerHTML = '<option value="">— подкаталог —</option>' + State.subcatalogs.filter(s=>s.catalogId===e.target.value).map(s=>`<option value="${s.id}">${hzEsc(s.name)}</option>`).join('');
+});
+function massScaleUpdate(p, factor, round){
+  const rnd = v=> round ? Math.max(1, Math.round(v)) : Math.max(0.01, Math.round(v*100)/100);
+  const u = {price: rnd(Number(p.price)*factor)};
+  if(p.oldPrice) u.oldPrice = rnd(Number(p.oldPrice)*factor);
+  if(p.optPrice) u.optPrice = rnd(Number(p.optPrice)*factor);
+  if(p.sizePrices && typeof p.sizePrices==='object'){
+    const sp = {}; Object.keys(p.sizePrices).forEach(k=>{ const v = Number(p.sizePrices[k]); sp[k] = isNaN(v) ? p.sizePrices[k] : rnd(v*factor); });
+    u.sizePrices = sp;
+  }
+  return u;
+}
+function massBuildUpdate(act, p, o){
+  const FV = firebase.firestore.FieldValue;
+  if(act==='cat') return {catalogId:o.cat, subcatalogId:o.sub||''};
+  if(act==='markup') return massScaleUpdate(p, 1+o.pct/100, o.round);
+  if(act==='instock') return {inStock:true};
+  if(act==='outstock') return {inStock:false};
+  if(act==='qty') return {stockQty:o.qty, inStock:o.qty>0};
+  if(act==='sale'){
+    const cur = Number(p.price), base = (p.oldPrice && Number(p.oldPrice)>cur) ? Number(p.oldPrice) : cur;
+    const u = {oldPrice: base, price: Math.max(1, Math.round(base*(1-o.sale/100)))};
+    if(p.sizePrices && typeof p.sizePrices==='object'){ const f = u.price/cur; const sp = {}; Object.keys(p.sizePrices).forEach(k=>{ const v=Number(p.sizePrices[k]); sp[k] = isNaN(v)?p.sizePrices[k]:Math.max(1,Math.round(v*f)); }); u.sizePrices = sp; }
+    if(o.label) u.promoLabel = o.label;
+    return u;
+  }
+  if(act==='unsale'){
+    if(!(p.oldPrice && Number(p.oldPrice)>Number(p.price))) return null;
+    const f = Number(p.oldPrice)/Number(p.price);
+    const u = {price:Number(p.oldPrice), oldPrice: FV.delete()};
+    if(p.sizePrices && typeof p.sizePrices==='object'){ const sp = {}; Object.keys(p.sizePrices).forEach(k=>{ const v=Number(p.sizePrices[k]); sp[k] = isNaN(v)?p.sizePrices[k]:Math.round(v*f); }); u.sizePrices = sp; }
+    return u;
+  }
+  return null;
+}
+document.addEventListener('click', async (e)=>{
+  const b = e.target.closest('#ovMassEdit [data-me]'); if(!b) return;
+  const act = b.getAttribute('data-me');
+  const targets = Array.from(State.prodSel).map(id=>State.products.find(p=>p.id===id)).filter(Boolean);
+  if(!targets.length){ toast('Нет выбранных товаров','','fa-circle-exclamation'); return; }
+  const o = {cat:$('#meCat').value, sub:$('#meSub').value, pct:parseFloat($('#mePct').value), round:$('#meRound').checked, qty:parseInt($('#meQty').value,10), sale:parseFloat($('#meSale').value), label:$('#meLabel').value.trim()};
+  if(act==='cat' && !o.cat){ toast('Выберите каталог','','fa-circle-exclamation'); return; }
+  if(act==='markup' && (!o.pct || o.pct<=-95)){ toast('Укажите процент (от -95 до любого положительного)','','fa-circle-exclamation'); return; }
+  if(act==='qty' && (isNaN(o.qty) || o.qty<0)){ toast('Укажите количество','','fa-circle-exclamation'); return; }
+  if(act==='sale' && !(o.sale>=1 && o.sale<=95)){ toast('Скидка должна быть от 1 до 95 %','','fa-circle-exclamation'); return; }
+  if(act==='delete'){ if(!confirm(`Удалить ${targets.length} товар(ов) без возможности восстановления?`)) return; }
+  else if(act==='markup' && !confirm(`Изменить цену на ${o.pct>0?'+':''}${o.pct}% у ${targets.length} товар(ов)?`)) return;
+  b.disabled = true;
+  try{
+    let batch = db.batch(), cnt = 0;
+    for(const p of targets){
+      const ref = db.collection('products').doc(p.id);
+      if(act==='delete') batch.delete(ref);
+      else { const u = massBuildUpdate(act, p, o); if(!u) continue; batch.update(ref, u); }
+      if(++cnt>=400){ await batch.commit(); batch = db.batch(); cnt = 0; }
+    }
+    if(cnt>0) await batch.commit();
+    toast('Готово', `Обновлено товаров: ${targets.length}`, 'fa-circle-check');
+    if(act==='delete') State.prodSel.clear();
+    State.mixedOrderDirty = true;
+    closeOv('ovMassEdit');
+  }catch(err){ console.warn('mass edit failed', err); toast('Не удалось применить изменения','Проверьте права доступа и соединение','fa-triangle-exclamation'); }
+  b.disabled = false;
+});
+
 /* ============ SELLER: MY PRODUCTS ============ */
 const prodSearchQ = {admin:'', seller:''};
 function prodSearchBoxHtml(kind){
@@ -10394,9 +10609,11 @@ function productMatchesQuery(p, q){
   const hay = [p.name, p.articul, p.brand, p.price, p.description].map(v=>String(v==null?'':v).toLowerCase()).join(' ');
   return q.split(/\s+/).every(w=>hay.includes(w));
 }
+State.prodSel = State.prodSel || new Set();
 function productRowHtml(p){
   return `<div class="list-row">
-    <div><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.stockQty!=null?`· Остаток: ${p.stockQty}`:''} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
+    <label class="psel"><input type="checkbox" data-psel="${p.id}" ${State.prodSel.has(p.id)?'checked':''}></label>
+    <div style="flex:1;min-width:0;"><div class="list-row-title">${p.name}</div><div class="list-row-sub">${p.articul?`Арт. ${p.articul} · `:''}${fmt(p.price)} ${p.stockQty!=null?`· Остаток: ${p.stockQty}`:''} ${p.inStock===false?'<span style="color:var(--danger);font-weight:700;">· Нет в наличии</span>':''}</div></div>
     <div style="display:flex;gap:6px;">
       <button class="tiny-btn ${p.inStock===false?'primary':''}" data-togglestock="${p.id}">${p.inStock===false?'Вернуть в наличие':'Нет в наличии'}</button>
       <button class="tiny-btn" data-editprod="${p.id}">Изменить</button>
@@ -10407,7 +10624,8 @@ function productRowHtml(p){
 function renderAdminProductList(){
   const wrap = $('#adminProductList'); if(!wrap) return;
   const all = State.products, list = all.filter(p=>productMatchesQuery(p, prodSearchQ.admin));
-  wrap.innerHTML = list.map(productRowHtml).join('') || `<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>${prodSearchQ.admin?'Ничего не найдено':'Товаров пока нет'}</div></div>`;
+  wrap.innerHTML = prodSelBarHtml(list) + (list.map(productRowHtml).join('') || `<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>${prodSearchQ.admin?'Ничего не найдено':'Товаров пока нет'}</div></div>`);
+  State.prodListIds = list.map(p=>p.id);
   const c = $('#adminProdCount'); if(c) c.textContent = prodSearchQ.admin ? `Найдено: ${list.length} из ${all.length}` : `Всего товаров: ${all.length}`;
 }
 document.addEventListener('input', (e)=>{
@@ -10429,7 +10647,8 @@ function renderSellerProducts(){
   const all = State.products.filter(p=>p.sellerId===State.user.docId);
   const list = all.filter(p=>productMatchesQuery(p, prodSearchQ.seller));
   const wrap = $('#sellerProductsList');
-  wrap.innerHTML = list.map(productRowHtml).join('') || `<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>${prodSearchQ.seller?'Ничего не найдено':'Товаров пока нет'}</div></div>`;
+  wrap.innerHTML = prodSelBarHtml(list) + (list.map(productRowHtml).join('') || `<div class="empty-state"><i class="fa-solid fa-box-open"></i><div>${prodSearchQ.seller?'Ничего не найдено':'Товаров пока нет'}</div></div>`);
+  State.prodListIds = list.map(p=>p.id);
   const c = $('#sellerProdCount'); if(c) c.textContent = prodSearchQ.seller ? `Найдено: ${list.length} из ${all.length}` : (all.length?`Всего товаров: ${all.length}`:'');
 }
 document.addEventListener('click', (e)=>{
@@ -11137,7 +11356,7 @@ $('#bulkSaveAllBtn').addEventListener('click', async ()=>{
       };
       data.sellerId = State.user.role==='seller' ? State.user.docId : 'admin';
       data.imgHashes = [];
-      for(const im of data.images){ const h = await imageHash(im); if(h) data.imgHashes.push(h); }
+      for(const im of data.images){ if(!/^data:/.test(im)) continue; const h = await imageHash(im); if(h) data.imgHashes.push(h); }
       const approxDocSize = new Blob([JSON.stringify(data)]).size;
       if(approxDocSize > 950000) throw new Error('too-large');
       const ref = await db.collection('products').add(stripUndefinedDeep(data));
@@ -11471,6 +11690,192 @@ $('#bulkPdfInput').addEventListener('change', (e)=>{
   if(f) importProductsFromPdf(f);
 });
 
+
+/* ============ ИМПОРТ ИЗ EXCEL / CSV ============
+   1) читаем файл в таблицу (xlsx/xls — SheetJS, csv/tsv — свой разбор);
+   2) ИИ по заголовкам и первым строкам определяет, в какой колонке что лежит (одним запросом);
+   3) ИИ раскладывает товары по каталогам/подкаталогам пачками;
+   4) дальше — те же карточки и тот же генератор описаний/характеристик, что и у PDF. */
+const SHEETJS_VER = '0.18.5';
+let _sheetJsPromise = null;
+function loadSheetJs(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  if(_sheetJsPromise) return _sheetJsPromise;
+  _sheetJsPromise = new Promise((resolve, reject)=>{
+    const sc = document.createElement('script');
+    sc.src = `https://cdnjs.cloudflare.com/ajax/libs/xlsx/${SHEETJS_VER}/xlsx.full.min.js`;
+    sc.onload = ()=>resolve(window.XLSX);
+    sc.onerror = ()=>{ _sheetJsPromise = null; reject(new Error('sheetjs-load')); };
+    document.head.appendChild(sc);
+  });
+  return _sheetJsPromise;
+}
+function sheetParseCsv(text){
+  text = text.replace(/^﻿/, '');
+  const first = text.split(/\r?\n/).find(l=>l.trim()) || '';
+  const cnt = ch=>(first.match(new RegExp(ch==='\t'?'\t':'\\'+ch,'g'))||[]).length;
+  const delim = [[';',cnt(';')],[',',cnt(',')],['\t',cnt('\t')]].sort((a,b)=>b[1]-a[1])[0][0];
+  const rows = []; let row = [], cur = '', q = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else q=false; } else cur+=c; }
+    else if(c==='"') q = true;
+    else if(c===delim){ row.push(cur); cur=''; }
+    else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+    else if(c!=='\r') cur+=c;
+  }
+  if(cur!=='' || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+async function sheetReadFile(file){
+  const name = (file.name||'').toLowerCase();
+  if(/\.(csv|tsv|txt)$/.test(name)){
+    let buf = await file.arrayBuffer(), text = new TextDecoder('utf-8').decode(buf);
+    if(text.includes('�')){ try{ text = new TextDecoder('windows-1251').decode(buf); }catch(e){} }
+    return [{name:'CSV', rows: sheetParseCsv(text)}];
+  }
+  const X = await loadSheetJs();
+  const wb = X.read(await file.arrayBuffer(), {type:'array'});
+  return wb.SheetNames.slice(0,6).map(n=>({name:n, rows: X.utils.sheet_to_json(wb.Sheets[n], {header:1, defval:'', raw:false, blankrows:false})}));
+}
+function sheetCell(v){ return String(v==null?'':v).replace(/\s+/g,' ').trim(); }
+function sheetNum(v){
+  const t = sheetCell(v).replace(/\s/g,'').replace(/[^\d,.\-]/g,'');
+  if(!t) return NaN;
+  const norm = (t.includes(',') && !t.includes('.')) ? t.replace(',','.') : t.replace(/,/g,'');
+  return parseFloat(norm);
+}
+function sheetMapPrompt(preview){
+  return `Ниже первые строки таблицы-прайса поставщика (строки пронумерованы с 0, колонки с 0, формат "строка: [колонка0 | колонка1 | ...]").
+Определи структуру и верни строго JSON без пояснений:
+{"headerRow":0,"columns":{"name":0,"price":null,"optPrice":null,"oldPrice":null,"articul":null,"brand":null,"qty":null,"image":null,"category":null,"details":[]}}
+
+Правила:
+- headerRow — индекс строки с заголовками колонок (если заголовков нет — -1, данные начинаются с первой строки).
+- name — колонка с названием товара. price — розничная/основная цена. optPrice — оптовая цена, если есть отдельная колонка. oldPrice — старая/зачёркнутая цена (до скидки). articul — артикул/код/SKU. brand — бренд/производитель. qty — остаток/количество на складе. image — колонка со ссылкой на фото (http...). category — колонка с категорией/группой товара.
+- details — массив индексов остальных колонок с характеристиками (цвет, размер, объём, материал, комплектация, описание и т.п.).
+- Если колонки нет — null. Индексы строго из таблицы ниже.
+
+Таблица:
+${preview}`;
+}
+function sheetParseJson(text){
+  const cleaned = (text||'').trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'');
+  try{ return JSON.parse(cleaned); }catch(e){ throw new Error('bad-json'); }
+}
+async function sheetClassify(items){
+  // items: [{i, name, hint}] → Map(i → {catalogId, subcatalogId})
+  const out = new Map(); const BATCH = 40;
+  for(let s0=0;s0<items.length;s0+=BATCH){
+    const part = items.slice(s0, s0+BATCH);
+    pdfSetProgress(`<i class="fa-solid fa-spinner fa-spin"></i> ИИ раскладывает по каталогам: ${Math.min(s0+BATCH, items.length)}/${items.length}…`);
+    const prompt = `Разложи товары интернет-магазина по каталогам и подкаталогам. Верни строго JSON без пояснений:
+{"items":[{"i":0,"catalogId":"","subcatalogId":""}]}
+catalogId и subcatalogId бери СТРОГО из списка (только id), подкаталог должен принадлежать выбранному каталогу. Если совсем ничего не подходит — пустые строки.
+
+Список каталогов:
+${pdfCatalogListText()}
+
+Товары (i: название | категория в прайсе):
+${part.map(x=>`${x.i}: ${x.name}${x.hint?' | '+x.hint:''}`).join('\n')}`;
+    try{
+      const txt = await Promise.race([callAiRaw(prompt, null, true), new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),90000))]);
+      const j = sheetParseJson(txt); const arr = Array.isArray(j) ? j : (j.items||[]);
+      arr.forEach(r=>{ if(r && r.i!=null) out.set(Number(r.i), {catalogId:String(r.catalogId||''), subcatalogId:String(r.subcatalogId||'')}); });
+    }catch(e){ console.warn('Excel: пачка не классифицирована', e); }
+  }
+  return out;
+}
+async function importProductsFromSheet(file){
+  if(!(State.settings.aiApiKey || State.settings.geminiApiKey)){ toast('API ключ ИИ не настроен', 'Профиль → Telegram-бот → ИИ', 'fa-circle-exclamation'); return; }
+  if(!State.catalogs.length){ toast('Сначала создайте каталоги', 'ИИ раскладывает товары по существующим каталогам', 'fa-circle-exclamation'); return; }
+  const input = $('#bulkSheetInput');
+  const spin = '<i class="fa-solid fa-spinner fa-spin"></i> ';
+  try{
+    pdfSetProgress(spin+'Читаю файл…');
+    const sheets = (await sheetReadFile(file)).map(sh=>({name:sh.name, rows: sh.rows.map(r=>r.map(sheetCell)).filter(r=>r.some(c=>c))})).filter(sh=>sh.rows.length>=2);
+    if(!sheets.length){ toast('В файле нет данных','Нужна таблица минимум из двух строк','fa-triangle-exclamation'); pdfSetProgress(''); return; }
+    // 1) структура колонок — по каждому листу отдельно (листы могут отличаться)
+    const found = [];
+    for(const sh of sheets){
+      pdfSetProgress(spin+`ИИ определяет колонки (лист «${sh.name}»)…`);
+      const prev = sh.rows.slice(0,15).map((r,i)=>`${i}: [${r.map(c=>c.slice(0,40)).join(' | ')}]`).join('\n');
+      let map;
+      try{
+        const txt = await Promise.race([callAiRaw(sheetMapPrompt(prev), null, true), new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),60000))]);
+        map = sheetParseJson(txt);
+      }catch(e){ if(e && /^(no-api-key|network-error|api-error)/.test(e.message)) throw e; console.warn('Excel: колонки не определены', sh.name, e); continue; }
+      const col = map.columns || {};
+      const ci = k=>{ const v = col[k]; return (typeof v==='number' && v>=0) ? v : -1; };
+      const header = (typeof map.headerRow==='number') ? map.headerRow : -1;
+      const nameC = ci('name'); if(nameC<0) continue;
+      const details = Array.isArray(col.details) ? col.details.filter(n=>typeof n==='number' && n>=0) : [];
+      for(let r=header+1; r<sh.rows.length; r++){
+        const row = sh.rows[r];
+        const name = (row[nameC]||'').replace(/[<>]/g,'');
+        if(name.length<2) continue;
+        const filled = row.filter(Boolean).length;
+        const priceV = ci('price')>-1 ? sheetNum(row[ci('price')]) : NaN;
+        if(filled<=1 && isNaN(priceV)) continue; // строка-заголовок раздела
+        const det = details.map(n=>{ const hv=(header>=0 && sh.rows[header][n]) ? sh.rows[header][n]+': ' : ''; return row[n] ? hv+row[n] : ''; }).filter(Boolean).join('; ');
+        const imgRaw = ci('image')>-1 ? row[ci('image')] : '';
+        found.push({
+          name, price: priceV, optPrice: ci('optPrice')>-1 ? sheetNum(row[ci('optPrice')]) : NaN, oldPrice: ci('oldPrice')>-1 ? sheetNum(row[ci('oldPrice')]) : NaN,
+          articul: ci('articul')>-1 ? row[ci('articul')] : '', brand: ci('brand')>-1 ? row[ci('brand')] : '',
+          qty: ci('qty')>-1 ? sheetNum(row[ci('qty')]) : NaN, image: /^https?:\/\//i.test(imgRaw) ? imgRaw.split(/[\s,;]/)[0] : '',
+          cat: ci('category')>-1 ? row[ci('category')] : '', details: det
+        });
+      }
+    }
+    if(!found.length){ toast('Товары не найдены','ИИ не нашёл колонку с названиями. Проверьте файл','fa-triangle-exclamation'); pdfSetProgress(''); return; }
+    // 2) дубликаты (в файле и в магазине)
+    const normKey = t=>String(t||'').toLowerCase().replace(/[^a-z0-9а-яё]+/gi,'');
+    const existNames = new Set(), existArts = new Set();
+    (State.products||[]).forEach(p=>{ const k=normKey(p.name); if(k) existNames.add(k); const a=normKey(p.articul); if(a) existArts.add(a); });
+    const seen = new Set(); let skippedExisting = 0; const fresh = [];
+    for(const f of found){
+      const key = normKey(f.name)+'|'+(isNaN(f.price)?'':f.price);
+      if(seen.has(key)) continue; seen.add(key);
+      const nk = normKey(f.name), ak = normKey(f.articul);
+      if((nk && existNames.has(nk)) || (ak && existArts.has(ak))){ skippedExisting++; continue; }
+      fresh.push(f); if(fresh.length>=300) break;
+    }
+    if(!fresh.length){ pdfSetProgress(`Все ${skippedExisting} товаров из файла уже есть в магазине — новых нет.`); toast('Новых товаров нет', `Уже добавлено: ${skippedExisting}`, 'fa-triangle-exclamation'); return; }
+    // 3) каталоги
+    const cls = await sheetClassify(fresh.map((f,i)=>({i, name:f.name, hint:f.cat})));
+    const defCat = State.catalogs[0].id, catIds = new Set(State.catalogs.map(c=>c.id));
+    const drafts = fresh.map((f,i)=>{
+      const c = cls.get(i) || {};
+      const catalogId = catIds.has(c.catalogId) ? c.catalogId : defCat;
+      const sub = State.subcatalogs.find(x=>x.id===c.subcatalogId && x.catalogId===catalogId) || State.subcatalogs.find(x=>x.catalogId===catalogId);
+      const pos = v=>(!isNaN(v) && v>0) ? String(v) : '';
+      return {name:f.name, desc:'', chars:[], catalogId, subcatalogId: sub?sub.id:'', price:pos(f.price), optPrice:pos(f.optPrice), oldPrice:pos(f.oldPrice),
+        stockQty: (!isNaN(f.qty) && f.qty>=0) ? String(Math.round(f.qty)) : '', articul:String(f.articul||'').trim(), brand:String(f.brand||'').trim(),
+        images: f.image ? [f.image] : [], catFixed:true, hint:[f.cat?('Категория в прайсе: '+f.cat):'', f.details].filter(Boolean).join('; '), status:'pending'};
+    });
+    bulkDrafts = drafts; renderBulkDrafts();
+    toast(`Новых товаров: ${drafts.length}`, (skippedExisting?`уже были в магазине и пропущены: ${skippedExisting}. `:'')+'Сейчас ИИ напишет описания и характеристики', 'fa-circle-check');
+    let done = 0, idx = 0;
+    const worker = async ()=>{ while(idx<bulkDrafts.length){ const i = idx++; if(!bulkDrafts[i]) continue; await bulkGenerateOne(i); done++; pdfSetProgress(spin+`Описания и характеристики: ${done}/${drafts.length}…`); } };
+    pdfSetProgress(spin+`Описания и характеристики: 0/${drafts.length}…`);
+    await Promise.all([worker(), worker(), worker()]);
+    const noPrice = bulkDrafts.filter(d=>!d.price).length, errs = bulkDrafts.filter(d=>d.status==='error').length;
+    pdfSetProgress(`<i class="fa-solid fa-circle-check" style="color:var(--accent);"></i> Готово: ${bulkDrafts.length} товаров`+(noPrice?`, без цены: ${noPrice}`:'')+(errs?`, без описания: ${errs}`:'')+(skippedExisting?`. Пропущено уже существующих: ${skippedExisting}`:'')+'. Проверьте карточки ниже, добавьте фото при необходимости и нажмите «Сохранить все товары».');
+  }catch(e){
+    console.warn('Импорт из Excel/CSV не удался', e);
+    pdfSetProgress('');
+    const code = e && e.message || '';
+    let title = 'Не удалось обработать файл', detail = 'Проверьте файл и попробуйте ещё раз';
+    if(code==='sheetjs-load'){ title = 'Не загрузился модуль чтения Excel'; detail = 'Проверьте интернет или сохраните файл как CSV'; }
+    else if(code==='no-api-key'){ title = 'API ключ не настроен'; detail = 'Профиль → Telegram-бот → ИИ'; }
+    else if(code==='network-error'){ title = 'Нет связи с сервером ИИ'; detail = 'Проверьте интернет и провайдера (OpenAI не работает напрямую с сайта — выберите OpenRouter или Gemini)'; }
+    else if(/^api-error-(401|403)$/.test(code)){ title = 'Ключ ИИ отклонён'; detail = 'Проверьте API ключ'; }
+    else if(code==='api-error-429'){ title = 'Превышен лимит ИИ'; detail = 'Проверьте баланс/лимиты провайдера'; }
+    toast(title, detail, 'fa-triangle-exclamation');
+  }finally{ if(input) input.value = ''; }
+}
+$('#bulkSheetInput').addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if(f) importProductsFromSheet(f); });
+
 /* ============ ОПТОВЫЕ ЦЕНЫ: включение по промокоду ============ */
 function wsRefreshUi(){
   try{ document.body.classList.toggle('ws-on', wsActive()); }catch(e){}
@@ -11758,6 +12163,54 @@ function chatReactsHtml(reactions, msgId){
   const keys = Object.keys(counts); if(!keys.length) return '';
   return `<div class="msg-reacts">${keys.map(e=>`<button type="button" class="react-pill ${r[me]===e?'mine':''}" data-react="${msgId}" data-emoji="${e}">${e}${counts[e]>1?`<small>${counts[e]}</small>`:''}</button>`).join('')}</div>`;
 }
+
+/* ============ КАРТОЧКА ТОВАРА В ЧАТЕ ============ */
+function chatMakeThumb(src, size=120){
+  return new Promise(res=>{
+    if(!src) return res('');
+    if(/^https?:/i.test(src)) return res(src);
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        const c = document.createElement('canvas'); c.width = c.height = size;
+        const ctx = c.getContext('2d'), r = Math.max(size/img.width, size/img.height);
+        ctx.drawImage(img, (size-img.width*r)/2, (size-img.height*r)/2, img.width*r, img.height*r);
+        res(c.toDataURL('image/jpeg', .7));
+      }catch(e){ res(''); }
+    };
+    img.onerror = ()=>res('');
+    img.src = src;
+  });
+}
+async function chatShowProdBar(pid){
+  const bar = $('#chatProdBar'); State.chatProdCtx = null;
+  const p = pid ? State.products.find(x=>x.id===pid) : null;
+  if(!p){ bar.classList.remove('open'); return; }
+  const thumb = await chatMakeThumb((p.images||[])[0]);
+  if(State.activeChatProductId !== pid) return; // успели сменить чат
+  State.chatProdCtx = {id:p.id, name:String(p.name||'').slice(0,140), price:Number(getMinPrice ? getMinPrice(p) : p.price)||0, oldPrice:Number(p.oldPrice)||0, image:thumb};
+  $('#cpbImg').style.backgroundImage = thumb ? `url("${thumb}")` : '';
+  $('#cpbName').textContent = State.chatProdCtx.name;
+  $('#cpbPrice').textContent = fmt(State.chatProdCtx.price);
+  bar.classList.add('open');
+}
+function chatHideProdBar(){ State.chatProdCtx = null; const b = $('#chatProdBar'); if(b) b.classList.remove('open'); }
+function chatProductCardHtml(c){
+  const img = c.image ? `style="background-image:url('${String(c.image).replace(/'/g,'%27')}')"` : '';
+  return `<div class="msg-prod" data-open-chat-product="${chatEsc(c.id)}"><div class="mp-img" ${img}></div><div style="min-width:0;"><div class="mp-name">${chatEsc(c.name)}</div><div class="mp-price">${fmt(c.price)}${c.oldPrice>c.price?`<s>${fmt(c.oldPrice)}</s>`:''}</div><div class="mp-open">Открыть товар ›</div></div></div>`;
+}
+$('#cpbClose').addEventListener('click', chatHideProdBar);
+$('#cpbSend').addEventListener('click', ()=>{
+  const inp = $('#chatInputMsg');
+  if(!inp.value.trim()) inp.value = 'Здравствуйте! Интересует этот товар. Он есть в наличии?';
+  sendChatMessage();
+});
+document.addEventListener('click', (e)=>{
+  const c = e.target.closest('[data-open-chat-product]'); if(!c) return;
+  const pid = c.getAttribute('data-open-chat-product');
+  if(!State.products.find(p=>p.id===pid)){ toast('Товар больше недоступен','','fa-circle-exclamation'); return; }
+  closeOv('ovChatThread'); setTimeout(()=>openProductDetail(pid), 120);
+});
 function chatOrderCardHtml(c){
   return `<div class="msg-card"><div class="msg-card-ico"><i class="fa-solid fa-bag-shopping"></i></div><div>
     ${c.number?`<div>Номер заказа: <b>${chatEsc(c.number)}</b></div>`:''}
