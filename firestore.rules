@@ -1,0 +1,63 @@
+rules_version = '2';
+// HORIZON MARKET — правила Firestore.
+// ВАЖНО: в приложении нет Firebase Auth, поэтому request.auth всегда null и правила
+// НЕ могут отличить админа от покупателя. Они защищают только от мусора, гигантских
+// документов и опасных удалений. Настоящая защита — Firebase Auth + Cloud Functions
+// (см. отчёт в чате). Публикуйте в Firebase Console → Firestore → Rules.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function small() { return request.resource.size() < 900000; }
+
+    match /users/{id} {
+      allow read, create, update: if small();
+      allow delete: if true;           // удаление аккаунта делает клиент
+    }
+    match /orders/{id} {
+      allow read, create, update: if small();
+      allow delete: if false;          // заказы не удаляются
+    }
+    match /chats/{id} {
+      allow read, write: if small();
+      match /messages/{m} { allow read, write: if small(); }
+    }
+    match /products/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if true;
+      match /reviews/{r} {
+        allow read: if true;
+        allow create: if small() && request.resource.data.rating is number
+                         && request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+        allow update: if small();
+        allow delete: if false;
+      }
+    }
+    match /users/{id}/sellerReviews/{r} { allow read, create, update: if small(); allow delete: if true; }
+    match /reviewsIndex/{id} { allow read, create, update: if small(); allow delete: if false; }
+
+    match /settings/{id}     { allow read, write: if small(); }   // здесь лежат ключи — вынесите их на сервер!
+    match /catalogs/{id}     { allow read, write: if small(); }
+    match /subcatalogs/{id}  { allow read, write: if small(); }
+    match /promocodes/{id}   { allow read, write: if small(); }
+    match /pushTokens/{id}   { allow read, write: if small(); }
+    match /presence/{id}     { allow read, write: if small(); }
+    match /abandonedCarts/{id}     { allow read, write: if small(); }
+    match /sellerClientNotes/{id}  { allow read, write: if small(); }
+    match /tgSessions/{id}   { allow read, write: if small(); }
+
+    // новые коллекции
+    match /sharedCarts/{id} {
+      allow read, create, update: if small() && (!('items' in request.resource.data) || request.resource.data.items.size() <= 100);
+      allow delete: if false;
+    }
+    match /searchMisses/{id} { allow read, write: if small(); }
+    match /liveViews/{id}    { allow read, write: if request.resource.size() < 20000; }
+    match /tradeIns/{id} {
+      allow read, create, update: if small();
+      allow delete: if false;
+    }
+
+    match /{path=**} { allow read, write: if false; }
+  }
+}
