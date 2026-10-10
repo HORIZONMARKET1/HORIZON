@@ -5483,6 +5483,131 @@ function shuffleArray(arr){
   for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
   return a;
 }
+
+/* ============ УМНЫЙ ПОИСК ТОВАРОВ ============
+   Ищет по названию, бренду, артикулу, каталогу/подкаталогу, характеристикам и описанию.
+   Порядок слов не важен, учитываются окончания («чехлы» = «чехол»), опечатки («айфон» / «ифон»)
+   и неправильная раскладка («штрпу» → «iphone»). Результаты ранжируются по релевантности;
+   если точных совпадений мало — ниже показываются частичные и похожие товары. */
+const HZ_EN = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`", HZ_RU = "йцукенгшщзхъфывапролджэячсмитьбюё";
+function hzSwapLayout(str){
+  return str.split('').map(ch=>{ const l=ch.toLowerCase(); let k=HZ_EN.indexOf(l); if(k>-1) return HZ_RU[k]; k=HZ_RU.indexOf(l); return k>-1 ? HZ_EN[k] : ch; }).join('');
+}
+function hzNorm(str){
+  return String(str==null?'':str).toLowerCase().replace(/ё/g,'е').replace(/[^a-z0-9а-я]+/g,' ').trim();
+}
+const HZ_ALIAS = {'айфон':'iphone','ифон':'iphone','айфоны':'iphone','самсунг':'samsung','сямсунг':'samsung','сяоми':'xiaomi','ксиоми':'xiaomi','ксяоми':'xiaomi','хуавей':'huawei','эпл':'apple','эппл':'apple','найк':'nike','найки':'nike','адидас':'adidas','пума':'puma','леново':'lenovo','асус':'asus','хонор':'honor','реалми':'realme','джбл':'jbl','сони':'sony','нокиа':'nokia','эйрподс':'airpods','аирподс':'airpods','макбук':'macbook','плейстейшн':'playstation','ноутбук':'laptop'};
+const HZ_TR = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ж:'j',з:'z',и:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'c',ш:'s',щ:'s',ы:'i',э:'e',ю:'u',я:'a',ъ:'',ь:''};
+function hzSkel(w){
+  let l = w.split('').map(ch=>HZ_TR[ch]!==undefined?HZ_TR[ch]:ch).join('');
+  l = l.replace(/ph/g,'f').replace(/ck/g,'k').replace(/c/g,'k').replace(/w/g,'v').replace(/x/g,'ks').replace(/q/g,'k').replace(/[aeiouy]/g,'').replace(/(.)\1+/g,'$1');
+  return l;
+}
+function hzStem(w){
+  if(w.length<5 || /^\d/.test(w) || /[a-z]/.test(w)) return w;
+  return w.replace(/(ями|ами|ого|его|ому|ему|ыми|ими|ая|яя|ое|ее|ые|ие|ый|ий|ой|ов|ев|ей|ом|ем|ам|ям|ах|ях|ы|и|а|я|у|ю|е|о|ь|й)$/,'');
+}
+function hzLev(a,b){
+  const m=a.length,n=b.length; if(Math.abs(m-n)>2) return 9;
+  let prev=[],cur=[]; for(let j=0;j<=n;j++) prev[j]=j;
+  for(let i=1;i<=m;i++){ cur=[i]; for(let j=1;j<=n;j++){ cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1)); } prev=cur; }
+  return prev[n];
+}
+const hzSearchIdx = new WeakMap();
+function hzProductIndex(p){
+  const sig = [p.name,p.brand,p.articul,p.catalogId,p.subcatalogId,(p.desc||'').length,(p.characteristics||[]).length].join('|');
+  const c = hzSearchIdx.get(p);
+  if(c && c.sig===sig) return c;
+  const cat = (State.catalogs||[]).find(x=>x.id===p.catalogId), sub = (State.subcatalogs||[]).find(x=>x.id===p.subcatalogId);
+  const chars = (p.characteristics||[]).map(x=>(x.key||'')+' '+(x.value||'')).join(' ');
+  const o = {
+    sig, name:hzNorm(p.name), brand:hzNorm(p.brand), art:hzNorm(p.articul).replace(/ /g,''),
+    cat:hzNorm((cat?cat.name:'')+' '+(sub?sub.name:'')), chars:hzNorm(chars), desc:hzNorm(p.desc)
+  };
+  o.nameW=o.name.split(' ').filter(Boolean); o.brandW=o.brand.split(' ').filter(Boolean);
+  o.catW=o.cat.split(' ').filter(Boolean); o.charsW=o.chars.split(' ').filter(Boolean);
+  hzSearchIdx.set(p,o); return o;
+}
+function hzFieldHit(words, text, t, ts){
+  for(const w of words){ if(w===t || w.startsWith(ts)) return 3; }
+  if(t.length>=3 && text.includes(t)) return 2;
+  return 0;
+}
+function hzScoreOne(p, tokens, fullQ){
+  const ix = hzProductIndex(p);
+  let score=0, matched=0;
+  for(const t of tokens){
+    const ts = hzStem(t);
+    let best=0;
+    const tryF=(v)=>{ if(v>best) best=v; };
+    let h = hzFieldHit(ix.nameW, ix.name, t, ts); if(h) tryF(h===3?10:6);
+    h = hzFieldHit(ix.brandW, ix.brand, t, ts); if(h) tryF(h===3?9:6);
+    if(ix.art && t.length>=2 && ix.art.includes(t)) tryF(9);
+    h = hzFieldHit(ix.catW, ix.cat, t, ts); if(h) tryF(h===3?5:3);
+    h = hzFieldHit(ix.charsW, ix.chars, t, ts); if(h) tryF(h===3?4:2.5);
+    if(best<2 && t.length>=3 && ix.desc.includes(ts)) tryF(2);
+    if(!best && t.length>=4){
+      const sk = hzSkel(t);
+      if(sk.length>=3){ for(const w of ix.nameW.concat(ix.brandW)){ if(w.length>=4 && hzSkel(w)===sk){ tryF(3.5); break; } } }
+    }
+    if(!best && t.length>=4){
+      const tol = t.length>=7 ? 2 : 1;
+      for(const w of ix.nameW.concat(ix.brandW)){ if(w.length>=4 && hzLev(w,t)<=tol){ tryF(3.5); break; } }
+    }
+    if(best){ matched++; score+=best; }
+  }
+  if(!matched) return {score:0, matched:0};
+  if(fullQ.length>=3 && ix.name.includes(fullQ)) score+=12;
+  if(ix.name.startsWith(fullQ)) score+=8;
+  if(p.inStock===false) score-=1.5;
+  score += Math.min(2, (Number(p.viewCount)||0)/200);
+  return {score, matched};
+}
+function hzSearchPass(list, q){
+  const fullQ = hzNorm(q);
+  const tokens = fullQ.split(' ').filter(Boolean).map(w=>HZ_ALIAS[w]||w);
+  if(!tokens.length) return {full:[], partial:[]};
+  const full=[], partial=[];
+  for(const p of list){
+    const r = hzScoreOne(p, tokens, fullQ);
+    if(!r.matched) continue;
+    (r.matched===tokens.length ? full : partial).push({p, score:r.score});
+  }
+  return {full, partial: tokens.length>1 ? partial : []};
+}
+function hzSearchProducts(list, q){
+  let r = hzSearchPass(list, q);
+  if(!r.full.length && !r.partial.length){
+    const sw = hzSwapLayout(q);
+    if(sw!==q.toLowerCase()){ const r2 = hzSearchPass(list, sw); if(r2.full.length||r2.partial.length) r=r2; }
+  }
+  const byScore=(a,b)=>b.score-a.score;
+  r.full.sort(byScore); r.partial.sort(byScore);
+  const main = r.full.map(x=>x.p), partial = r.partial.map(x=>x.p).slice(0,24);
+  // похожие: из той же подкатегории/бренда, что и лучшие совпадения
+  let similar = [];
+  const seeds = (main.length?main:partial).slice(0,4);
+  if(seeds.length){
+    const taken = new Set(main.concat(partial).map(p=>p.id));
+    const subs = {}, brands = {};
+    seeds.forEach((p,i)=>{ const w=4-i; if(p.subcatalogId) subs[p.subcatalogId]=(subs[p.subcatalogId]||0)+w; if(p.brand) brands[hzNorm(p.brand)]=(brands[hzNorm(p.brand)]||0)+w; });
+    const seedWords = new Set(); seeds.forEach(p=>hzProductIndex(p).nameW.forEach(w=>{ if(w.length>=4) seedWords.add(hzStem(w)); }));
+    const refPrice = Number(seeds[0].price)||0;
+    const sc=[];
+    for(const p of State.products){
+      if(taken.has(p.id)) continue;
+      let sco=0; const ix=hzProductIndex(p);
+      if(p.subcatalogId && subs[p.subcatalogId]) sco+=3+subs[p.subcatalogId];
+      if(ix.brand && brands[ix.brand]) sco+=2+brands[ix.brand]*0.5;
+      ix.nameW.forEach(w=>{ if(w.length>=4 && seedWords.has(hzStem(w))) sco+=1.5; });
+      if(refPrice && Number(p.price)>0 && Math.abs(Number(p.price)-refPrice)/refPrice<0.4) sco+=1;
+      if(sco>=4) sc.push({p,sco});
+    }
+    sc.sort((a,b)=>b.sco-a.sco);
+    similar = sc.slice(0,12).map(x=>x.p);
+  }
+  return {main, partial, similar};
+}
 function filterAndRenderGrid(f){
   aiSearchToken++; // любое изменение фильтра отменяет ещё не завершённый предыдущий ИИ-поиск
   const myAiToken = aiSearchToken;
@@ -5502,13 +5627,24 @@ function filterAndRenderGrid(f){
   availableBrandsForFilter = Array.from(new Set(list.map(p=>(p.brand||'').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'ru'));
   if(currentFilter.brands && currentFilter.brands.length) list = list.filter(p=>currentFilter.brands.includes((p.brand||'').trim()));
   const preSearchList = list.slice(); // каталог до текстового поиска — база для ИИ-поиска по смыслу
+  let extraSections = [];
+  const passFilters = (arr)=>{
+    if(currentFilter.stockOnly) arr = arr.filter(p=>p.inStock!==false);
+    if(currentFilter.priceMin!=null) arr = arr.filter(p=>Number(p.price)>=currentFilter.priceMin);
+    if(currentFilter.priceMax!=null) arr = arr.filter(p=>Number(p.price)<=currentFilter.priceMax);
+    if(currentFilter.brands && currentFilter.brands.length) arr = arr.filter(p=>currentFilter.brands.includes((p.brand||'').trim()));
+    return arr;
+  };
   if(currentFilter.search){
-    const q = currentFilter.search.toLowerCase();
-    list = list.filter(p=>(p.name||'').toLowerCase().includes(q) || (p.articul||'').toLowerCase().includes(q));
+    const sr = hzSearchProducts(list, currentFilter.search);
+    list = sr.main;
+    const part = passFilters(sr.partial);
+    const sim = passFilters(sr.similar);
+    if(part.length) extraSections.push({title: list.length ? 'Частичные совпадения' : 'Точных совпадений нет — совпало часть слов', items: part});
+    if(sim.length) extraSections.push({title:'Похожие товары', items: sim});
   }
-  if(currentFilter.stockOnly) list = list.filter(p=>p.inStock!==false);
-  if(currentFilter.priceMin!=null) list = list.filter(p=>Number(p.price)>=currentFilter.priceMin);
-  if(currentFilter.priceMax!=null) list = list.filter(p=>Number(p.price)<=currentFilter.priceMax);
+  list = passFilters(list);
+  if(!currentFilter.search) { /* бренды уже применены выше */ }
 
   if(currentFilter.sort==='priceAsc'){
     list.sort((a,b)=>Number(a.price)-Number(b.price));
@@ -5537,14 +5673,23 @@ function filterAndRenderGrid(f){
   }
   const cat = State.catalogs.find(c=>c.id===currentFilter.catalogId);
   $('#gridTitle').textContent = currentFilter.flashOnly ? '⚡ Товары акции' : (currentFilter.search ? `Результаты поиска: "${currentFilter.search}"` : (cat ? cat.name : 'Все товары'));
-  renderGrid(list, '#productGrid');
+  if(currentFilter.search && extraSections.length){
+    const mixed = list.slice();
+    extraSections.forEach(sec=>{ mixed.push({__hdr:sec.title, id:'hdr-'+sec.title}); sec.items.forEach(x=>mixed.push(x)); });
+    if(!list.length) mixed.unshift({__hdr:'Ничего не нашлось точно', id:'hdr-none'});
+    renderGridProgressive($('#productGrid'), mixed, (p)=> p.__hdr
+      ? `<div style="grid-column:1/-1;padding:10px 2px 2px;font-weight:800;font-size:14.5px;color:var(--text);display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-layer-group" style="color:var(--accent);"></i>${p.__hdr}</div>`
+      : cardHtml(p));
+  } else {
+    renderGrid(list, '#productGrid');
+  }
   renderPopularProducts(isDefaultView && !currentFilter.search);
   renderRecentlyViewed(isDefaultView && !currentFilter.search);
   updateBrandFilterChip();
   // Обычный поиск ищет по точному вхождению в название/артикул. Если он ничего не нашёл,
   // пробуем ИИ-поиск по смыслу (например «тёплая куртка» → «пуховик») — но только если
   // это ещё актуальный запрос (пользователь не успел ввести что-то другое) и настроен ключ ИИ.
-  if(list.length===0 && currentFilter.search && currentFilter.search.trim().length>=3 && (State.settings.aiApiKey || State.settings.geminiApiKey)){
+  if(list.length===0 && !extraSections.length && currentFilter.search && currentFilter.search.trim().length>=3 && (State.settings.aiApiKey || State.settings.geminiApiKey)){
     triggerAiSemanticFallback(currentFilter.search.trim(), preSearchList, myAiToken);
   }
 }
@@ -10622,11 +10767,14 @@ function updateAiKeyHint(){
   hint.innerHTML = keyLine + corsWarning;
 }
 $('#aiProviderInput')?.addEventListener('change', updateAiKeyHint);
-function buildAiPrompt(productName, hint){
+function buildAiPrompt(productName, hint, catTree){
   const hintLine = hint ? `\nИз прайс-листа поставщика известно о товаре: "${hint}". Обязательно используй эти данные в характеристиках и не противоречь им.\n` : '';
   return `Ты — опытный копирайтер интернет-магазина. Для товара с названием "${productName}" верни строго JSON без markdown-обёртки и без пояснений, в формате:${hintLine}
-{"description":"подробное продающее описание товара на русском языке","characteristics":[{"key":"Название параметра","value":"Значение"}, ...]}
-
+{"description":"подробное продающее описание товара на русском языке","characteristics":[{"key":"Название параметра","value":"Значение"}, ...]${catTree?',"catalogId":"id каталога из списка","subcatalogId":"id подкаталога из списка"':''}}
+${catTree?`
+Выбери для товара самый подходящий каталог и подкаталог СТРОГО из этого списка (id копируй точно, подкаталог должен принадлежать выбранному каталогу):
+${catTree}
+`:''}
 Требования к description:
 - Пиши развёрнуто, 4-6 предложений (не менее 400 знаков), в 2 смысловых части: сначала что это за товар и его ключевые преимущества, затем — для кого он подходит и в каких ситуациях пригодится.
 - Раскрой реальные особенности именно этой модели/товара (материалы, технологии, дизайн, функциональность), а не общие фразы.
@@ -10651,7 +10799,8 @@ function parseAiJsonResponse(text){
   const chars = Array.isArray(parsed.characteristics) ? parsed.characteristics
     .filter(c=>c && c.key && c.value)
     .map(c=>({key:String(c.key).trim(), value:String(c.value).trim()})) : [];
-  return {description: parsed.description.trim(), characteristics: chars};
+  return {description: parsed.description.trim(), characteristics: chars,
+    catalogId: parsed.catalogId!=null ? String(parsed.catalogId) : '', subcatalogId: parsed.subcatalogId!=null ? String(parsed.subcatalogId) : ''};
 }
 /* OpenAI и OpenRouter используют один и тот же формат Chat Completions —
    OpenRouter полностью совместим с OpenAI API, отличается только адрес и ключ.
@@ -10764,8 +10913,14 @@ async function triggerAiSemanticFallback(query, candidates, myAiToken){
   }
 }
 
-async function fetchProductAiData(productName, hint){
-  const text = await callAiRaw(buildAiPrompt(productName, hint), null, true);
+function bulkCatTreeText(){
+  return State.catalogs.map(c=>{
+    const subs = State.subcatalogs.filter(x=>x.catalogId===c.id);
+    return `Каталог id="${c.id}" «${c.name}»`+(subs.length ? ': подкаталоги — '+subs.map(x=>`id="${x.id}" «${x.name}»`).join('; ') : ' (без подкаталогов)');
+  }).join('\n');
+}
+async function fetchProductAiData(productName, hint, withCats){
+  const text = await callAiRaw(buildAiPrompt(productName, hint, withCats ? bulkCatTreeText() : ''), null, true);
   return parseAiJsonResponse(text);
 }
 $('#pfAiFillBtn').addEventListener('click', async ()=>{
@@ -10847,11 +11002,15 @@ function bulkDraftCardHtml(d, i){
       <div class="field"><label>Артикул</label><input data-bulkart="${i}" value="${(d.articul||'').replace(/"/g,'&quot;')}"></div>
     </div>
     <div class="field"><label>Бренд</label><input data-bulkbrand="${i}" value="${(d.brand||'').replace(/"/g,'&quot;')}"></div>
+    <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="field"><label>Старая цена (акция)</label><input type="number" data-bulkold="${i}" value="${d.oldPrice||''}" placeholder="необязательно"></div>
+      <div class="field"><label>Количество</label><input type="number" min="0" data-bulkqty="${i}" value="${d.stockQty||''}" placeholder="необязательно"></div>
+    </div>
     <div class="field"><label>Оптовая цена (для клиентов с оптовым промокодом)</label><input type="number" data-bulkopt="${i}" value="${d.optPrice||''}"></div>
-    <div class="field"><label>Фото</label>
-      <div style="display:flex;gap:8px;align-items:center;">
-        ${d.image ? `<div class="img-thumb" style="width:60px;height:60px;position:relative;"><img src="${d.image}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-bulkimgrm="${i}">✕</span></div>` : ''}
-        <label class="btn btn-outline" style="width:auto;margin:0;padding:8px 12px;"><i class="fa-solid fa-image"></i> ${d.image?'Заменить':'Добавить фото'}<input type="file" accept="image/*" class="hidden" data-bulkimg="${i}"></label>
+    <div class="field"><label>Фото (до 4)</label>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        ${(d.images||[]).map((im,k)=>`<div class="img-thumb" style="width:60px;height:60px;position:relative;"><img src="${im}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"><span class="rm" data-bulkimgrm="${i}:${k}">✕</span></div>`).join('')}
+        ${(d.images||[]).length<4 ? `<label class="btn btn-outline" style="width:auto;margin:0;padding:8px 12px;"><i class="fa-solid fa-image"></i> Добавить фото<input type="file" accept="image/*" multiple class="hidden" data-bulkimg="${i}"></label>` : ''}
       </div>
     </div>
   </div>`;
@@ -10876,11 +11035,19 @@ async function bulkGenerateOne(i){
   updateBulkDraftRow(i);
   try{
     const result = await Promise.race([
-      fetchProductAiData(bulkDrafts[i].name, bulkDrafts[i].hint),
+      fetchProductAiData(bulkDrafts[i].name, bulkDrafts[i].hint, !bulkDrafts[i].catFixed),
       new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 25000))
     ]);
     bulkDrafts[i].desc = result.description;
     bulkDrafts[i].chars = result.characteristics;
+    if(!bulkDrafts[i].catFixed){
+      const cat = State.catalogs.find(c=>c.id===result.catalogId);
+      if(cat){
+        bulkDrafts[i].catalogId = cat.id;
+        const sub = State.subcatalogs.find(x=>x.id===result.subcatalogId && x.catalogId===cat.id) || State.subcatalogs.find(x=>x.catalogId===cat.id);
+        bulkDrafts[i].subcatalogId = sub ? sub.id : '';
+      }
+    }
     bulkDrafts[i].status = 'done';
   }catch(e){
     console.warn('ИИ не смог заполнить товар из массового списка:', bulkDrafts[i].name, e);
@@ -10894,7 +11061,7 @@ $('#bulkGenerateBtn').addEventListener('click', async ()=>{
   if(!(State.settings.aiApiKey || State.settings.geminiApiKey)){ toast('API ключ ИИ не настроен', 'Профиль → Telegram-бот → ИИ — автозаполнение товара', 'fa-circle-exclamation'); return; }
   const defCat = State.catalogs[0] ? State.catalogs[0].id : '';
   const defSub = (State.subcatalogs.find(s=>s.catalogId===defCat) || {}).id || '';
-  bulkDrafts = lines.map(name=>({name, desc:'', chars:[], catalogId:defCat, subcatalogId:defSub, price:'', articul:'', brand:'', image:null, status:'pending'}));
+  bulkDrafts = lines.map(name=>({name, desc:'', chars:[], catalogId:defCat, subcatalogId:defSub, price:'', oldPrice:'', stockQty:'', articul:'', brand:'', images:[], status:'pending'}));
   renderBulkDrafts();
   const btn = $('#bulkGenerateBtn');
   btn.disabled = true;
@@ -10917,13 +11084,15 @@ document.addEventListener('click', (e)=>{
   const charRm = e.target.closest('[data-bulkcharrm]');
   if(charRm){ const [i,ci] = charRm.getAttribute('data-bulkcharrm').split(':').map(Number); bulkDrafts[i].chars.splice(ci,1); updateBulkDraftRow(i); return; }
   const imgRm = e.target.closest('[data-bulkimgrm]');
-  if(imgRm){ const i = parseInt(imgRm.getAttribute('data-bulkimgrm')); bulkDrafts[i].image = null; updateBulkDraftRow(i); return; }
+  if(imgRm){ const [i,k] = imgRm.getAttribute('data-bulkimgrm').split(':').map(Number); bulkDrafts[i].images.splice(k,1); updateBulkDraftRow(i); return; }
 });
 document.addEventListener('input', (e)=>{
   if(e.target.matches('[data-bulkdesc]')) bulkDrafts[e.target.getAttribute('data-bulkdesc')].desc = e.target.value;
   else if(e.target.matches('[data-bulkprice]')) bulkDrafts[e.target.getAttribute('data-bulkprice')].price = e.target.value;
   else if(e.target.matches('[data-bulkart]')) bulkDrafts[e.target.getAttribute('data-bulkart')].articul = e.target.value;
   else if(e.target.matches('[data-bulkbrand]')) bulkDrafts[e.target.getAttribute('data-bulkbrand')].brand = e.target.value;
+  else if(e.target.matches('[data-bulkold]')) bulkDrafts[e.target.getAttribute('data-bulkold')].oldPrice = e.target.value;
+  else if(e.target.matches('[data-bulkqty]')) bulkDrafts[e.target.getAttribute('data-bulkqty')].stockQty = e.target.value;
   else if(e.target.matches('[data-bulkopt]')) bulkDrafts[e.target.getAttribute('data-bulkopt')].optPrice = e.target.value;
   else if(e.target.matches('[data-bulkcharkey]')){ const [i,ci] = e.target.getAttribute('data-bulkcharkey').split(':').map(Number); bulkDrafts[i].chars[ci].key = e.target.value; }
   else if(e.target.matches('[data-bulkcharval]')){ const [i,ci] = e.target.getAttribute('data-bulkcharval').split(':').map(Number); bulkDrafts[i].chars[ci].value = e.target.value; }
@@ -10938,9 +11107,12 @@ document.addEventListener('change', async (e)=>{
     bulkDrafts[e.target.getAttribute('data-bulksub')].subcatalogId = e.target.value;
   } else if(e.target.matches('[data-bulkimg]')){
     const i = parseInt(e.target.getAttribute('data-bulkimg'));
-    const f = e.target.files[0];
-    if(f){ const d = await openImageCropper(f); if(d){ bulkDrafts[i].image = d; updateBulkDraftRow(i); } }
+    const files = Array.from(e.target.files).slice(0, 4-(bulkDrafts[i].images||[]).length);
     e.target.value = '';
+    for(const f of files){
+      const d = await openImageCropper(f);
+      if(d){ bulkDrafts[i].images.push(d); updateBulkDraftRow(i); }
+    }
   }
 });
 $('#bulkSaveAllBtn').addEventListener('click', async ()=>{
@@ -10956,16 +11128,16 @@ $('#bulkSaveAllBtn').addEventListener('click', async ()=>{
     try{
       const data = {
         name: d.name, price: parseFloat(d.price), articul: d.articul.trim()||null, brand: d.brand.trim()||null,
-        oldPrice: null, optPrice: d.optPrice ? (parseFloat(d.optPrice)||null) : null, inStock: true, stockQty: null, promoLabel: null,
+        oldPrice: (parseFloat(d.oldPrice)>0 ? parseFloat(d.oldPrice) : null), optPrice: d.optPrice ? (parseFloat(d.optPrice)||null) : null, inStock: (d.stockQty!=='' && d.stockQty!=null && parseInt(d.stockQty,10)<=0) ? false : true, stockQty: (d.stockQty!=='' && d.stockQty!=null && !isNaN(parseInt(d.stockQty,10))) ? Math.max(0,parseInt(d.stockQty,10)) : null, promoLabel: null,
         desc: d.desc.trim(), catalogId: d.catalogId||'', subcatalogId: d.subcatalogId||'',
-        characteristics: (d.chars||[]).filter(c=>c.key), images: d.image ? [d.image] : [],
+        characteristics: (d.chars||[]).filter(c=>c.key), images: (d.images||[]).slice(0,4),
         sizes: [], colors: [], sizePrices: null, wholesale: null,
         rating: 5, ratingCount: 0,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       data.sellerId = State.user.role==='seller' ? State.user.docId : 'admin';
       data.imgHashes = [];
-      if(d.image){ const h = await imageHash(d.image); if(h) data.imgHashes.push(h); }
+      for(const im of data.images){ const h = await imageHash(im); if(h) data.imgHashes.push(h); }
       const approxDocSize = new Blob([JSON.stringify(data)]).size;
       if(approxDocSize > 950000) throw new Error('too-large');
       const ref = await db.collection('products').add(stripUndefinedDeep(data));
@@ -11250,7 +11422,7 @@ async function importProductsFromPdf(file){
         price: (!isNaN(priceNum) && priceNum>0) ? String(priceNum) : '',
         optPrice: (()=>{ const v = parseFloat(String(pr.optPrice==null?'':pr.optPrice).replace(/\s/g,'').replace(',','.')); return (!isNaN(v) && v>0) ? String(v) : ''; })(),
         articul: String(pr.articul||'').trim(), brand: String(pr.brand||'').trim(),
-        image: pr.image || null, hint: String(pr.details||'').trim(), status:'pending'
+        images: pr.image ? [pr.image] : [], catFixed:true, hint: String(pr.details||'').trim(), status:'pending'
       });
       if(newDrafts.length >= 300) break;
     }
@@ -11261,7 +11433,7 @@ async function importProductsFromPdf(file){
     }
     bulkDrafts = newDrafts;
     renderBulkDrafts();
-    const withImg = newDrafts.filter(d=>d.image).length;
+    const withImg = newDrafts.filter(d=>d.images&&d.images.length).length;
     toast(`Новых товаров: ${newDrafts.length}`, `с фото: ${withImg}`+(skippedExisting?`, уже были в магазине и пропущены: ${skippedExisting}`:'')+'. Сейчас ИИ напишет описания и характеристики', 'fa-circle-check');
     // 4) описания и характеристики — по 3 параллельно
     let done = 0, idx = 0;
@@ -11278,7 +11450,7 @@ async function importProductsFromPdf(file){
     await Promise.all([worker(), worker(), worker()]);
     const noPrice = bulkDrafts.filter(d=>!d.price).length;
     const errs = bulkDrafts.filter(d=>d.status==='error').length;
-    pdfSetProgress(`<i class="fa-solid fa-circle-check" style="color:var(--accent);"></i> Готово: ${bulkDrafts.length} товаров, с фото ${bulkDrafts.filter(d=>d.image).length}`+(noPrice?`, без цены: ${noPrice}`:'')+(errs?`, без описания: ${errs}`:'')+(skippedExisting?`. Пропущено уже существующих: ${skippedExisting}`:'')+'. Проверьте карточки ниже и нажмите «Сохранить все товары».');
+    pdfSetProgress(`<i class="fa-solid fa-circle-check" style="color:var(--accent);"></i> Готово: ${bulkDrafts.length} товаров, с фото ${bulkDrafts.filter(d=>d.images&&d.images.length).length}`+(noPrice?`, без цены: ${noPrice}`:'')+(errs?`, без описания: ${errs}`:'')+(skippedExisting?`. Пропущено уже существующих: ${skippedExisting}`:'')+'. Проверьте карточки ниже и нажмите «Сохранить все товары».');
   }catch(e){
     console.warn('Импорт из PDF не удался', e);
     pdfSetProgress('');
