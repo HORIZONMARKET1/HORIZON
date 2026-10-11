@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function small() { return request.resource.size() < 900000; }
+
+    match /users/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if true;
+    }
+    match /users/{id}/sellerReviews/{r} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if true;
+    }
+    match /orders/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if false;
+    }
+    match /chats/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if true;
+      match /messages/{m} {
+        allow read: if true;
+        allow create, update: if small();
+        allow delete: if true;
+      }
+    }
+    match /products/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if true;
+      match /questions/{q} {
+        allow read: if true;
+        allow create, update: if small();
+        allow delete: if true;
+      }
+      match /reviews/{r} {
+        allow read: if true;
+        allow create: if small() && request.resource.data.rating is number
+                         && request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+        allow update: if small();
+        allow delete: if false;
+      }
+    }
+    match /reviewsIndex/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if false;
+    }
+    match /settings/{id}          { allow read: if true; allow create, update: if small(); allow delete: if false; }
+    match /catalogs/{id}          { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /subcatalogs/{id}       { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /promocodes/{id}        { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /pushTokens/{id}        { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /presence/{id}          { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /abandonedCarts/{id}    { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /sellerClientNotes/{id} { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /tgSessions/{id}        { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /searchMisses/{id}      { allow read: if true; allow create, update: if small(); allow delete: if true; }
+    match /liveViews/{id}         { allow read: if true; allow create, update: if request.resource.size() < 20000; allow delete: if true; }
+    match /sharedCarts/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if false;
+    }
+    match /returns/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if false;
+    }
+    match /tradeIns/{id} {
+      allow read: if true;
+      allow create, update: if small();
+      allow delete: if false;
+    }
+
+    match /{path=**} { allow read, write: if false; }
+  }
+}
