@@ -1,5 +1,6 @@
 <html lang="ru"><head>
 <meta charset="UTF-8">
+<meta name="hz-build" content="20261011-1111">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <script>
 /* ===== АВТО-ПОДГОНКА ПОД ЛЮБОЙ ТЕЛЕФОН =====
@@ -2001,6 +2002,9 @@ body.ws-on .card-price::after, body.ws-on .mcard-price::after, body.ws-on .pd-pr
 .rt-st{font-weight:700;} .rt-new{color:#E8590C;} .rt-approved,.rt-done{color:var(--success);} .rt-rejected{color:var(--danger);} .rt-ans{margin-top:6px;padding:8px 10px;background:var(--surface);border-radius:10px;}
 .wr-card{display:flex;gap:12px;padding:12px;border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;background:var(--surface-2);} .wr-card img{width:64px;height:64px;border-radius:12px;object-fit:cover;flex:0 0 auto;} .wr-b{min-width:0;flex:1;font-size:13px;} .wr-b small{display:block;color:var(--text-dim);font-size:11.5px;margin:2px 0;}
 .wr-st{font-size:12px;font-weight:700;} .wr-st.ok{color:var(--success);} .wr-st.soon{color:#E8590C;} .wr-st.off{color:var(--text-dim);}
+/* batch 6 */
+#hzUpdBar{position:fixed;left:12px;right:12px;bottom:calc(var(--tabbar-h,64px) + 12px + env(safe-area-inset-bottom,0px));z-index:100001;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:#1b1340;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.35);font-size:13px;font-weight:600;}
+#hzUpdBar span{flex:1;} #hzUpdBar button{border:0;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer;background:#7B2FF7;color:#fff;} #hzUpdBar #hzUpdX{background:none;font-size:18px;padding:4px 8px;color:#ffffffaa;}
 </style>
 </head>
 <body data-theme="light">
@@ -3430,6 +3434,7 @@ Xiaomi Redmi Note 13"></textarea></div>
 <div class="overlay center" id="ovReturnForm"><div class="sheet" style="border-radius:24px;max-height:92vh;overflow:auto;"><div class="sheet-title">Заявка на возврат <button class="close-x" data-close="ovReturnForm"><i class="fa-solid fa-xmark"></i></button></div><div id="rtBody"></div></div></div>
 <div class="overlay page-overlay" id="ovWarranty"><div class="sheet"><div class="sheet-handle"></div><div class="sheet-title">Мои гарантии <button class="close-x" data-close="ovWarranty"><i class="fa-solid fa-xmark"></i></button></div><div id="wrBody"></div></div></div>
 
+<div class="overlay center" id="ovLang"><div class="sheet" style="border-radius:24px;"><div class="sheet-title">Выберите язык <button class="close-x" data-close="ovLang"><i class="fa-solid fa-xmark"></i></button></div><div id="langBody"></div></div></div>
 <!-- ORDER RECEIVED: RATING / REVIEW / PHOTO PER ITEM -->
 <div class="overlay center" id="ovOrderReceipt">
   <div class="sheet" style="border-radius:24px;">
@@ -9143,6 +9148,7 @@ function renderProfile(){
     menu += item(fa('fa-user-plus'),'Пригласить друга','Бонусы вам за каждого друга','data-pf-go="invite"');
     menu += item(fa('fa-shield-halved'),'Мои гарантии','Сроки гарантии на купленное','data-pf-go="warranty"');
   }
+  menu += item(fa('fa-language'),'Язык интерфейса','Русский · Тоҷикӣ · O‘zbekcha','data-pf-go="lang"');
   menu += item(fa('fa-rotate-left'),'Возвраты и обмен', u.role==='client' ? 'Заявки и их статусы' : 'Заявки клиентов','data-pf-go="returns"');
   if(u.role==='client' || u.role==='seller'){
     menu += item(fa('fa-box-open'),'Мои заказы','История покупок и статусы','id="openOrdersBtn"');
@@ -9981,6 +9987,7 @@ async function renderOrders(){
         ${canRateCourier ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-rate-courier="${d.id}"><i class="fa-solid fa-star"></i> Оценить курьера</button>` : ''}
         ${courierAdminHtml}
         ${statusSelectHtml}
+        ${(State.user.role==='seller'||State.user.role==='admin') ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-print-order="${d.id}" data-kind="invoice"><i class="fa-solid fa-file-lines"></i> Накладная</button><button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-print-order="${d.id}" data-kind="label"><i class="fa-solid fa-tag"></i> Этикетка</button>` : ''}
         ${State.user.role==='admin' ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-send-warranty="${d.id}"><i class="fa-solid fa-file-shield"></i> Отправить гарантийный талон</button>` : ''}
         ${(State.user.role==='client' && o.status==='Доставлен') ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-rt-open="${d.id}"><i class="fa-solid fa-rotate-left"></i> Возврат / обмен</button>` : ''}
         ${State.user.role==='client' ? `<button class="btn btn-outline" style="padding:10px;font-size:13px;width:auto;" data-reorder="${d.id}"><i class="fa-solid fa-rotate-right"></i> Заказать снова</button>` : ''}
@@ -12409,6 +12416,7 @@ function pfGo(go){
   else if(go==='invite') rfOpen();
   else if(go==='warranty') wrOpen();
   else if(go==='returns') rtOpenList();
+  else if(go==='lang') hzOpenLang();
 }
 document.addEventListener('click', (e)=>{
   let t;
@@ -12463,6 +12471,238 @@ document.addEventListener('click', async (e)=>{
   for(const r of list) await grRemind(r);
   toast('Напоминания отправлены', list.length+' шт.', 'fa-bell'); grAbandoned();
 });
+/* ================= ПАКЕТ 6: печать накладной/этикетки, языки, автообновление ================= */
+
+/* ---------- 11. Печать накладной и этикетки ---------- */
+const C39 = {'0':'nnnwwnwnn','1':'wnnwnnnnw','2':'nnwwnnnnw','3':'wnwwnnnnn','4':'nnnwwnnnw','5':'wnnwwnnnn','6':'nnwwwnnnn','7':'nnnwnnwnw','8':'wnnwnnwnn','9':'nnwwnnwnn',
+  'A':'wnnnnwnnw','B':'nnwnnwnnw','C':'wnwnnwnnn','D':'nnnnwwnnw','E':'wnnnwwnnn','F':'nnwnwwnnn','G':'nnnnnwwnw','H':'wnnnnwwnn','I':'nnwnnwwnn','J':'nnnnwwwnn',
+  'K':'wnnnnnnww','L':'nnwnnnnww','M':'wnwnnnnwn','N':'nnnnwnnww','O':'wnnnwnnwn','P':'nnwnwnnwn','Q':'nnnnnnwww','R':'wnnnnnwwn','S':'nnwnnnwwn','T':'nnnnwnwwn',
+  'U':'wwnnnnnnw','V':'nwwnnnnnw','W':'wwwnnnnnn','X':'nwnnwnnnw','Y':'wwnnwnnnn','Z':'nwwnwnnnn','*':'nwnnwnwnn'};
+function prBarcode(text, h){
+  const s = '*' + String(text).toUpperCase().replace(/[^0-9A-Z]/g,'') + '*';
+  let x = 0, rects = '';
+  for(const ch of s){
+    const p = C39[ch]; if(!p) continue;
+    for(let i=0;i<9;i++){ const w = p[i]==='w' ? 3 : 1; if(i%2===0) rects += `<rect x="${x}" y="0" width="${w}" height="${h}"/>`; x += w; }
+    x += 1;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${x} ${h}" preserveAspectRatio="none" style="width:100%;height:${h}px;fill:#000;">${rects}</svg>`;
+}
+function prDoc(o, orderId, kind){
+  const role = State.user.role;
+  let items = o.items||[]; if(role==='seller') items = items.filter(i=>i.sellerId===State.user.docId);
+  const no = String(orderId).slice(-6).toUpperCase();
+  const date = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleDateString('ru-RU') : '';
+  const paid = (o.paid || o.status==='Оплачено') ? 'ОПЛАЧЕНО' : (o.paymentMethod==='installment' ? 'РАССРОЧКА' : 'К ОПЛАТЕ');
+  const E = hzEsc, money = n=>fmt(Number(n)||0);
+  const variant = i=>[i.size, i.color].filter(Boolean).join(', ');
+  if(kind==='label'){
+    const qty = items.reduce((s,i)=>s+(Number(i.qty)||0),0);
+    return `<!doctype html><meta charset="utf-8"><title>Этикетка ${no}</title><style>
+      @page{size:100mm 150mm;margin:0} *{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;color:#000}
+      .l{width:100mm;height:150mm;padding:5mm;display:flex;flex-direction:column;gap:3mm;border:0}
+      .no{font-size:22pt;font-weight:800;letter-spacing:1px} .hd{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #000;padding-bottom:2mm}
+      .big{font-size:15pt;font-weight:800;line-height:1.15} .row{font-size:11pt;line-height:1.3} .tag{display:inline-block;border:2px solid #000;padding:1mm 3mm;font-weight:800;font-size:12pt}
+      .gift{background:#000;color:#fff;padding:2mm 3mm;font-weight:800;font-size:12pt} .grow{flex:1} small{font-size:9pt}
+    </style><div class="l">
+      <div class="hd"><span class="no">№ ${no}</span><span>${E(date)}</span></div>
+      <div class="big">${E(o.clientName||'')}</div>
+      <div class="big">${E(o.clientPhone||'')}</div>
+      <div class="row">${E(o.address || o.receiveMethodLabel || '')}${o.country?', '+E(o.country):''}</div>
+      <div class="row"><b>${E(o.receiveMethodLabel||'')}</b></div>
+      ${o.gift?`<div class="gift">ПОДАРОК · ${E(o.gift.recipientName||'')} ${E(o.gift.recipientPhone||'')}<br><small>без цен в упаковке${o.gift.message?' · открытка':''}</small></div>`:''}
+      <div class="row">Позиций: <b>${items.length}</b> · Штук: <b>${qty}</b></div>
+      <div class="row" style="font-size:9.5pt;">${items.slice(0,6).map(i=>E(i.name)+' ×'+i.qty).join('<br>')}${items.length>6?'<br>…':''}</div>
+      <div class="grow"></div>
+      <div><span class="tag">${paid}</span>${o.gift?'':` <b style="font-size:13pt;margin-left:3mm;">${money(o.total)}</b>`}</div>
+      <div>${prBarcode(no, 46)}<div style="text-align:center;font-size:10pt;letter-spacing:3px;">${no}</div></div>
+    </div>`;
+  }
+  const seller = role==='seller' ? (State.user.fio||'Продавец') : 'HORIZON MARKET';
+  const sumItems = items.reduce((s,i)=>s+(Number(i.price)||0)*(Number(i.qty)||0),0);
+  return `<!doctype html><meta charset="utf-8"><title>Накладная ${no}</title><style>
+    @page{size:A4;margin:14mm} *{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;color:#111;font-size:11pt}
+    h1{font-size:17pt;margin:0 0 4mm} .meta{display:flex;justify-content:space-between;gap:10mm;margin-bottom:6mm;font-size:10.5pt;line-height:1.5}
+    table{width:100%;border-collapse:collapse;margin-bottom:5mm} th,td{border:1px solid #444;padding:2.2mm 2.5mm;text-align:left;font-size:10.5pt} th{background:#eee} td.n,th.n{text-align:right;white-space:nowrap}
+    .tot{margin-left:auto;width:75mm;font-size:11pt} .tot div{display:flex;justify-content:space-between;padding:1.2mm 0} .tot .g{border-top:2px solid #000;font-weight:800;font-size:13pt;margin-top:2mm;padding-top:2.5mm}
+    .sign{display:flex;justify-content:space-between;margin-top:16mm;font-size:10pt} .sign span{display:inline-block;width:55mm;border-bottom:1px solid #000;margin-left:3mm}
+    .gift{border:2px solid #000;padding:3mm;margin-bottom:5mm;font-weight:700}
+  </style>
+  <h1>Накладная № ${no} от ${E(date)}</h1>
+  ${o.gift?`<div class="gift">🎁 ПОДАРОК для ${E(o.gift.recipientName||'')} ${E(o.gift.recipientPhone||'')}${o.gift.message?'<br>Открытка: «'+E(o.gift.message)+'»':''}<br>Цены в упаковку не вкладывать</div>`:''}
+  <div class="meta"><div><b>Продавец:</b> ${E(seller)}<br><b>Способ получения:</b> ${E(o.receiveMethodLabel||'')}<br><b>Оплата:</b> ${E(o.paymentMethod==='installment'?'Рассрочка'+(o.installmentProvider?' ('+o.installmentProvider+')':''):'На карту')} · ${paid}</div>
+  <div><b>Покупатель:</b> ${E(o.clientName||'')}<br>${E(o.clientPhone||'')}<br>${E(o.address||'')}${o.country?', '+E(o.country):''}</div></div>
+  <table><thead><tr><th class="n">№</th><th>Товар</th><th class="n">Кол-во</th><th class="n">Цена</th><th class="n">Сумма</th></tr></thead><tbody>
+  ${items.map((i,k)=>`<tr><td class="n">${k+1}</td><td>${E(i.name)}${variant(i)?`<br><small>${E(variant(i))}</small>`:''}${i.articul?`<br><small>Арт. ${E(i.articul)}</small>`:''}</td><td class="n">${i.qty}</td><td class="n">${o.gift?'—':money(i.price)}</td><td class="n">${o.gift?'—':money((Number(i.price)||0)*(Number(i.qty)||0))}</td></tr>`).join('')}
+  </tbody></table>
+  ${o.gift?'':`<div class="tot"><div><span>Товары</span><span>${money(sumItems)}</span></div>
+    ${o.deliveryFee?`<div><span>Доставка</span><span>${money(o.deliveryFee)}</span></div>`:''}
+    ${o.promoDiscount?`<div><span>Промокод</span><span>−${money(o.promoDiscount)}</span></div>`:''}
+    ${o.bonusUsed?`<div><span>Бонусы</span><span>−${money(o.bonusUsed)}</span></div>`:''}
+    ${role==='seller'?'':`<div class="g"><span>Итого</span><span>${money(o.total)}</span></div>`}</div>`}
+  <div class="sign"><div>Отпустил:<span></span></div><div>Получил:<span></span></div></div>`;
+}
+async function prPrint(orderId, kind){
+  try{
+    const s = await db.collection('orders').doc(orderId).get(); if(!s.exists){ toast('Заказ не найден','','fa-circle-exclamation'); return; }
+    const html = prDoc(s.data(), orderId, kind);
+    let fr = document.getElementById('hzPrintFrame');
+    if(fr) fr.remove();
+    fr = document.createElement('iframe'); fr.id = 'hzPrintFrame';
+    fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(fr);
+    const d = fr.contentWindow.document; d.open(); d.write(html); d.close();
+    setTimeout(()=>{ try{ fr.contentWindow.focus(); fr.contentWindow.print(); }catch(e){ toast('Не удалось открыть печать','Откройте приложение в браузере','fa-circle-exclamation'); } }, 350);
+  }catch(e){ console.warn(e); toast('Не удалось подготовить печать','','fa-circle-exclamation'); }
+}
+document.addEventListener('click', (e)=>{
+  const b = e.target.closest('[data-print-order]'); if(!b) return;
+  prPrint(b.getAttribute('data-print-order'), b.getAttribute('data-kind')||'invoice');
+});
+
+/* ---------- 12. Языки: русский / тоҷикӣ / oʻzbekcha ---------- */
+const HZ_I18N = {
+'Главная':['Асосӣ','Bosh sahifa'],'Избранное':['Дӯстдошта','Sevimlilar'],'Чат':['Чат','Chat'],'Корзина':['Сабад','Savat'],'Собрать ПК':['Ҷамъ кардани компютер','Kompyuter yig‘ish'],'Профиль':['Профил','Profil'],
+'Каталог':['Феҳрист','Katalog'],'Отмена':['Бекор кардан','Bekor qilish'],'Установить':['Насб кардан','O‘rnatish'],'Продолжить':['Идома додан','Davom etish'],'Позже':['Баъдтар','Keyinroq'],
+'Подбери за меня':['Барои ман интихоб кун','Men uchun tanlang'],
+'Расскажите, что нужно — ИИ найдёт лучшее из каталога':['Бигӯед, чӣ лозим аст — зеҳни сунъӣ беҳтаринро меёбад','Nima kerakligini ayting — sun’iy intellekt eng yaxshisini topadi'],
+'Сдай старое — получи бонусы':['Ашёи кӯҳнаро супоред — бонус гиред','Eskisini topshiring — bonus oling'],
+'Флеш-распродажа':['Фурӯши барқӣ','Chaqmoq sotuv'],'Смотреть все товары':['Ҳамаи молҳоро дидан','Barcha tovarlarni ko‘rish'],
+'🔥 Популярное у покупателей':['🔥 Маъруф дар байни харидорон','🔥 Xaridorlar orasida mashhur'],'Вы недавно смотрели':['Шумо ба наздикӣ дидед','Siz yaqinda ko‘rdingiz'],
+'Все товары':['Ҳамаи мол','Barcha tovarlar'],'Сначала популярные':['Аввал маъруфҳо','Avval mashhurlari'],'Сначала новые':['Аввал навҳо','Avval yangilari'],
+'Сначала дешевле':['Аввал арзонтар','Avval arzonroq'],'Сначала дороже':['Аввал гаронтар','Avval qimmatroq'],'По рейтингу':['Аз рӯи рейтинг','Reyting bo‘yicha'],
+'В наличии':['Мавҷуд','Mavjud'],'Цена':['Нарх','Narx'],'Бренд':['Бренд','Brend'],'Сравнить':['Муқоиса','Solishtirish'],'Фильтр по цене':['Филтр аз рӯи нарх','Narx bo‘yicha filtr'],
+'Фильтр по бренду':['Филтр аз рӯи бренд','Brend bo‘yicha filtr'],'От':['Аз','Dan'],'До':['То','Gacha'],'Применить':['Татбиқ кардан','Qo‘llash'],'Сбросить':['Тоза кардан','Tozalash'],'Очистить':['Тоза кардан','Tozalash'],
+'Скидки дня':['Тахфифҳои рӯз','Kun chegirmalari'],'Новинки':['Навгониҳо','Yangiliklar'],'Хиты':['Хитҳо','Xitlar'],'Акция':['Аксия','Aksiya'],
+'Подобрано для вас':['Барои шумо интихоб шуд','Siz uchun tanlandi'],'Подешевело из того, что вы смотрели':['Аз дидаҳои шумо арзон шуд','Siz ko‘rganlardan arzonlashdi'],
+'В корзину':['Ба сабад','Savatga'],'Добавить в корзину':['Ба сабад илова кардан','Savatga qo‘shish'],'Купить в 1 клик':['Харид бо 1 клик','1 klikda sotib olish'],
+'Отзывы':['Шарҳҳо','Sharhlar'],'Оставить отзыв':['Шарҳ гузоштан','Sharh qoldirish'],'Похожие товары':['Молҳои монанд','O‘xshash tovarlar'],'Размер':['Андоза','O‘lcham'],
+'Цвет':['Ранг','Rang'],'Цвет:':['Ранг:','Rang:'],'Показать больше':['Бештар нишон додан','Ko‘proq ko‘rsatish'],'Вопросы и ответы':['Саволу ҷавоб','Savol-javob'],'Спросить':['Пурсидан','So‘rash'],
+'Ответить':['Ҷавоб додан','Javob berish'],'История цены':['Таърихи нарх','Narx tarixi'],'Все':['Ҳама','Hammasi'],'С фото':['Бо акс','Rasmli'],
+'Итого':['Ҳамагӣ','Jami'],'Оформить заказ':['Расмӣ кардани фармоиш','Buyurtmani rasmiylashtirish'],'Оформление заказа':['Расмӣ кардани фармоиш','Buyurtmani rasmiylashtirish'],
+'Имя':['Ном','Ism'],'Телефон':['Телефон','Telefon'],'Страна доставки':['Кишвари расонидан','Yetkazib berish mamlakati'],'Способ доставки':['Тарзи расонидан','Yetkazib berish usuli'],
+'Способ получения':['Тарзи гирифтан','Qabul qilish usuli'],'Самовывоз':['Худ гирифтан','Olib ketish'],'Доставка':['Расонидан','Yetkazib berish'],'Адрес доставки':['Суроғаи расонидан','Yetkazib berish manzili'],
+'Способ оплаты':['Тарзи пардохт','To‘lov usuli'],'На карту':['Ба корт','Kartaga'],'Рассрочка':['Қисмбанд','Muddatli to‘lov'],'Промокод':['Промокод','Promokod'],'Сумма заказа':['Маблағи фармоиш','Buyurtma summasi'],
+'Скидка по промокоду':['Тахфиф бо промокод','Promokod chegirmasi'],'Итого к оплате':['Ҳамагӣ барои пардохт','To‘lash uchun jami'],'Бесплатно':['Ройгон','Bepul'],'Списать всё':['Ҳамаро хориҷ кардан','Hammasini yechish'],
+'🎁 Это подарок':['🎁 Ин тӯҳфа аст','🎁 Bu sovg‘a'],'Имя получателя':['Номи гиранда','Qabul qiluvchi ismi'],'Телефон получателя':['Телефони гиранда','Qabul qiluvchi telefoni'],'Заказ':['Фармоиш','Buyurtma'],
+'Регистрация':['Сабти ном','Ro‘yxatdan o‘tish'],'Вход':['Ворид шудан','Kirish'],'Войти':['Ворид шудан','Kirish'],'ФИО':['Ному насаб','F.I.Sh.'],'Пол':['Ҷинс','Jins'],'Мужской':['Мард','Erkak'],'Женский':['Зан','Ayol'],
+'Пароль':['Рамз','Parol'],'Зарегистрироваться':['Сабти ном шудан','Ro‘yxatdan o‘tish'],'Подтвердить':['Тасдиқ кардан','Tasdiqlash'],'Номер телефона':['Рақами телефон','Telefon raqami'],'Домашний адрес':['Суроғаи хона','Uy manzili'],
+'Уже есть аккаунт? Войти':['Ҳисоб доред? Ворид шавед','Akkaunt bormi? Kiring'],'Нет аккаунта? Регистрация':['Ҳисоб надоред? Сабти ном','Akkaunt yo‘qmi? Ro‘yxatdan o‘ting'],
+'О нас':['Дар бораи мо','Biz haqimizda'],'Информация о магазине':['Маълумот дар бораи мағоза','Do‘kon haqida ma’lumot'],'Тёмная тема':['Мавзӯи торик','Tungi rejim'],'Комфорт для ваших глаз':['Барои чашмони шумо роҳат','Ko‘zlaringiz uchun qulaylik'],
+'Push-уведомления':['Огоҳиномаҳои push','Push-bildirishnomalar'],'Будьте в курсе новинок и акций':['Аз навгонӣ ва аксияҳо огоҳ бошед','Yangilik va aksiyalardan xabardor bo‘ling'],'Во весь экран':['Экрани пурра','To‘liq ekran'],
+'Редактировать профиль':['Таҳрири профил','Profilni tahrirlash'],'Измените свои данные и фото':['Маълумот ва акси худро тағйир диҳед','Ma’lumot va rasmingizni o‘zgartiring'],'Мои заказы':['Фармоишҳои ман','Buyurtmalarim'],
+'История покупок и статусы':['Таърихи харидҳо ва ҳолатҳо','Xaridlar tarixi va holatlari'],'ИИ найдёт лучшее из каталога':['Зеҳни сунъӣ беҳтаринро меёбад','Sun’iy intellekt eng yaxshisini topadi'],
+'Сдай старое':['Ашёи кӯҳна','Eskisini topshirish'],'Оценка по фото, бонусы на покупку':['Нархгузорӣ аз рӯи акс, бонус барои харид','Rasm bo‘yicha baholash, xarid uchun bonus'],
+'Ежедневный бонус':['Бонуси ҳаррӯза','Kunlik bonus'],'Заходите каждый день — награда растёт':['Ҳар рӯз ворид шавед — мукофот меафзояд','Har kuni kiring — mukofot oshadi'],'Мой уровень':['Сатҳи ман','Mening darajam'],
+'Бронза, серебро, золото — больше кэшбэка':['Биринҷӣ, нуқра, тилло — кэшбэки бештар','Bronza, kumush, oltin — ko‘proq keshbek'],'Пригласить друга':['Ба дӯст даъват кардан','Do‘stni taklif qilish'],
+'Бонусы вам за каждого друга':['Барои ҳар дӯст бонус мегиред','Har bir do‘st uchun bonus olasiz'],'Мои гарантии':['Кафолатҳои ман','Kafolatlarim'],'Сроки гарантии на купленное':['Мӯҳлати кафолати харидҳо','Xaridlar kafolat muddati'],
+'Возвраты и обмен':['Баргардонӣ ва иваз','Qaytarish va almashtirish'],'Заявки и их статусы':['Дархостҳо ва ҳолатҳои онҳо','Arizalar va ularning holati'],'Выйти':['Баромадан','Chiqish'],
+'Язык интерфейса':['Забони интерфейс','Interfeys tili'],'Выберите язык':['Забонро интихоб кунед','Tilni tanlang'],
+'Новый':['Нав','Yangi'],'Ожидает оплаты':['Интизори пардохт','To‘lov kutilmoqda'],'Оплачено':['Пардохт шуд','To‘landi'],'Собран':['Ҷамъ шуд','Yig‘ildi'],'В пути':['Дар роҳ','Yo‘lda'],
+'У курьера':['Назди курер','Kuryerda'],'Доставлен':['Расонида шуд','Yetkazildi'],'Отменён':['Бекор шуд','Bekor qilindi'],'Заказать снова':['Боз фармоиш додан','Qayta buyurtma berish'],
+'Отменить заказ':['Бекор кардани фармоиш','Buyurtmani bekor qilish'],'Получил':['Гирифтам','Oldim'],'Оплатить':['Пардохт кардан','To‘lash'],'Заказов пока нет':['Ҳоло фармоиш нест','Hozircha buyurtmalar yo‘q'],
+'Корзина пуста':['Сабад холӣ аст','Savat bo‘sh'],'Добавлено в корзину':['Ба сабад илова шуд','Savatga qo‘shildi'],'Вы вошли':['Шумо ворид шудед','Siz kirdingiz'],'Пользователь не найден':['Корбар ёфт нашуд','Foydalanuvchi topilmadi'],
+'Неверный пароль':['Рамз нодуруст аст','Parol noto‘g‘ri'],'Чаты':['Чатҳо','Chatlar'],'Продавец':['Фурӯшанда','Sotuvchi'],'Сообщение...':['Паём...','Xabar...'],
+'Умный поиск товаров...':['Ҷустуҷӯи ҳушманди мол...','Aqlli tovar qidiruvi...'],'Доступна новая версия':['Версияи нав дастрас аст','Yangi versiya mavjud'],'Обновить':['Навсозӣ','Yangilash'],
+'Накладная':['Борнома','Yuk xati'],'Этикетка':['Барчасп','Yorliq'],'Возврат / обмен':['Баргардонӣ / иваз','Qaytarish / almashtirish'],
+'Подарок':['Тӯҳфа','Sovg‘a'],'Сравнение товаров':['Муқоисаи молҳо','Tovarlarni solishtirish'],'Только различия':['Танҳо фарқиятҳо','Faqat farqlar'],'Оплата защищена':['Пардохт ҳифз шудааст','To‘lov himoyalangan'],
+'Проверенные продавцы':['Фурӯшандагони боэътимод','Ishonchli sotuvchilar'],'Возврат 14 дней':['Баргардонӣ дар 14 рӯз','14 kun ichida qaytarish'],'Онлайн-консультант':['Машваратчии онлайн','Onlayn maslahatchi']
+};
+const HZ_LANGS = [['ru','Русский'],['tg','Тоҷикӣ'],['uz','O‘zbekcha']];
+let hzLang = 'ru', hzObs = null, hzTrQueued = false;
+try{ hzLang = localStorage.getItem('hz_lang') || 'ru'; }catch(e){}
+function hzI18n(str, lang){
+  const m = HZ_I18N[str]; if(!m) return null;
+  return lang==='tg' ? m[0] : (lang==='uz' ? m[1] : null);
+}
+function hzTrNode(n){
+  const p = n.parentNode; if(!p) return;
+  const tag = p.nodeName; if(tag==='SCRIPT'||tag==='STYLE'||tag==='TEXTAREA'||tag==='NOSCRIPT') return;
+  if(tag==='OPTION' && !p.hasAttribute('value')) return;
+  const raw = n.nodeValue; if(!raw || !raw.trim()) return;
+  if(hzLang==='ru'){ if(n.__hzO!==undefined){ if(n.__hzT===raw) n.nodeValue = n.__hzO; n.__hzO = undefined; } return; }
+  const orig = (n.__hzO!==undefined && n.__hzT===raw) ? n.__hzO : raw;
+  const t = hzI18n(orig.trim(), hzLang); if(t===null) return;
+  const out = orig.replace(orig.trim(), ()=>t);
+  if(out!==raw){ n.__hzO = orig; n.__hzT = out; n.nodeValue = out; }
+}
+function hzTrAttrs(el){
+  ['placeholder','title','aria-label'].forEach(a=>{
+    if(!el.hasAttribute || !el.hasAttribute(a)) return;
+    const store = 'data-hz-o-'+a; const cur = el.getAttribute(a);
+    if(hzLang==='ru'){ if(el.hasAttribute(store)){ el.setAttribute(a, el.getAttribute(store)); el.removeAttribute(store); } return; }
+    const orig = el.hasAttribute(store) ? el.getAttribute(store) : cur;
+    const t = hzI18n(orig.trim(), hzLang); if(t===null) return;
+    if(!el.hasAttribute(store)) el.setAttribute(store, orig);
+    el.setAttribute(a, t);
+  });
+}
+function hzTrTree(root){
+  if(!root) return;
+  if(root.nodeType===3){ hzTrNode(root); return; }
+  if(root.nodeType!==1) return;
+  hzTrAttrs(root);
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);
+  let n; while((n = w.nextNode())){ if(n.nodeType===3) hzTrNode(n); else hzTrAttrs(n); }
+}
+function hzSetLang(code){
+  hzLang = code; try{ localStorage.setItem('hz_lang', code); }catch(e){}
+  document.documentElement.lang = code==='tg' ? 'tg' : (code==='uz' ? 'uz' : 'ru');
+  if(hzObs){ hzObs.disconnect(); hzObs = null; }
+  hzTrTree(document.body);
+  if(code!=='ru'){
+    hzObs = new MutationObserver(muts=>{
+      if(hzTrQueued) return; hzTrQueued = true;
+      const batch = muts.slice(0, 400);
+      requestAnimationFrame(()=>{ hzTrQueued = false;
+        hzObs.disconnect();
+        try{ batch.forEach(m=>{ if(m.type==='characterData') hzTrNode(m.target); else m.addedNodes.forEach(hzTrTree); }); }catch(e){}
+        hzObs.observe(document.body, {childList:true, subtree:true, characterData:true});
+      });
+    });
+    hzObs.observe(document.body, {childList:true, subtree:true, characterData:true});
+  }
+}
+function hzOpenLang(){
+  $('#langBody').innerHTML = HZ_LANGS.map(([c,n])=>`<button class="btn ${c===hzLang?'btn-primary':'btn-outline'}" data-set-lang="${c}" style="margin-bottom:8px;">${n}</button>`).join('')
+    + '<p style="font-size:11.5px;color:var(--text-dim);margin:6px 0 0;">Переведены основные экраны. Описания товаров и сообщения продавцов остаются на языке автора.</p>';
+  openOv('ovLang');
+}
+document.addEventListener('click', (e)=>{
+  const b = e.target.closest('[data-set-lang]'); if(!b) return;
+  hzSetLang(b.getAttribute('data-set-lang')); closeOv('ovLang'); try{ if($('#ovProfile').classList.contains('open')) renderProfile(); }catch(_){}
+});
+if(hzLang!=='ru'){ const go = ()=>hzSetLang(hzLang); if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', go); else go(); }
+
+/* ---------- 13. Автообновление: баннер «Доступна новая версия» ---------- */
+function hzBuildNow(){ const m = document.querySelector('meta[name="hz-build"]'); return m ? m.getAttribute('content') : ''; }
+async function hzCheckUpdate(){
+  try{
+    if(!navigator.onLine || document.hidden) return;
+    const r = await fetch(location.pathname + '?_v=' + Date.now(), {cache:'no-store'}); if(!r.ok) return;
+    const t = await r.text();
+    const m = t.match(new RegExp('name="hz-' + 'build" content="([^"]+)"'));
+    if(m && m[1] && m[1]!==hzBuildNow()){ hzShowUpdate(m[1]); }
+  }catch(e){}
+}
+function hzShowUpdate(ver){
+  try{ if(sessionStorage.getItem('hz_upd_dismiss')===ver) return; }catch(e){}
+  if(document.getElementById('hzUpdBar')) return;
+  const bar = document.createElement('div'); bar.id = 'hzUpdBar';
+  bar.innerHTML = '<span><i class="fa-solid fa-circle-arrow-up"></i> Доступна новая версия</span><button id="hzUpdGo">Обновить</button><button id="hzUpdX" aria-label="Закрыть">×</button>';
+  document.body.appendChild(bar);
+  if(hzLang!=='ru') hzTrTree(bar);
+  document.getElementById('hzUpdGo').onclick = async ()=>{
+    try{ if(window.caches){ const ks = await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k))); } }catch(e){}
+    try{ sessionStorage.removeItem('hzSwReloaded'); }catch(e){}
+    location.reload();
+  };
+  document.getElementById('hzUpdX').onclick = ()=>{ try{ sessionStorage.setItem('hz_upd_dismiss', ver); }catch(e){} bar.remove(); };
+}
+setTimeout(hzCheckUpdate, 15000);
+setInterval(hzCheckUpdate, 10*60*1000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) setTimeout(hzCheckUpdate, 1500); });
+
 /* ---------- 8. Голосовой поиск ---------- */
 let vsLang = (function(){ try{ return localStorage.getItem('hz_vs_lang')||'auto'; }catch(e){ return 'auto'; } })();
 let vsRec = null, vsMedia = null, vsStream = null, vsBusy = false, vsTimer = null;
